@@ -40,7 +40,7 @@ export function Navbar() {
   const navSections = [
     "Dashboard",
     "Master",
-    "School",
+    "Admin",
     "Users",
     "Reports",
     "Maintenance",

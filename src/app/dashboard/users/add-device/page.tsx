@@ -413,7 +413,7 @@ const DevicesPage = () => {
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button
-                className="cursor-pointer"
+                className="cursor-pointer text-white"
                 disabled={isExcelExporting || isPdfExporting}
               >
                 {isExcelExporting || isPdfExporting ? "Exporting..." : "Export"}
@@ -568,7 +568,7 @@ const DevicesPage = () => {
             <Button
               onClick={handleAddDevice}
               size="sm"
-              className="cursor-pointer shrink-0 whitespace-nowrap"
+              className="cursor-pointer shrink-0 whitespace-nowrap text-white"
             >
               Add Device
             </Button>

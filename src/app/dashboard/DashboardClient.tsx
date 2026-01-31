@@ -92,6 +92,7 @@ export default function DashboardClient() {
 
   // Subscription expiry popup state
   const [showSubscriptionPopup, setShowSubscriptionPopup] = useState(false);
+  const [fitBoundsTrigger, setFitBoundsTrigger] = useState<number>(0);
 
   const { addresses, loadingAddresses, queueForGeocoding } =
     useReverseGeocode();
@@ -133,6 +134,9 @@ export default function DashboardClient() {
       active: "bg-[#4eb4e1] text-white border border-[#4eb4e1]",
     },
   };
+
+  // Subscription expiry popup state
+
 
   const {
     devices,
@@ -183,14 +187,6 @@ export default function DashboardClient() {
   const { expiredBranches, expiredBranchesCount } = useSubscriptionExpiry(
     showSubscriptionPopup
   );
-  // console.log(
-  //   "🚀 ~ file: DashboardClient.tsx:261 ~ expiredBranchesCount:",
-  //   expiredBranchesCount
-  // );
-  // console.log(
-  //   "🚀 ~ file: DashboardClient.tsx:261 ~ expiredBranches:",
-  //   expiredBranches
-  // );
 
   // Sync local pagination with store pagination
   const [pagination, setPagination] = useState({
@@ -291,9 +287,13 @@ export default function DashboardClient() {
         filter: status === "all" ? undefined : status,
         page: 1,
       });
+
+      // Trigger map to fit bounds
+      setFitBoundsTrigger((prev) => prev + 1);
     },
     [updateFilters]
   );
+
 
   // **Pagination Handler**
   const handlePaginationChange = useCallback(
@@ -740,6 +740,7 @@ export default function DashboardClient() {
                     zoom={6}
                     selectedVehicleId={selectedVehicleId}
                     onVehicleSelect={setSelectedVehicleId}
+                    fitBoundsTrigger={fitBoundsTrigger}
                   />
                 )}
                 {viewState === "tableExpanded" && (

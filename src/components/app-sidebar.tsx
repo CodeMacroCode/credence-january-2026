@@ -188,7 +188,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               },
             ];
           }
-        case "School":
+        case "Admin":
           return [
             { title: "Pickup And Drop", url: "/dashboard/school/pickup-drop" },
             { title: "Leave Request", url: "/dashboard/school/leave-request" },

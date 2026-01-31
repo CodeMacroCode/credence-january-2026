@@ -54,6 +54,7 @@ interface VehicleMapProps {
   showTrails?: boolean;
   clusterMarkers?: boolean;
   autoFitBounds?: boolean;
+  fitBoundsTrigger?: number;
 }
 
 // Optimized marker component with proper memoization
@@ -392,28 +393,62 @@ const MapBoundsUpdater = ({
   vehicles,
   shouldFitBounds,
   onBoundsFitted,
+  fitBoundsTrigger = 0,
 }: {
   vehicles: VehicleData[];
   shouldFitBounds: boolean;
   onBoundsFitted: () => void;
+  fitBoundsTrigger?: number;
 }) => {
   const map = useMap();
+  const lastTriggerRef = useRef(fitBoundsTrigger);
 
+  // Handle manual fit bounds (button click)
   useEffect(() => {
-    if (!shouldFitBounds || vehicles.length === 0) return;
+    if (shouldFitBounds && vehicles.length > 0) {
+      const bounds = L.latLngBounds(
+        vehicles.map((v) => [v.latitude, v.longitude] as [number, number])
+      );
 
-    const bounds = L.latLngBounds(
-      vehicles.map((v) => [v.latitude, v.longitude] as [number, number])
-    );
-
-    if (bounds.isValid()) {
-      map.fitBounds(bounds, {
-        padding: [20, 20],
-        maxZoom: 15,
-      });
-      onBoundsFitted();
+      if (bounds.isValid()) {
+        map.fitBounds(bounds, {
+          padding: [20, 20],
+          maxZoom: 15,
+        });
+        onBoundsFitted();
+      }
     }
   }, [vehicles, shouldFitBounds, map, onBoundsFitted]);
+
+  // Handle filter-based auto zoom
+  useEffect(() => {
+    // Check if we have a new trigger that hasn't been handled yet
+    if (fitBoundsTrigger > lastTriggerRef.current) {
+      // We have a pending zoom request.
+      // Only execute if we have vehicles to zoom to.
+      if (vehicles.length > 0) {
+        const bounds = L.latLngBounds(
+          vehicles.map((v) => [v.latitude, v.longitude] as [number, number])
+        );
+
+        if (bounds.isValid()) {
+          // console.log("Auto-zooming to", vehicles.length, "vehicles. Trigger:", fitBoundsTrigger);
+          map.fitBounds(bounds, {
+            padding: [20, 20],
+            maxZoom: 15,
+          });
+          // Mark this trigger as handled
+          lastTriggerRef.current = fitBoundsTrigger;
+        }
+      }
+      // If vehicles.length is 0, we do NOTHING. 
+      // lastTriggerRef.current remains < fitBoundsTrigger.
+      // When vehicles update (and this effect runs again), it will retry.
+    } else if (fitBoundsTrigger < lastTriggerRef.current) {
+      // Handle reset case if trigger ever wraps around or resets (unlikely but safe)
+      lastTriggerRef.current = fitBoundsTrigger;
+    }
+  }, [vehicles, fitBoundsTrigger, map]);
 
   return null;
 };

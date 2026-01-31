@@ -812,7 +812,7 @@ export function AddDeviceForm({
 
             <Button
               type="submit"
-              className="cursor-pointer"
+              className="cursor-pointer text-white"
               disabled={isLoading}
             >
               {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
