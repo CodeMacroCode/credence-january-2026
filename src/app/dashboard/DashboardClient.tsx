@@ -545,10 +545,10 @@ export default function DashboardClient() {
                       {/* School Dropdown */}
                       {userRole === "superadmin" && (
                         <div className="space-y-2">
-                          <h4 className="font-medium text-sm leading-none mb-2">School</h4>
+                          <h4 className="font-medium text-sm leading-none mb-2">Admin</h4>
                           <Combobox
                             items={[
-                              { label: "All Schools", value: "all" },
+                              { label: "All Admins", value: "all" },
                               ...(schoolData?.map((school: any) => ({
                                 label: school.schoolName,
                                 value: school._id,

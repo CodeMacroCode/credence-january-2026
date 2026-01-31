@@ -286,17 +286,16 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       <Sidebar
         collapsible="icon"
         {...props}
-        className="border-r border-yellow-600/20 transition-all duration-300 ease-in-out"
-        style={{ backgroundColor: "#ffdc00" }}
+        className="border-r border-blue-600/20 transition-all duration-300 ease-in-out"
+        style={{ backgroundColor: "#eff6ff" }}
       >
         {/* Header with Search - Fixed Height */}
-        <SidebarHeader className="border-b border-yellow-600/20 bg-primary h-[60px] flex items-center justify-center transition-all duration-300 ease-in-out">
+        <SidebarHeader className="border-b border-blue-600/20 bg-primary h-[60px] flex items-center justify-center transition-all duration-300 ease-in-out">
           {isLoading ? (
             <div className={isCollapsed ? "w-auto" : "w-full px-3"}>
               <Skeleton
-                className={`rounded-md bg-yellow-300/60 transition-all duration-300 ${
-                  isCollapsed ? "h-10 w-10" : "h-9 w-full"
-                }`}
+                className={`rounded-md bg-blue-300/60 transition-all duration-300 ${isCollapsed ? "h-10 w-10" : "h-9 w-full"
+                  }`}
               />
             </div>
           ) : (
@@ -304,14 +303,15 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               {/* Expanded Search Bar - Only show when NOT collapsed */}
               {!isCollapsed && (
                 <div className="w-full px-3 animate-in fade-in duration-200">
-                  <div className="relative">
+                  <div className="relative mt-3">
                     <Image
                       width={150}
                       height={150}
-                      src="/logo.svg"
+                      src="/logo.png"
                       alt="Logo"
                       priority
                       className="relative left-10 -top-2.5"
+                      unoptimized={true}
                     />
                   </div>
                 </div>
@@ -327,7 +327,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               {[...Array(6)].map((_, i) => (
                 <Skeleton
                   key={i}
-                  className="h-10 w-full rounded bg-yellow-300/60 transition-all duration-300"
+                  className="h-10 w-full rounded bg-blue-300/60 transition-all duration-300"
                   style={{ animationDelay: `${i * 50}ms` }}
                 />
               ))}
@@ -335,16 +335,16 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           ) : (
             <SidebarGroup className="p-0">
               {/* Group Label with Fade Animation */}
-              <SidebarGroupLabel className="px-2 py-2 text-xs font-bold uppercase tracking-wider text-yellow-900 group-data-[collapsible=icon]:opacity-0 group-data-[collapsible=icon]:scale-90 group-data-[collapsible=icon]:h-0 group-data-[collapsible=icon]:py-0 transition-all duration-300 ease-out overflow-hidden">
+              <SidebarGroupLabel className="px-2 py-2 text-xs font-bold uppercase tracking-wider text-white group-data-[collapsible=icon]:opacity-0 group-data-[collapsible=icon]:scale-90 group-data-[collapsible=icon]:h-0 group-data-[collapsible=icon]:py-0 transition-all duration-300 ease-out overflow-hidden">
                 {activeSection || "Menu"}
               </SidebarGroupLabel>
 
-              <SidebarSeparator className="bg-yellow-600/20 my-1 group-data-[collapsible=icon]:opacity-0 transition-all duration-200" />
+              <SidebarSeparator className="bg-blue-600/20 my-1 group-data-[collapsible=icon]:opacity-0 transition-all duration-200" />
 
               <SidebarGroupContent className="mt-4">
                 <SidebarMenu className="gap-0.5">
                   {filteredData.length === 0 ? (
-                    <div className="px-3 py-8 text-center text-sm text-yellow-800/60 group-data-[collapsible=icon]:hidden transition-all duration-300">
+                    <div className="px-3 py-8 text-center text-sm text-white/60 group-data-[collapsible=icon]:hidden transition-all duration-300">
                       No results
                     </div>
                   ) : (
@@ -367,10 +367,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                             tooltip={item.title}
                             className={`
                               group/button relative transition-all duration-200
-                              ${
-                                isActive
-                                  ? "bg-yellow-600 text-white font-semibold shadow-sm hover:bg-yellow-700"
-                                  : "text-yellow-900 hover:bg-yellow-500/30 hover:text-yellow-950 font-medium"
+                              ${isActive
+                                ? "bg-blue-600 text-white font-semibold shadow-sm hover:bg-blue-700"
+                                : "text-white hover:bg-blue-500/30 hover:text-white font-medium"
                               }
                               rounded-lg h-11
                               group-data-[collapsible=icon]:h-11 group-data-[collapsible=icon]:w-11
@@ -391,7 +390,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                                   h-7 w-7 flex-shrink-0 transition-all duration-300
                                   group-hover/button:scale-110 group-hover/button:rotate-3
                                   group-data-[collapsible=icon]:rotate-0 group-data-[collapsible=icon]:scale-150
-                                  text-yellow-700
+                                  ${isActive ? "text-black" : "text-white"}
                                 `}
                               />
                               {/* Text with slide and fade animation */}
@@ -415,7 +414,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         </SidebarContent>
 
         {/* Animated Rail */}
-        <SidebarRail className="bg-yellow-600/40 hover:bg-yellow-600/60 transition-all duration-300 ease-in-out hover:w-2" />
+        {/* <SidebarRail className="bg-blue-600/40 hover:bg-blue-600/60 transition-all duration-300 ease-in-out hover:w-2" /> */}
       </Sidebar>
     </>
   );

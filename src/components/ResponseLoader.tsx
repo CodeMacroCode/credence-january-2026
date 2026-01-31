@@ -35,10 +35,10 @@ export default function ResponseLoader({ isLoading }: { isLoading: boolean }) {
   if (!showLoader) return null;
 
   return (
-    <div className="fixed top-0 left-0 w-full h-1 z-[9999] bg-gray-200">
+    <div className="fixed top-0 left-0 w-full h-1 z-[9999] bg-[#061438ff]">
       <div 
         className="h-full transition-all duration-300 ease-linear relative"
-        style={{ width: `${progress}%`, backgroundColor: '#e1582e' }}
+        style={{ width: `${progress}%`, backgroundColor: '#0c235c' }}
       >
         {/* Shimmer animation effect when stuck at 80% */}
         {progress === 80 && isLoading && (

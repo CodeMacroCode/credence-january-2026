@@ -142,16 +142,14 @@ const ChatArea = ({
 
     return (
       <div
-        className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
-          isBotSender
-            ? "bg-gradient-to-r from-orange-400 to-yellow-400"
+        className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${isBotSender
+            ? "bg-gradient-to-r from-blue-400 to-indigo-400"
             : "bg-green-100"
-        }`}
+          }`}
       >
         <span
-          className={`text-sm font-semibold ${
-            isBotSender ? "text-white" : "text-green-600"
-          }`}
+          className={`text-sm font-semibold ${isBotSender ? "text-white" : "text-green-600"
+            }`}
         >
           {avatarLetter}
         </span>
@@ -165,15 +163,15 @@ const ChatArea = ({
   return (
     <div className="flex-1 flex flex-col h-full bg-white">
       {/* Header */}
-      <div className="bg-gradient-to-r from-yellow-200 to-orange-200 border-b border-yellow-100 p-4 flex items-center justify-between flex-shrink-0">
+      <div className="bg-gradient-to-r from-blue-200 to-indigo-200 border-b border-blue-100 p-4 flex items-center justify-between flex-shrink-0">
         <div className="flex items-center space-x-3">
           <button
             onClick={onToggleSidebar}
-            className="p-2 hover:bg-yellow-100 rounded-lg transition-colors"
+            className="p-2 hover:bg-blue-100 rounded-lg transition-colors"
           >
-            <Menu className="w-5 h-5 text-yellow-900" />
+            <Menu className="w-5 h-5 text-blue-900" />
           </button>
-          <div className="w-10 h-10 bg-gradient-to-r from-orange-400 to-yellow-400 rounded-full flex items-center justify-center">
+          <div className="w-10 h-10 bg-gradient-to-r from-blue-400 to-indigo-400 rounded-full flex items-center justify-center">
             <span className="text-white font-bold text-sm">
               {chatAvatarLetter}
             </span>
@@ -194,12 +192,12 @@ const ChatArea = ({
       </div>
 
       {/* Messages Area */}
-      <div className="flex-1 overflow-y-auto bg-gradient-to-br from-yellow-50 via-orange-50 to-yellow-100 p-4 custom-scrollbar">
+      <div className="flex-1 overflow-y-auto bg-gradient-to-br from-blue-50 via-indigo-50 to-blue-100 p-4 custom-scrollbar">
         <div className="space-y-4 max-w-4xl mx-auto">
           {/* Loading state */}
           {isLoading && messages.length === 0 && (
             <div className="flex items-center justify-center py-8">
-              <Loader2 className="w-6 h-6 animate-spin text-yellow-600" />
+              <Loader2 className="w-6 h-6 animate-spin text-blue-600" />
               <span className="ml-2 text-gray-600">Loading messages...</span>
             </div>
           )}
@@ -216,23 +214,20 @@ const ChatArea = ({
           {messages.map((msg) => (
             <div
               key={msg.id}
-              className={`flex ${
-                msg.sender === "user" ? "justify-end" : "justify-start"
-              }`}
+              className={`flex ${msg.sender === "user" ? "justify-end" : "justify-start"
+                }`}
             >
               <div className="flex items-end space-x-2 max-w-[70%]">
                 {msg.sender === "bot" && <PersonAvatar sender="bot" />}
                 <div
-                  className={`flex flex-col ${
-                    msg.sender === "user" ? "items-end" : "items-start"
-                  }`}
+                  className={`flex flex-col ${msg.sender === "user" ? "items-end" : "items-start"
+                    }`}
                 >
                   <div
-                    className={`px-4 py-3 rounded-2xl ${
-                      msg.sender === "user"
-                        ? "bg-gradient-to-r from-orange-200 to-yellow-200 text-gray-900 font-medium rounded-br-sm shadow"
-                        : "bg-white text-gray-800 rounded-bl-sm shadow border border-yellow-100"
-                    }`}
+                    className={`px-4 py-3 rounded-2xl ${msg.sender === "user"
+                        ? "bg-gradient-to-r from-blue-200 to-indigo-200 text-gray-900 font-medium rounded-br-sm shadow"
+                        : "bg-white text-gray-800 rounded-bl-sm shadow border border-blue-100"
+                      }`}
                   >
                     <p className="text-sm break-words">{msg.text}</p>
                   </div>
@@ -251,7 +246,7 @@ const ChatArea = ({
               <div className="flex items-end space-x-2 max-w-[70%]">
                 <PersonAvatar sender="bot" />
                 <div className="flex flex-col items-start">
-                  <div className="px-4 py-3 bg-white rounded-2xl rounded-bl-sm shadow border border-yellow-100">
+                  <div className="px-4 py-3 bg-white rounded-2xl rounded-bl-sm shadow border border-blue-100">
                     <div className="flex space-x-1 items-center">
                       <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
                       <div
@@ -274,7 +269,7 @@ const ChatArea = ({
       </div>
 
       {/* Input Area */}
-      <div className="bg-white border-t border-yellow-100 p-4 flex-shrink-0">
+      <div className="bg-white border-t border-blue-100 p-4 flex-shrink-0">
         <div className="flex items-center space-x-2 max-w-4xl mx-auto">
           <input
             type="text"
@@ -285,7 +280,7 @@ const ChatArea = ({
               onKeyPress(e);
             }}
             placeholder="Type a message..."
-            className="flex-1 bg-yellow-50 border border-yellow-100 rounded-2xl px-4 py-3 text-sm text-gray-800 placeholder-gray-500 outline-none focus:ring-2 focus:ring-yellow-400 focus:border-transparent"
+            className="flex-1 bg-blue-50 border border-blue-100 rounded-2xl px-4 py-3 text-sm text-gray-800 placeholder-gray-500 outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent"
           />
           <button
             onClick={() => {
@@ -293,7 +288,7 @@ const ChatArea = ({
               onSend();
             }}
             disabled={!inputText.trim()}
-            className="p-3 bg-gradient-to-r from-orange-300 to-yellow-300 text-white rounded-full hover:from-orange-400 hover:to-yellow-400 transition-all shadow transform hover:scale-105 flex-shrink-0 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+            className="p-3 bg-gradient-to-r from-blue-300 to-indigo-300 text-white rounded-full hover:from-blue-400 hover:to-indigo-400 transition-all shadow transform hover:scale-105 flex-shrink-0 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
           >
             <Send className="w-5 h-5" />
           </button>
@@ -306,11 +301,11 @@ const ChatArea = ({
           width: 6px;
         }
         .custom-scrollbar::-webkit-scrollbar-thumb {
-          background-color: #facc15;
+          background-color: #3b82f6;
           border-radius: 4px;
         }
         .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-          background-color: #eab308;
+          background-color: #2563eb;
         }
 
         @keyframes bounce {

@@ -118,14 +118,14 @@ export default function LoginPage() {
           <Card className="w-full shadow-2xl rounded-3xl bg-white/95 backdrop-blur">
             <CardHeader className="px-4 py-2">
               <CardTitle className="text-center">
-                <div className="flex justify-center">
+                <div className="flex justify-center my-3">
                   <Image
-                    src="/logo.svg"
+                    src="/logo.png"
                     alt="ParentsEye Logo"
-                    width={150}
-                    height={150}
-                    className="w-[150px] h-[150px]"
+                    width={200}
+                    height={200}
                     priority
+                    unoptimized={true}
                   />
                 </div>
                 <div className="space-y-1">
@@ -133,7 +133,7 @@ export default function LoginPage() {
                     Secure Login
                   </p>
                   <p className="text-lg text-gray-600">
-                    <span className="text-yellow-500 font-semibold">Login</span>{" "}
+                    <span className="text-[#0c235c] font-semibold">Login</span>{" "}
                     to your account
                   </p>
                 </div>
@@ -181,7 +181,7 @@ export default function LoginPage() {
                               type="text"
                               placeholder="Enter your username"
                               disabled={isLoading}
-                              className="h-12 pl-10 text-base border-gray-300 focus:border-yellow-500 focus:ring-yellow-500"
+                              className="h-12 pl-10 text-base border-gray-300 focus:border-blue-500 focus:ring-blue-500"
                               {...field}
                             />
                           </div>
@@ -220,7 +220,7 @@ export default function LoginPage() {
                               type={showPassword ? "text" : "password"}
                               placeholder="••••••••"
                               disabled={isLoading}
-                              className="h-12 pl-10 pr-10 text-base border-gray-300 focus:border-yellow-500 focus:ring-yellow-500"
+                              className="h-12 pl-10 pr-10 text-base border-gray-300 focus:border-blue-500 focus:ring-blue-500"
                               {...field}
                             />
                             <button
@@ -254,7 +254,7 @@ export default function LoginPage() {
                             disabled={isLoading}
                             checked={field.value}
                             onChange={field.onChange}
-                            className="w-4 h-4 text-yellow-500 border-gray-300 rounded focus:ring-yellow-500"
+                            className="w-4 h-4 text-blue-500 border-gray-300 rounded focus:ring-blue-500"
                           />
                         </FormControl>
                         <FormLabel className="text-sm font-normal text-gray-700">
@@ -267,7 +267,7 @@ export default function LoginPage() {
                   <Button
                     type="submit"
                     disabled={isLoading}
-                    className="w-full h-12 text-base font-semibold bg-gradient-to-r from-yellow-400 to-yellow-500 hover:from-yellow-500 hover:to-yellow-600 text-gray-900 shadow-lg mt-6 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                    className="w-full h-12 text-base font-semibold bg-gradient-to-r from-[#0c235c] to-[#0c235c] hover:from-[#0c235c] hover:to-[#0c235c] text-white shadow-lg mt-6 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                   >
                     {isLoading ? (
                       <>

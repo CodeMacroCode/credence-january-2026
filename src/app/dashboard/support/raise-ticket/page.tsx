@@ -212,9 +212,9 @@ export default function RaiseTicketMaster() {
         ...data,
         type: selectedTicketType
           ? {
-              _id: selectedTicketType._id,
-              name: selectedTicketType.name,
-            }
+            _id: selectedTicketType._id,
+            name: selectedTicketType.name,
+          }
           : { _id: selectedType, name: "Unknown Type" },
       };
 
@@ -266,7 +266,7 @@ export default function RaiseTicketMaster() {
   const renderStatusButton = (status: string) => {
     let colorClass = "bg-gray-300 text-gray-800";
     if (status === "Open") colorClass = "bg-blue-500 text-white";
-    else if (status === "In Progress") colorClass = "bg-yellow-500 text-black";
+    else if (status === "In Progress") colorClass = "bg-blue-500 text-white";
     else if (status === "Resolved") colorClass = "bg-green-500 text-white";
     else if (status === "Closed") colorClass = "bg-gray-500 text-white";
     return (
@@ -370,7 +370,7 @@ export default function RaiseTicketMaster() {
           <Button
             size="sm"
             variant="outline"
-            className="bg-yellow-400 text-black hover:bg-yellow-500 border-yellow-500"
+            className="bg-blue-500 text-white hover:bg-blue-600 border-blue-600"
             onClick={() => {
               setSelectedTicket(row.original);
               setStatusValue(row.original.status);
@@ -423,8 +423,8 @@ export default function RaiseTicketMaster() {
       All: isActive ? "bg-gray-800 text-white" : "bg-gray-200 text-gray-800",
       Open: isActive ? "bg-blue-600 text-white" : "bg-blue-100 text-blue-800",
       "In Progress": isActive
-        ? "bg-yellow-500 text-black"
-        : "bg-yellow-100 text-yellow-800",
+        ? "bg-blue-500 text-white"
+        : "bg-blue-100 text-blue-800",
       Resolved: isActive
         ? "bg-green-600 text-white"
         : "bg-green-100 text-green-800",
@@ -612,7 +612,7 @@ export default function RaiseTicketMaster() {
                 Cancel
               </Button>
               <Button
-                className="bg-yellow-400 text-black hover:bg-yellow-500 border-yellow-500"
+                className="bg-blue-500 text-white hover:bg-blue-600 border-blue-600"
                 onClick={() => {
                   if (selectedTicket && statusValue) {
                     updateTicketStatusMutation.mutate({

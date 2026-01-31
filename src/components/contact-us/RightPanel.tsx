@@ -39,12 +39,10 @@ const RightPanel = ({
     };
 
     return (
-      <div className={`${sizeClasses[size]} rounded-full flex items-center justify-center ${
-        isBot ? 'bg-gradient-to-r from-orange-400 to-yellow-400' : 'bg-green-100'
-      }`}>
-        <span className={`font-semibold ${
-          isBot ? 'text-white' : 'text-green-600'
+      <div className={`${sizeClasses[size]} rounded-full flex items-center justify-center ${isBot ? 'bg-gradient-to-r from-blue-400 to-indigo-400' : 'bg-green-100'
         }`}>
+        <span className={`font-semibold ${isBot ? 'text-white' : 'text-green-600'
+          }`}>
           {isBot ? profileAvatarLetter : 'U'}
         </span>
       </div>
@@ -53,12 +51,12 @@ const RightPanel = ({
 
   return (
     <div
-      className={`${showRightPanel ? 'w-72' : 'w-0'} bg-white border-l border-yellow-100 flex flex-col transition-all duration-300 overflow-hidden h-full flex-shrink-0`}
+      className={`${showRightPanel ? 'w-72' : 'w-0'} bg-white border-l border-blue-100 flex flex-col transition-all duration-300 overflow-hidden h-full flex-shrink-0`}
     >
       {/* Profile Header */}
-      <div className="p-6 bg-gradient-to-br from-yellow-50 to-orange-50 border-b border-yellow-100 flex-shrink-0">
+      <div className="bg-gradient-to-r from-blue-200 to-indigo-200 p-6 flex flex-col items-center border-b border-blue-100 flex-shrink-0">
         <div className="flex flex-col items-center">
-          <PersonAvatar isBot={true} size="large" /> 
+          <PersonAvatar isBot={true} size="large" />
           <h3 className="font-bold text-gray-900 mt-3 text-lg text-center">{profileName}</h3>
           <p className="text-sm text-gray-600 text-center mt-1">{profilePhone}</p>
           {isBotChat && <p className="text-xs text-green-600 font-semibold mt-2">● Active Now</p>}
@@ -73,7 +71,7 @@ const RightPanel = ({
             <div
               key={i}
               onClick={() => onSelectHistory(history.date)}
-              className="bg-gradient-to-r from-yellow-50 to-orange-50 border border-yellow-100 rounded-lg p-3 hover:bg-yellow-100 transition-colors cursor-pointer"
+              className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-100 rounded-lg p-3 hover:bg-blue-100 transition-colors cursor-pointer"
             >
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-3">
@@ -110,11 +108,11 @@ const RightPanel = ({
           width: 6px;
         }
         .custom-scrollbar::-webkit-scrollbar-thumb {
-          background-color: #facc15;
+          background-color: #3b82f6;
           border-radius: 4px;
         }
         .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-          background-color: #eab308;
+          background-color: #2563eb;
         }
       `}</style>
     </div>

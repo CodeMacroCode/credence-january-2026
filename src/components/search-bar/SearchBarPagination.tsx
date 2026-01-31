@@ -17,13 +17,13 @@ export const SearchBar: React.FC<SearchBarProps> = ({
 }) => {
   return (
     <div className={`${width}`}>
-      <div className="flex items-center bg-yellow-200 rounded-md px-3 py-2 shadow-sm">
+      <div className="flex items-center bg-blue-100 rounded-md px-3 py-2 shadow-sm">
         <input
           type="text"
           placeholder={placeholder}
           value={value}
           onChange={(e) => onChange(e.target.value)}
-          className="bg-yellow-200 focus:outline-none flex-grow text-gray-700 placeholder-gray-500"
+          className="bg-blue-100 focus:outline-none flex-grow text-gray-700 placeholder-gray-500"
         />
         <svg
           xmlns="http://www.w3.org/2000/svg"

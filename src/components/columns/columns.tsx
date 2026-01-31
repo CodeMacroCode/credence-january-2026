@@ -55,7 +55,7 @@ export const getModelColumns = (
             label: "Edit",
             onClick: () => setEditTarget(row),
             className:
-              "cursor-pointer bg-yellow-500 hover:bg-yellow-600 text-white",
+              "cursor-pointer bg-blue-500 hover:bg-blue-600 text-white",
           },
           {
             type: "button",
@@ -92,7 +92,7 @@ export const getCategoryColumns = (
             type: "button",
             label: "Edit",
             onClick: () => setEditTarget(row),
-            className: "bg-yellow-500 hover:bg-yellow-600 text-white",
+            className: "bg-blue-500 hover:bg-blue-600 text-white",
           },
           {
             type: "button",
@@ -166,7 +166,7 @@ export const getRouteColumns = (
         return (
           <div className="flex justify-center gap-2">
             <button
-              className="bg-yellow-500 text-white px-3 py-1 rounded text-xs cursor-pointer"
+              className="bg-blue-500 text-white px-3 py-1 rounded text-xs cursor-pointer"
               onClick={(e) => {
                 e.stopPropagation();
                 onEdit(data);
@@ -304,7 +304,7 @@ export const getStudentColumns = (
         return (
           <div className="flex justify-center gap-2">
             <button
-              className="bg-yellow-500 text-white px-3 py-1 rounded text-xs cursor-pointer"
+              className="bg-blue-500 text-white px-3 py-1 rounded text-xs cursor-pointer"
               onClick={(e) => {
                 e.stopPropagation();
                 onEdit(data);
@@ -363,7 +363,7 @@ const getExpiryStyle = (days: number) => {
 
     case days <= 30:
       return {
-        color: "bg-yellow-100 text-yellow-700",
+        color: "bg-blue-100 text-blue-700",
         message: `Expiring in ${days} days`,
       };
 
@@ -537,7 +537,7 @@ export const getLiveVehicleColumns = (): ColumnDef<LiveTrack>[] => [
       const imageUrl = useMemo(() => {
         const statusToImageUrl = {
           running: "/bus/side-view/green-bus.svg",
-          idle: "/bus/side-view/yellow-bus.svg",
+          idle: "/bus/side-view/blue-bus.svg",
           stopped: "/bus/side-view/red-bus.svg",
           inactive: "/bus/side-view/grey-bus.svg",
           overspeed: "/bus/side-view/orange-bus.svg",
@@ -572,18 +572,6 @@ export const getLiveVehicleColumns = (): ColumnDef<LiveTrack>[] => [
     },
     enableHiding: true,
     enableSorting: true,
-  },
-  {
-    header: "No. of Students",
-    accessorKey: "noOfStudent",
-  },
-  {
-    header: "No. of Stops",
-    accessorKey: "noOfStops",
-  },
-  {
-    header: "Route No.",
-    accessorKey: "routeName",
   },
   {
     id: "lastUpdate",
@@ -646,7 +634,7 @@ export const getLiveVehicleColumns = (): ColumnDef<LiveTrack>[] => [
 
         if (totalFilled <= 2) return "bg-red-500";
         if (totalFilled <= 3) return "bg-orange-500";
-        if (totalFilled <= 3) return "bg-yellow-500";
+        if (totalFilled <= 3) return "bg-blue-500";
         return "bg-green-500";
       };
 
@@ -696,7 +684,7 @@ export const getLiveVehicleColumns = (): ColumnDef<LiveTrack>[] => [
                 ? count <= 1
                   ? "bg-red-500"
                   : count <= 2
-                    ? "bg-yellow-500"
+                    ? "bg-blue-500"
                     : count <= 3
                       ? "bg-green-400"
                       : "bg-green-600"
@@ -713,7 +701,7 @@ export const getLiveVehicleColumns = (): ColumnDef<LiveTrack>[] => [
       const getSignalLabel = (count: number) => {
         if (count === 0) return { label: "No Signal", color: "text-red-600" };
         if (count === 1) return { label: "Very Weak", color: "text-red-600" };
-        if (count === 2) return { label: "Weak", color: "text-yellow-600" };
+        if (count === 2) return { label: "Weak", color: "text-blue-600" };
         if (count === 3) return { label: "Good", color: "text-green-600" };
         if (count >= 4) return { label: "Strong", color: "text-green-700" };
         return { label: "Unknown", color: "text-gray-600" };

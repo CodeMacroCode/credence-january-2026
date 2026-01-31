@@ -80,7 +80,7 @@ export default function LeaveRequestMaster() {
       case "rejected":
         return "bg-red-100 text-red-800";
       case "pending":
-        return "bg-yellow-100 text-yellow-800";
+        return "bg-blue-100 text-blue-800";
       default:
         return "bg-gray-100 text-gray-800";
     }
@@ -135,7 +135,7 @@ export default function LeaveRequestMaster() {
       case "personal":
         return "bg-blue-100 text-blue-800";
       case "emergency":
-        return "bg-orange-100 text-orange-800";
+        return "bg-indigo-100 text-indigo-800";
       case "vacation":
         return "bg-purple-100 text-purple-800";
       case "other":
@@ -259,7 +259,7 @@ export default function LeaveRequestMaster() {
           >
             {row.original.status
               ? row.original.status.charAt(0).toUpperCase() +
-                row.original.status.slice(1).toLowerCase()
+              row.original.status.slice(1).toLowerCase()
               : ""}
           </span>
         );

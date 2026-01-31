@@ -171,7 +171,7 @@ const TableBranchDropdown: React.FC<{
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full border border-gray-300 rounded px-3 py-2 text-left bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 text-sm min-h-[38px] flex items-center justify-between"
+        className="w-full border border-gray-300 rounded px-3 py-2 text-left bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm min-h-[38px] flex items-center justify-between"
       >
         <span className="text-gray-700 truncate">
           {assignedBranches.length > 0
@@ -197,7 +197,7 @@ const TableBranchDropdown: React.FC<{
             }}
           >
             {/* Header */}
-            <div className="px-3 py-2 border-b border-gray-200 bg-yellow-50 flex items-center justify-between">
+            <div className="px-3 py-2 border-b border-gray-200 bg-blue-50 flex items-center justify-between">
               <span className="text-sm font-medium text-gray-700">
                 Assign Branches
               </span>
@@ -205,7 +205,7 @@ const TableBranchDropdown: React.FC<{
               <button
                 type="button"
                 onClick={handleSelectAll}
-                className="text-xs text-yellow-700 hover:text-yellow-900 font-medium"
+                className="text-xs text-blue-700 hover:text-blue-900 font-medium"
               >
                 {allSelected ? "Deselect All" : "Select All"}
               </button>
@@ -218,7 +218,7 @@ const TableBranchDropdown: React.FC<{
                 placeholder="Search branches..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-yellow-500 focus:border-yellow-500"
+                className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500"
               />
             </div>
 
@@ -231,13 +231,13 @@ const TableBranchDropdown: React.FC<{
                 filteredBranchOptions.map((branch) => (
                   <label
                     key={branch.value}
-                    className="flex items-center px-3 py-2 hover:bg-yellow-50 cursor-pointer border-b border-gray-100 last:border-b-0"
+                    className="flex items-center px-3 py-2 hover:bg-blue-50 cursor-pointer border-b border-gray-100 last:border-b-0"
                   >
                     <input
                       type="checkbox"
                       checked={localSelectedBranches.includes(branch.value)}
                       onChange={() => handleBranchToggle(branch.value)}
-                      className="h-4 w-4 rounded border-gray-300 text-yellow-600 focus:ring-yellow-500 flex-shrink-0"
+                      className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 flex-shrink-0"
                     />
                     <span className="ml-3 text-sm text-gray-700 truncate flex-1">
                       {branch.label}
@@ -252,13 +252,13 @@ const TableBranchDropdown: React.FC<{
             </div>
 
             {/* Footer */}
-            <div className="px-3 py-2 border-t border-gray-200 bg-yellow-50 flex justify-between items-center text-xs text-gray-600">
+            <div className="px-3 py-2 border-t border-gray-200 bg-blue-50 flex justify-between items-center text-xs text-gray-600">
               <span>{selectedCount} branch(es) selected</span>
 
               <button
                 type="button"
                 onClick={handleSave}
-                className="text-yellow-700 hover:text-yellow-900 font-medium"
+                className="text-blue-700 hover:text-blue-900 font-medium"
               >
                 Done
               </button>
@@ -315,7 +315,7 @@ const BranchDropdown: React.FC<{
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full border border-gray-300 rounded px-3 py-2 text-left bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 text-sm min-h-[42px] flex items-center justify-between"
+        className="w-full border border-gray-300 rounded px-3 py-2 text-left bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm min-h-[42px] flex items-center justify-between"
       >
         <div className="flex flex-wrap gap-1 flex-1">
           {selectedBranches.length > 0 ? (
@@ -324,11 +324,11 @@ const BranchDropdown: React.FC<{
               return branch ? (
                 <span
                   key={branchId}
-                  className="inline-flex items-center gap-1 bg-yellow-100 text-yellow-800 text-xs px-2 py-1 rounded-full"
+                  className="inline-flex items-center gap-1 bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full"
                 >
                   {branch.label}
                   <X
-                    className="h-3 w-3 cursor-pointer hover:text-yellow-900 transition-colors"
+                    className="h-3 w-3 cursor-pointer hover:text-blue-900 transition-colors"
                     onClick={(e) => removeBranch(branchId, e)}
                   />
                 </span>
@@ -338,7 +338,7 @@ const BranchDropdown: React.FC<{
             <span className="text-gray-500">Select branches</span>
           )}
           {selectedBranches.length > 3 && (
-            <span className="inline-flex items-center bg-yellow-50 text-yellow-700 text-xs px-2 py-1 rounded-full">
+            <span className="inline-flex items-center bg-blue-50 text-blue-700 text-xs px-2 py-1 rounded-full">
               +{selectedBranches.length - 3} more
             </span>
           )}
@@ -352,7 +352,7 @@ const BranchDropdown: React.FC<{
       {isOpen && (
         <div className="absolute z-50 left-0 mt-1 w-full bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-hidden">
           {/* Header */}
-          <div className="px-3 py-2 border-b border-gray-200 bg-yellow-50">
+          <div className="px-3 py-2 border-b border-gray-200 bg-blue-50">
             <div className="flex items-center justify-between">
               <span className="text-sm font-medium text-gray-700">
                 Branches
@@ -360,7 +360,7 @@ const BranchDropdown: React.FC<{
               <button
                 type="button"
                 onClick={onSelectAll}
-                className="text-xs text-yellow-700 hover:text-yellow-900 font-medium"
+                className="text-xs text-blue-700 hover:text-blue-900 font-medium"
               >
                 {allSelected ? "Deselect All" : "Select All"}
               </button>
@@ -372,7 +372,7 @@ const BranchDropdown: React.FC<{
               value={searchText}
               onChange={(e) => setSearchText(e.target.value)}
               placeholder="Search..."
-              className="mt-2 w-full border border-gray-300 rounded px-2 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-yellow-500"
+              className="mt-2 w-full border border-gray-300 rounded px-2 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
             />
           </div>
 
@@ -382,13 +382,13 @@ const BranchDropdown: React.FC<{
               filteredBranches.map((branch) => (
                 <label
                   key={branch.value}
-                  className="flex items-center px-3 py-2 hover:bg-yellow-50 cursor-pointer"
+                  className="flex items-center px-3 py-2 hover:bg-blue-50 cursor-pointer"
                 >
                   <input
                     type="checkbox"
                     checked={selectedBranches.includes(branch.value)}
                     onChange={() => onBranchToggle(branch.value)}
-                    className="h-4 w-4 rounded border-gray-300 text-yellow-600 focus:ring-yellow-500"
+                    className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                   />
                   <span className="ml-3 text-sm text-gray-700">
                     {branch.label}
@@ -895,14 +895,14 @@ export default function UserAccessPage() {
                 setIsEditDialogOpen(true);
               },
               className:
-                "cursor-pointer flex items-center gap-1 bg-yellow-400 hover:bg-yellow-500 text-[#733e0a] font-semibold py-1 px-3 rounded-md text-sm transition-colors",
+                "cursor-pointer flex items-center gap-1 bg-blue-500 hover:bg-blue-600 text-white font-semibold py-1 px-3 rounded-md text-sm transition-colors",
             },
             {
               type: "button",
               label: "Delete",
               onClick: () => handleDeleteClick(row),
               className:
-                "bg-yellow-400 hover:bg-yellow-500 text-red-600 font-semibold py-1 px-3 rounded-md cursor-pointer transition-colors duration-200",
+                "bg-red-500 hover:bg-red-600 text-white font-semibold py-1 px-3 rounded-md cursor-pointer transition-colors duration-200",
             },
             {
               type: "button",
@@ -922,7 +922,7 @@ export default function UserAccessPage() {
                   setEditTarget(row);
                   setIsEditDialogOpen(true);
                 }}
-                className="cursor-pointer bg-yellow-400 hover:bg-yellow-500 text-[#733e0a] font-semibold py-1 px-3 rounded-md text-sm"
+                className="cursor-pointer bg-blue-500 hover:bg-blue-600 text-white font-semibold py-1 px-3 rounded-md text-sm"
               >
                 Edit
               </button>

@@ -61,8 +61,8 @@ export const RouteTimeline: React.FC<RouteTimelineProps> = ({
         <SheetHeader className="p-5 pb-4 border-b border-border bg-card">
           <div className="flex items-start justify-between gap-4">
             <div className="flex items-start gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-amber-500/15">
-                <Bus className="h-5 w-5 text-amber-500" />
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-500/15">
+                <Bus className="h-5 w-5 text-blue-500" />
               </div>
 
               <div>
@@ -191,7 +191,7 @@ export const RouteTimeline: React.FC<RouteTimelineProps> = ({
               <div className="h-4 w-px bg-border" />
 
               <div className="flex items-center gap-2">
-                <div className="h-2.5 w-2.5 rounded-full bg-amber-500" />
+                <div className="h-2.5 w-2.5 rounded-full bg-blue-500" />
                 <span className="text-muted-foreground">
                   Remaining:{" "}
                   <span className="font-medium text-foreground">

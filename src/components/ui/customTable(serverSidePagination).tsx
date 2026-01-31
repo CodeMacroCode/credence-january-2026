@@ -163,23 +163,23 @@ export function CustomTableServerSidePagination<
 
   const selectionColumn: ColumnDef<T> | null = enableMultiSelect
     ? {
-        id: "select",
-        header: ({ table }) => (
-          <Checkbox
-            checked={table.getIsAllPageRowsSelected()}
-            onCheckedChange={(val) => table.toggleAllPageRowsSelected(!!val)}
-          />
-        ),
-        cell: ({ row }) => (
-          <Checkbox
-            checked={row.getIsSelected()}
-            onCheckedChange={(val) => row.toggleSelected(!!val)}
-            onClick={(e) => e.stopPropagation()}
-          />
-        ),
-        size: 40,
-        enableSorting: false,
-      }
+      id: "select",
+      header: ({ table }) => (
+        <Checkbox
+          checked={table.getIsAllPageRowsSelected()}
+          onCheckedChange={(val) => table.toggleAllPageRowsSelected(!!val)}
+        />
+      ),
+      cell: ({ row }) => (
+        <Checkbox
+          checked={row.getIsSelected()}
+          onCheckedChange={(val) => row.toggleSelected(!!val)}
+          onClick={(e) => e.stopPropagation()}
+        />
+      ),
+      size: 40,
+      enableSorting: false,
+    }
     : null;
 
   const serialNumberColumn: ColumnDef<T> = {
@@ -208,8 +208,8 @@ export function CustomTableServerSidePagination<
       ? [selectionColumn!, serialNumberColumn, ...columns]
       : [selectionColumn!, ...columns]
     : showSerialNumber
-    ? [serialNumberColumn, ...columns]
-    : columns;
+      ? [serialNumberColumn, ...columns]
+      : columns;
 
   const table = useReactTable({
     data,
@@ -319,13 +319,13 @@ export function CustomTableServerSidePagination<
             style={{ maxHeight }}
           >
             <Table>
-              <TableHeader className="sticky top-0 bg-[#f5da6c] z-10">
+              <TableHeader className="sticky top-0 bg-[#0c235c] z-10">
                 {table.getHeaderGroups().map((headerGroup) => (
                   <TableRow key={headerGroup.id} className="border-b">
                     {headerGroup.headers.map((header) => (
                       <TableHead
                         key={header.id}
-                        className="bg-[#f5da6c] text-foreground px-2 py-2 sm:px-4 sm:py-3 text-xs sm:text-sm font-medium uppercase tracking-wider border-r last:border-r-0"
+                        className="bg-[#0c235c] text-white px-2 py-2 sm:px-4 sm:py-3 text-xs sm:text-sm font-medium uppercase tracking-wider border-r last:border-r-0"
                         style={{
                           width: header.id === "serialNumber" ? "60px" : "auto",
                           minWidth:
@@ -334,11 +334,10 @@ export function CustomTableServerSidePagination<
                       >
                         {header.isPlaceholder ? null : (
                           <div
-                            className={`flex items-center justify-center gap-1 w-full ${
-                              header.column.getCanSort()
-                                ? "cursor-pointer select-none"
-                                : ""
-                            }`}
+                            className={`flex items-center justify-center gap-1 w-full ${header.column.getCanSort()
+                              ? "cursor-pointer select-none"
+                              : ""
+                              }`}
                             onClick={header.column.getToggleSortingHandler()}
                           >
                             <span className="truncate">
@@ -388,106 +387,105 @@ export function CustomTableServerSidePagination<
                   )}
                   {rows?.length
                     ? (enableVirtualization
-                        ? virtualRows
-                        : rows.map((_, index) => ({ index }))
-                      ).map((virtualRow) => {
-                        const row = rows[virtualRow.index];
-                        const rowData = row.original as T;
-                        const isExpanded = isExpandedRow(rowData);
+                      ? virtualRows
+                      : rows.map((_, index) => ({ index }))
+                    ).map((virtualRow) => {
+                      const row = rows[virtualRow.index];
+                      const rowData = row.original as T;
+                      const isExpanded = isExpandedRow(rowData);
 
-                        if (isExpanded) {
-                          return (
-                            <TableRow
-                              key={row.id}
-                              className="border-b hover:bg-muted/50"
-                            >
-                              <TableCell
-                                colSpan={tableColumns.length}
-                                className="p-0 border-r-0"
-                              >
-                                <div className="w-full">
-                                  {(() => {
-                                    const vehicleNumberCell = row
-                                      .getVisibleCells()
-                                      .find(
-                                        (cell) =>
-                                          cell.column.id === "vehicleNumber"
-                                      );
-                                    if (vehicleNumberCell) {
-                                      return flexRender(
-                                        vehicleNumberCell.column.columnDef.cell,
-                                        vehicleNumberCell.getContext()
-                                      );
-                                    }
-                                    return null;
-                                  })()}
-                                </div>
-                              </TableCell>
-                            </TableRow>
-                          );
-                        }
-
-                        const rowId = getRowId(rowData);
-                        const isSelected =
-                          selectedRowId !== null && rowId === selectedRowId;
-
+                      if (isExpanded) {
                         return (
                           <TableRow
                             key={row.id}
-                            ref={
-                              enableVirtualization
-                                ? rowVirtualizer.measureElement
-                                : undefined
-                            }
-                            data-index={enableVirtualization ? virtualRow.index : undefined}
-                            className={`border-b hover:bg-muted/50 ${
-                              enableRowClick && onRowClick
-                                ? "cursor-pointer"
-                                : ""
-                            }`}
-                            onClick={(event) => handleRowClick(row, event)}
-                            data-selected={isSelected}
-                            data-row-id={rowId}
+                            className="border-b hover:bg-muted/50"
                           >
-                            {row.getVisibleCells().map((cell) => {
-                              const wrapConfig = enableColumnWrapping
-                                ? (cell.column.columnDef.meta as any)
-                                    ?.wrapConfig
-                                : undefined;
-
-                              const wrapOption =
-                                wrapConfig?.wrap || defaultTextWrap;
-                              const wrapClasses = getWrapClasses(wrapOption);
-                              const wrapStyles = getWrapStyles(wrapConfig);
-
-                              return (
-                                <TableCell
-                                  key={cell.id}
-                                  className="px-2 py-2 sm:px-4 sm:py-2 text-xs sm:text-sm border-r last:border-r-0 text-center"
-                                  style={{
-                                    width:
-                                      cell.column.id === "serialNumber"
-                                        ? "60px"
-                                        : "auto",
-                                    minWidth:
-                                      cell.column.id === "serialNumber"
-                                        ? "60px"
-                                        : "auto",
-                                    ...wrapStyles,
-                                  }}
-                                >
-                                  <div className={`w-full ${wrapClasses}`}>
-                                    {flexRender(
-                                      cell.column.columnDef.cell,
-                                      cell.getContext()
-                                    )}
-                                  </div>
-                                </TableCell>
-                              );
-                            })}
+                            <TableCell
+                              colSpan={tableColumns.length}
+                              className="p-0 border-r-0"
+                            >
+                              <div className="w-full">
+                                {(() => {
+                                  const vehicleNumberCell = row
+                                    .getVisibleCells()
+                                    .find(
+                                      (cell) =>
+                                        cell.column.id === "vehicleNumber"
+                                    );
+                                  if (vehicleNumberCell) {
+                                    return flexRender(
+                                      vehicleNumberCell.column.columnDef.cell,
+                                      vehicleNumberCell.getContext()
+                                    );
+                                  }
+                                  return null;
+                                })()}
+                              </div>
+                            </TableCell>
                           </TableRow>
                         );
-                      })
+                      }
+
+                      const rowId = getRowId(rowData);
+                      const isSelected =
+                        selectedRowId !== null && rowId === selectedRowId;
+
+                      return (
+                        <TableRow
+                          key={row.id}
+                          ref={
+                            enableVirtualization
+                              ? rowVirtualizer.measureElement
+                              : undefined
+                          }
+                          data-index={enableVirtualization ? virtualRow.index : undefined}
+                          className={`border-b hover:bg-muted/50 ${enableRowClick && onRowClick
+                            ? "cursor-pointer"
+                            : ""
+                            }`}
+                          onClick={(event) => handleRowClick(row, event)}
+                          data-selected={isSelected}
+                          data-row-id={rowId}
+                        >
+                          {row.getVisibleCells().map((cell) => {
+                            const wrapConfig = enableColumnWrapping
+                              ? (cell.column.columnDef.meta as any)
+                                ?.wrapConfig
+                              : undefined;
+
+                            const wrapOption =
+                              wrapConfig?.wrap || defaultTextWrap;
+                            const wrapClasses = getWrapClasses(wrapOption);
+                            const wrapStyles = getWrapStyles(wrapConfig);
+
+                            return (
+                              <TableCell
+                                key={cell.id}
+                                className="px-2 py-2 sm:px-4 sm:py-2 text-xs sm:text-sm border-r last:border-r-0 text-center"
+                                style={{
+                                  width:
+                                    cell.column.id === "serialNumber"
+                                      ? "60px"
+                                      : "auto",
+                                  minWidth:
+                                    cell.column.id === "serialNumber"
+                                      ? "60px"
+                                      : "auto",
+                                  ...wrapStyles,
+                                }}
+                              >
+                                <div className={`w-full ${wrapClasses}`}>
+                                  {flexRender(
+                                    cell.column.columnDef.cell,
+                                    cell.getContext()
+                                  )}
+                                </div>
+                              </TableCell>
+                            );
+                          })}
+                        </TableRow>
+                      );
+                    })
                     : null}
                   {enableVirtualization && paddingBottom > 0 && (
                     <TableRow style={{ height: paddingBottom }} aria-hidden="true">

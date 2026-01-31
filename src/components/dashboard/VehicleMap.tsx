@@ -106,7 +106,7 @@ const VehicleBusMarker = React.memo(
     const imageUrl = useMemo(() => {
       const statusToImageUrl = {
         running: "/bus/top-view/green-top.svg",
-        idle: "/bus/top-view/yellow-top.svg",
+        idle: "/bus/top-view/blue-top.svg",
         stopped: "/bus/top-view/red-top.svg",
         inactive: "/bus/top-view/gray-top.svg",
         overspeeding: "/bus/top-view/orange-top.svg",
@@ -167,7 +167,7 @@ const VehicleBusMarker = React.memo(
     const statusInfo = useMemo(() => {
       const statusMap = {
         running: { text: "Running", color: "#28a745" },
-        idle: { text: "Idle", color: "#ffc107" },
+        idle: { text: "Idle", color: "#3b82f6" },
         stopped: { text: "Stopped", color: "#dc3545" },
         inactive: { text: "Inactive", color: "#666666" },
         overspeeding: { text: "Overspeeding", color: "#fd7e14" },
@@ -236,9 +236,8 @@ const VehicleBusMarker = React.memo(
               <div className="detail-row">
                 <span className="label">Network:</span>
                 <span
-                  className={`value ${
-                    vehicle.gsmSignal ? "online" : "offline"
-                  }`}
+                  className={`value ${vehicle.gsmSignal ? "online" : "offline"
+                    }`}
                 >
                   {vehicle.gsmSignal ? "Online" : "Offline"}
                 </span>
@@ -477,7 +476,7 @@ const createClusterCustomIcon = (cluster: any) => {
   if (count >= 100) {
     size = 60;
     sizeClass = "text-lg";
-    bgClass = "bg-gradient-to-br from-orange-400 to-orange-600";
+    bgClass = "bg-gradient-to-br from-blue-400 to-blue-600";
   } else if (count >= 10) {
     size = 50;
     sizeClass = "text-sm";

@@ -107,7 +107,7 @@ export default function AbsentMaster() {
   const [editTarget, setEditTarget] = useState<Absent | null>(null);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({});
-  
+
   // Server-side pagination states
   const [pagination, setPagination] = useState({
     pageIndex: 0,
@@ -115,7 +115,7 @@ export default function AbsentMaster() {
   });
   const [sorting, setSorting] = useState([]);
   const [debouncedName, setDebouncedName] = useState("");
-  
+
   const { exportToPDF, exportToExcel } = useExport();
 
   // Fetch absent data using the custom hook
@@ -159,7 +159,7 @@ export default function AbsentMaster() {
     if (hour < 8) {
       return "bg-green-100 text-green-800"; // Early
     } else if (hour < 10) {
-      return "bg-yellow-100 text-yellow-800"; // On time
+      return "bg-blue-100 text-blue-800"; // On time
     } else {
       return "bg-red-100 text-red-800"; // Late
     }
@@ -171,7 +171,7 @@ export default function AbsentMaster() {
       "bg-blue-100 text-blue-800",
       "bg-purple-100 text-purple-800",
       "bg-green-100 text-green-800",
-      "bg-orange-100 text-orange-800",
+      "bg-indigo-100 text-indigo-800",
       "bg-pink-100 text-pink-800",
     ];
     const index = section.charCodeAt(0) % colors.length;
@@ -523,7 +523,7 @@ export default function AbsentMaster() {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const form = e.currentTarget;
-    
+
     const data = {
       childName: form.childName.value,
       className: form.className.value,
@@ -615,7 +615,7 @@ export default function AbsentMaster() {
           />
         </section>
 
-        
+
       </header>
 
       {/* Table component with server-side pagination */}

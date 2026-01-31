@@ -119,14 +119,14 @@ export const BranchNotificationCell: React.FC<Props> = ({ branchId }) => {
             NOTIFICATION_OPTIONS.map((opt) => (
               <label
                 key={opt.key}
-                className="flex items-center px-3 py-2 text-sm hover:bg-yellow-50 cursor-pointer"
+                className="flex items-center px-3 py-2 text-sm hover:bg-blue-50 cursor-pointer"
               >
                 <input
                   type="checkbox"
                   checked={!!payload[opt.key]}
                   disabled={isUpdating}
                   onChange={() => handleToggleOption(opt.key)}
-                  className="h-4 w-4 text-yellow-600 focus:ring-yellow-500 disabled:cursor-not-allowed"
+                  className="h-4 w-4 text-blue-600 focus:ring-blue-500 disabled:cursor-not-allowed"
                 />
                 <span className="ml-3 text-gray-700">{opt.label}</span>
               </label>

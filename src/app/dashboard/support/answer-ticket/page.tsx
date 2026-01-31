@@ -52,7 +52,7 @@ export default function RaiseTicketMaster() {
   const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [statusValue, setStatusValue] = useState("");
-  
+
   // Ticket Types Management States
   const [isTicketTypesDialogOpen, setIsTicketTypesDialogOpen] = useState(false);
   const [newTicketType, setNewTicketType] = useState("");
@@ -197,7 +197,7 @@ export default function RaiseTicketMaster() {
   const renderStatusButton = (status: string) => {
     let colorClass = "bg-gray-300 text-gray-800";
     if (status === "Open") colorClass = "bg-blue-500 text-white";
-    else if (status === "In Progress") colorClass = "bg-yellow-500 text-black";
+    else if (status === "In Progress") colorClass = "bg-blue-500 text-white";
     else if (status === "Resolved") colorClass = "bg-green-500 text-white";
     else if (status === "Closed") colorClass = "bg-gray-500 text-white";
     return <span className={`px-3 py-1 rounded-full text-sm font-medium ${colorClass}`}>{status}</span>;
@@ -210,39 +210,39 @@ export default function RaiseTicketMaster() {
       cell: ({ row }) => new Date(row.original.createdAt).toLocaleString(),
     },
     { accessorKey: "ticket_id", header: "Ticket ID" },
-    { 
-      header: "Raised By", 
+    {
+      header: "Raised By",
       cell: ({ row }) => row.original.raised_by?.userModel || "N/A"
     },
-    { 
-      accessorKey: "email", 
+    {
+      accessorKey: "email",
       header: "Email",
       cell: ({ row }) => row.original.email || "N/A"
     },
-    { 
-      header: "Type", 
+    {
+      header: "Type",
       cell: ({ row }) => row.original.type?.name || "N/A"
     },
-    { 
-      header: "School", 
+    {
+      header: "School",
       cell: ({ row }) => row.original.schoolId?.schoolName || "N/A"
     },
-    { 
-      header: "Branch", 
+    {
+      header: "Branch",
       cell: ({ row }) => row.original.branchId?.branchName || "N/A"
     },
-    { 
-      accessorKey: "role", 
+    {
+      accessorKey: "role",
       header: "Role",
       cell: ({ row }) => row.original.role || "N/A"
     },
-    { 
-      accessorKey: "description", 
+    {
+      accessorKey: "description",
       header: "Description",
       cell: ({ row }) => row.original.description || "N/A"
     },
-    { 
-      accessorKey: "feedback", 
+    {
+      accessorKey: "feedback",
       header: "Feedback",
       cell: ({ row }) => row.original.feedback || "N/A"
     },
@@ -253,7 +253,7 @@ export default function RaiseTicketMaster() {
         <Button
           size="sm"
           variant="outline"
-          className="bg-yellow-400 text-black hover:bg-yellow-500 border-yellow-500"
+          className="bg-blue-500 text-white hover:bg-blue-600 border-blue-600"
           onClick={() => {
             setSelectedTicket(row.original);
             setStatusValue(row.original.status);
@@ -289,7 +289,7 @@ export default function RaiseTicketMaster() {
             <Button
               size="sm"
               variant="outline"
-              className="bg-yellow-400 text-black hover:bg-yellow-500 border-yellow-500 cursor-pointer"
+              className="bg-blue-500 text-white hover:bg-blue-600 border-blue-600 cursor-pointer"
               onClick={() => handleEditTicketType(row.original)}
               disabled={updateTicketTypeMutation.isPending}
             >
@@ -340,11 +340,11 @@ export default function RaiseTicketMaster() {
     pagination: { pageIndex: 0, pageSize: 10 },
     totalCount: Array.isArray(ticketTypesData) ? ticketTypesData.length : 0,
     loading: isLoadingTicketTypes,
-    onPaginationChange: () => {},
-    onSortingChange: () => {},
+    onPaginationChange: () => { },
+    onSortingChange: () => { },
     sorting: [],
     columnVisibility: {},
-    onColumnVisibilityChange: () => {},
+    onColumnVisibilityChange: () => { },
     emptyMessage: "No ticket types found",
     enableSorting: false,
     showSerialNumber: false,
@@ -366,8 +366,8 @@ export default function RaiseTicketMaster() {
           : "bg-blue-100 text-blue-800 hover:bg-blue-200 border-blue-200";
       case "In Progress":
         return statusFilter === "In Progress"
-          ? "bg-yellow-500 text-black hover:bg-yellow-600 border-yellow-500"
-          : "bg-yellow-100 text-yellow-800 hover:bg-yellow-200 border-yellow-200";
+          ? "bg-blue-500 text-white hover:bg-blue-600 border-blue-500"
+          : "bg-blue-100 text-blue-800 hover:bg-blue-200 border-blue-200";
       case "Resolved":
         return statusFilter === "Resolved"
           ? "bg-green-600 text-white hover:bg-green-700 border-green-600"
@@ -406,7 +406,7 @@ export default function RaiseTicketMaster() {
             onResults={setFilteredData}
             className="w-[300px]"
           />
-          <DateRangeFilter onDateRangeChange={() => {}} title="Search by Added Date" />
+          <DateRangeFilter onDateRangeChange={() => { }} title="Search by Added Date" />
           <ColumnVisibilitySelector columns={table.getAllColumns()} buttonVariant="outline" buttonSize="default" />
 
           <div className="flex space-x-2">
@@ -436,7 +436,7 @@ export default function RaiseTicketMaster() {
               <DialogHeader>
                 <DialogTitle>Manage Ticket Types</DialogTitle>
               </DialogHeader>
-              
+
               {/* Add New Ticket Type Form */}
               <form onSubmit={handleAddTicketType} className="space-y-4 mt-2">
                 <div className="space-y-2">
@@ -449,10 +449,10 @@ export default function RaiseTicketMaster() {
                       onChange={(e) => setNewTicketType(e.target.value)}
                       className="flex-1"
                     />
-                    <Button 
-                      type="submit" 
+                    <Button
+                      type="submit"
                       disabled={addTicketTypeMutation.isPending}
-                      className="bg-yellow-400 text-black hover:bg-yellow-500 border-yellow-500"
+                      className="bg-blue-500 text-white hover:bg-blue-600 border-blue-600"
                     >
                       {addTicketTypeMutation.isPending ? "Adding..." : "Add"}
                     </Button>
@@ -469,8 +469,8 @@ export default function RaiseTicketMaster() {
               </div>
 
               <div className="flex justify-end pt-1">
-                <Button 
-                  variant="outline" 
+                <Button
+                  variant="outline"
                   onClick={() => setIsTicketTypesDialogOpen(false)}
                 >
                   Close
@@ -510,7 +510,7 @@ export default function RaiseTicketMaster() {
                 Cancel
               </Button>
               <Button
-                className="bg-yellow-400 text-black hover:bg-yellow-500 border-yellow-500"
+                className="bg-blue-500 text-white hover:bg-blue-600 border-blue-600"
                 onClick={() => {
                   if (selectedTicket && statusValue) {
                     updateTicketStatusMutation.mutate({

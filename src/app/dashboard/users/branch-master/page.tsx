@@ -1003,7 +1003,7 @@ export default function BranchMaster() {
                     : "Grant Full Access",
                   onClick: () => setAccessTarget(row),
                   disabled: accessMutation.isPending,
-                  className: `w-38 text-center text-sm bg-yellow-400 hover:bg-yellow-500 font-semibold rounded-full px-4 py-2 ${row.fullAccess ? "text-red-600" : "text-emerald-600"
+                  className: `w-full border border-gray-300 rounded px-3 py-2 text-left bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm min-h-[38px] flex items-center justify-between ${row.fullAccess ? "text-red-600" : "text-emerald-600"
                     }`,
                 },
               ],
@@ -1031,7 +1031,7 @@ export default function BranchMaster() {
                   type: "button",
                   label: "Edit",
                   className:
-                    "bg-yellow-400 hover:bg-yellow-500 text-[#733e0a] font-semibold cursor-pointer text-xs py-1.5 px-2.5 rounded-md whitespace-nowrap",
+                    "bg-blue-500 hover:bg-blue-600 text-white font-semibold cursor-pointer text-xs py-1.5 px-2.5 rounded-md whitespace-nowrap",
                   onClick: () => {
                     setEditTarget(row);
                     setEditDialogOpen(true);
@@ -1042,7 +1042,7 @@ export default function BranchMaster() {
                   type: "button",
                   label: "Delete",
                   className:
-                    "bg-yellow-400 hover:bg-yellow-500 text-red-600 font-semibold cursor-pointer xt-xs py-1.5 px-2.5 rounded-md whitespace-nowrap cursor-pointer",
+                    "text-blue-700 hover:text-blue-900 font-medium text-red-600 font-semibold cursor-pointer xt-xs py-1.5 px-2.5 rounded-md whitespace-nowrap cursor-pointer",
                   onClick: () => setDeleteTarget(row),
                   disabled: deletebranchMutation.isPending,
                 },
@@ -1092,7 +1092,7 @@ export default function BranchMaster() {
     <main>
       <ResponseLoader isLoading={isLoading} />
 
-      <header className="flex items-center justify-between mb-4">
+      <header className="px-3 py-2 border-b border-gray-200 bg-blue-50 flex items-center justify-between">
         <section className="flex space-x-4">
           <SearchComponent
             data={filterResults}
@@ -1263,7 +1263,7 @@ export default function BranchMaster() {
 
                     {/* Full Access checkbox - only for superadmin, school, and branchGroup roles */}
                     {(isSuperAdmin || isSchoolRole || isBranchGroup) && (
-                      <div className="flex items-center gap-3 mt-6">
+                      <div className="px-3 py-2 border-t border-gray-200 bg-blue-50 flex justify-between items-center text-xs text-gray-600">
                         <input
                           type="checkbox"
                           id="fullAccess"

@@ -285,7 +285,7 @@ export default function NotificationMaster() {
             onResults={handleSearchResults}
             className="w-[300px]"
           />
-          <DateRangeFilter onDateRangeChange={() => {}} title="Search by Date" />
+          <DateRangeFilter onDateRangeChange={() => { }} title="Search by Date" />
           <ColumnVisibilitySelector
             columns={table.getAllColumns()}
             buttonVariant="outline"
@@ -412,7 +412,7 @@ export default function NotificationMaster() {
                 <Button
                   type="submit"
                   disabled={addNotificationMutation.isPending}
-                  className="bg-yellow-500 hover:bg-yellow-600 text-black"
+                  className="bg-blue-500 hover:bg-blue-600 text-white"
                 >
                   {addNotificationMutation.isPending ? "Saving..." : "Save Assignment"}
                 </Button>

@@ -101,7 +101,7 @@ const usePickupDropData = ({
 
           // Get student name from parent name as fallback since child object is empty
           const studentName = item.child?.childName || item.parent?.parentName || "-";
-          
+
           // Use default addresses since child object doesn't have the data
           const pickupAddress = item.child?.pickupGeofenceName || "School Address";
           const dropAddress = item.child?.dropGeofenceName || "Home Address";
@@ -158,7 +158,7 @@ export default function PickupDropMaster() {
   const getStatusColor = (status: string) => {
     const colors = {
       present: "bg-green-100 text-green-800",
-      pending: "bg-yellow-100 text-yellow-800",
+      pending: "bg-blue-100 text-blue-800",
       absent: "bg-red-100 text-red-800",
     };
     return colors[status.toLowerCase() as keyof typeof colors] || "bg-gray-100 text-gray-800";

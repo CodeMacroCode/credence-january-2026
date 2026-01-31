@@ -20,12 +20,13 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import Image from "next/image";
 
 export function Navbar() {
   const setActiveSection = useNavigationStore(
     (state) => state.setActiveSection
   );
-  const { setOpen, setOpenMobile, isMobile } = useSidebar();
+  const { setOpen, setOpenMobile, isMobile, state } = useSidebar();
   const { notifications } = useNotificationStore();
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
 
@@ -70,30 +71,30 @@ export function Navbar() {
   );
 
   return (
-    <div className="w-full h-14 md:h-16 flex items-center relative px-2 sm:px-4 bg-primary border-b border-yellow-600/20">
+    <div className="w-full h-14 md:h-16 flex items-center relative px-2 sm:px-4 bg-primary border-b border-blue-600/20">
       {/* Mobile Menu Button - visible only on small screens */}
       <div className="md:hidden flex items-center z-[9999]">
         <DropdownMenu open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
           <DropdownMenuTrigger asChild>
             <button
-              className="p-2 rounded-md hover:bg-yellow-500/20 transition-colors cursor-pointer"
+              className="p-2 rounded-md hover:bg-blue-500/20 transition-colors cursor-pointer"
               aria-label="Toggle menu"
             >
               {mobileMenuOpen ? (
-                <X className="h-5 w-5 text-yellow-900" />
+                <X className="h-5 w-5 text-blue-900" />
               ) : (
-                <Menu className="h-5 w-5 text-yellow-900" />
+                <Menu className="h-5 w-5 text-blue-900" />
               )}
             </button>
           </DropdownMenuTrigger>
           <DropdownMenuContent
             align="start"
-            className="w-48 bg-primary border-yellow-600/20"
+            className="w-48 bg-primary border-blue-600/20"
           >
             {navSections.map((section) => (
               <DropdownMenuItem
                 key={section}
-                className="cursor-pointer font-semibold text-yellow-900 hover:bg-yellow-500/20 focus:bg-yellow-500/20"
+                className="cursor-pointer font-semibold text-blue-900 hover:bg-blue-500/20 focus:bg-blue-500/20"
                 asChild
               >
                 <Link
@@ -109,6 +110,23 @@ export function Navbar() {
       </div>
 
       {/* Desktop nav links - hidden on mobile */}
+      <div className="hidden md:flex items-center mr-4 z-[9999]">
+        {state === "collapsed" && (
+          <div className="animate-in fade-in slide-in-from-left-5 duration-300">
+            <Image
+              width={120}
+              height={40}
+              src="/logo.png"
+              alt="Logo"
+              priority
+              unoptimized={true} // Match sidebar usage
+              className="h-10 w-auto object-contain cursor-pointer"
+              onClick={() => handleNavClick("Dashboard")}
+            />
+          </div>
+        )}
+      </div>
+
       <div className="hidden md:flex flex-1 justify-center items-center relative z-[9999]">
         <NavigationMenu>
           <NavigationMenuList className="flex-wrap justify-center gap-1 lg:gap-2">
@@ -116,7 +134,7 @@ export function Navbar() {
               <NavigationMenuItem key={section}>
                 <NavigationMenuLink
                   asChild
-                  className="text-xs lg:text-sm px-2 lg:px-3 py-1.5 lg:py-2 whitespace-nowrap font-semibold hover:font-bold transition-colors duration-200 focus:font-bold hover:bg-yellow-500/20 rounded-md"
+                  className="text-xs lg:text-sm px-2 lg:px-3 py-1.5 lg:py-2 whitespace-nowrap font-semibold hover:font-bold transition-colors duration-200 focus:font-bold hover:bg-blue-500/20 rounded-md text-white hover:text-white"
                 >
                   <Link
                     href={navigationMap[section] || "#"}

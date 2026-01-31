@@ -260,9 +260,8 @@ const DevicesPage = () => {
         );
 
         toast.success("Upload successful", {
-          description: `${
-            response.count || response.data?.count || 0
-          } devices imported`,
+          description: `${response.count || response.data?.count || 0
+            } devices imported`,
         });
 
         // Close dialog and refresh data
@@ -356,7 +355,7 @@ const DevicesPage = () => {
           return (
             <div className="flex justify-center gap-2">
               <button
-                className="bg-yellow-500 text-white px-3 py-1 rounded text-xs cursor-pointer"
+                className="bg-blue-500 text-white px-3 py-1 rounded text-xs cursor-pointer"
                 onClick={(e) => {
                   e.stopPropagation();
                   handleEdit(data);
@@ -496,31 +495,31 @@ const DevicesPage = () => {
           {(role === "superAdmin" ||
             role === "school" ||
             role === "branchGroup") && (
-            <Combobox
-              items={branchItems}
-              value={filterBranchId}
-              onValueChange={(val) => {
-                setFilterBranchId(val || undefined);
-                setFilterRouteId(undefined);
-                if (val) {
-                  setShouldFetchRoutes(true);
+              <Combobox
+                items={branchItems}
+                value={filterBranchId}
+                onValueChange={(val) => {
+                  setFilterBranchId(val || undefined);
+                  setFilterRouteId(undefined);
+                  if (val) {
+                    setShouldFetchRoutes(true);
+                  }
+                }}
+                onOpenChange={(open) => {
+                  if (open && !shouldFetchBranches && filterSchoolId) {
+                    setShouldFetchBranches(true);
+                  }
+                }}
+                placeholder="Filter Branch"
+                searchPlaceholder="Search Branch..."
+                className="cursor-pointer"
+                width="w-[150px]"
+                emptyMessage={
+                  branchesLoading ? "Loading..." : "No branches found"
                 }
-              }}
-              onOpenChange={(open) => {
-                if (open && !shouldFetchBranches && filterSchoolId) {
-                  setShouldFetchBranches(true);
-                }
-              }}
-              placeholder="Filter Branch"
-              searchPlaceholder="Search Branch..."
-              className="cursor-pointer"
-              width="w-[150px]"
-              emptyMessage={
-                branchesLoading ? "Loading..." : "No branches found"
-              }
-              disabled={role === "superAdmin" && !filterSchoolId}
-            />
-          )}
+                disabled={role === "superAdmin" && !filterSchoolId}
+              />
+            )}
 
           {/* ROUTE FILTER */}
           <Combobox
