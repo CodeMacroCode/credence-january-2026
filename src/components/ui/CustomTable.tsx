@@ -138,7 +138,7 @@ export function CustomTable<TData extends RowData>({
     return () => observer.disconnect();
   }, []);
 
-  const finalData = data;
+  const finalData = Array.isArray(data) ? data : [];
   // useEffect(() => {
   //   setPagination((prev) => ({ ...prev, pageIndex: 0 }));
   // }, [data]);
@@ -272,8 +272,8 @@ export function CustomTable<TData extends RowData>({
                     >
                       <div
                         className={`flex items-center justify-center gap-1 w-full ${header.column.getCanSort()
-                            ? "cursor-pointer select-none"
-                            : ""
+                          ? "cursor-pointer select-none"
+                          : ""
                           }`}
                         onClick={header.column.getToggleSortingHandler()}
                       >
@@ -286,7 +286,7 @@ export function CustomTable<TData extends RowData>({
                         {header.column.getCanSort() && (
                           <CustomArrowUpDown
                             direction={header.column.getIsSorted()}
-                            
+
                           />
                         )}
                       </div>

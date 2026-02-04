@@ -53,7 +53,7 @@ export const CustomFilter: React.FC<CustomFilterProps> = ({
   const [openPopover, setOpenPopover] = React.useState<string | null>(null);
 
   // Use original data if provided, otherwise use current data
-  const sourceData = originalData || data;
+  const sourceData = Array.isArray(originalData) ? originalData : (Array.isArray(data) ? data : []);
 
   // Get unique values for each field based on currently filtered data
   const getUniqueValuesForField = React.useCallback(
