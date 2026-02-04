@@ -89,7 +89,7 @@ export default function DashboardLayout({
             </div>
           </header>
 
-          <main className="pt-2 md:pt-4 px-2 md:px-4 overflow-auto h-full">
+          <main className="pt-2 md:pt-4 px-2 md:px-4 overflow-hidden h-full">
             <FCMHandler />
             {children}
           </main>

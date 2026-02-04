@@ -74,6 +74,7 @@ export default function DashboardClient() {
     name: "",
   });
   const [isRouteTimelineOpen, setIsRouteTimelineOpen] = useState(false);
+  const [dynamicPageSize, setDynamicPageSize] = useState<number>(0);
   const [routeTimelineData, setRouteTimelineData] = useState<{
     uniqueId: string;
     deviceName: string;
@@ -176,8 +177,6 @@ export default function DashboardClient() {
     !filters.schoolId
   );
 
-  console.log("🚀 ~ DashboardClient ~ filters:", filters);
-
   const { expiredBranches, expiredBranchesCount } = useSubscriptionExpiry(
     showSubscriptionPopup
   );
@@ -196,11 +195,30 @@ export default function DashboardClient() {
     });
   }, [currentPage, limit]);
 
+  // Calculate optimal rows per page based on screen height
+  const calculateOptimalRows = useCallback(() => {
+    const viewportHeight = window.innerHeight;
+    const headerHeight = 330; // Approximate height of header, filters, search bar
+    const rowHeight = 48; // Approximate height of each table row
+    const paginationHeight = 60; // Height of pagination controls
+
+    const availableHeight = viewportHeight - headerHeight - paginationHeight;
+    const optimalRows = Math.floor(availableHeight / rowHeight);
+
+    // Clamp between 5 and 15 rows
+    return Math.max(5, Math.min(15, optimalRows));
+  }, []);
+
   // Combined useEffect for cleanup and subscription popup logic
   useEffect(() => {
     // Check localStorage to see if popup has been shown before
     const hasPopupBeenShown = localStorage.getItem(SUBSCRIPTION_POPUP_KEY);
-    updateFilters({ page: 1, limit: 5, filter: "all", searchTerm: "" });
+
+    // Calculate initial rows based on screen size
+    const initialRows = calculateOptimalRows();
+    setDynamicPageSize(initialRows);
+
+    updateFilters({ page: 1, limit: initialRows, filter: "all", searchTerm: "" });
 
     if (!hasPopupBeenShown) {
       // If no value exists in localStorage, show the popup
@@ -210,13 +228,22 @@ export default function DashboardClient() {
       setShowSubscriptionPopup(false);
     }
 
-    // Cleanup function for debounce timer
+    // Handle window resize to recalculate rows
+    const handleResize = () => {
+      const newRows = calculateOptimalRows();
+      updateFilters({ limit: newRows });
+    };
+
+    window.addEventListener('resize', handleResize);
+
+    // Cleanup function for debounce timer and resize listener
     return () => {
       if (searchDebounceRef.current) {
         clearTimeout(searchDebounceRef.current);
       }
+      window.removeEventListener('resize', handleResize);
     };
-  }, []);
+  }, [calculateOptimalRows]);
 
   useEffect(() => {
     if (!isConnected || !isAuthenticated) {
@@ -444,7 +471,7 @@ export default function DashboardClient() {
     columnVisibility,
     onColumnVisibilityChange: setColumnVisibility,
     emptyMessage: "No devices found",
-    pageSizeOptions: [5, 10, 20, 30, 50, 100, 500, "All"],
+    pageSizeOptions: [5, dynamicPageSize, 10, 20, 30, 50, 100, 500, "All"],
     enableSorting: true,
     showSerialNumber: true,
     onRowClick: handleDeviceSelection,
@@ -456,7 +483,7 @@ export default function DashboardClient() {
     enableVirtualization: true,
     estimatedRowHeight: 20,
     overscan: 5,
-    maxHeight: "calc(100dvh - 280px)",
+    maxHeight: "calc(100dvh - 340px)",
   });
 
   const bottomDrawerProps = useMemo(() => {
@@ -510,7 +537,7 @@ export default function DashboardClient() {
 
 
       {/* Main Dashboard Content */}
-      <div className="relative h-screen bg-gray-50/50 px-4">
+      <div className="relative h-screen bg-gray-50/50 px-4 overflow-hidden">
         {/* Dashboard Content */}
         <div className="space-y-4">
 
@@ -723,7 +750,7 @@ export default function DashboardClient() {
                 {viewState !== "tableExpanded" && (
                   <VehicleMap
                     vehicles={devices}
-                    height="calc(100dvh - 200px)"
+                    height="calc(100dvh - 280px)"
                     autoFitBounds={false}
                     showTrails={false}
                     clusterMarkers={devices.length > 100}

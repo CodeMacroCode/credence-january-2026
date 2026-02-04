@@ -315,11 +315,11 @@ export function CustomTableServerSidePagination<
         <div className="border rounded-lg overflow-hidden">
           <div
             ref={tableContainerRef}
-            className="overflow-y-auto"
+            className="overflow-y-auto relative"
             style={{ maxHeight }}
           >
             <Table>
-              <TableHeader className="sticky top-0 bg-[#0c235c] z-10">
+              <TableHeader className="sticky top-0 bg-[#0c235c] z-20">
                 {table.getHeaderGroups().map((headerGroup) => (
                   <TableRow key={headerGroup.id} className="border-b">
                     {headerGroup.headers.map((header) => (
