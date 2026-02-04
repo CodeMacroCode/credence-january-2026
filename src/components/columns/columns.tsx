@@ -551,8 +551,8 @@ export const getLiveVehicleColumns = (): ColumnDef<LiveTrack>[] => [
       }, [vehicleStatus]);
 
       return (
-        <div>
-          <img src={imageUrl} className="w-20" alt="vehicle status" />
+        <div className="flex items-center justify-center flex-shrink-0">
+          <img src={imageUrl} className="w-16 h-auto max-w-16 min-w-16" alt="vehicle status" />
         </div>
       );
     },
@@ -620,6 +620,39 @@ export const getLiveVehicleColumns = (): ColumnDef<LiveTrack>[] => [
     enableSorting: true,
   },
   {
+    id: "vehicleLoad",
+    header: "Vehicle Load",
+    cell: ({ row }: any) => {
+      const vehicleLoad = row.original?.vehicleLoad ?? 0;
+      return <div>{vehicleLoad}</div>;
+    },
+    meta: { flex: 1, minWidth: 100, maxWidth: 200 },
+    enableHiding: true,
+    enableSorting: true,
+  },
+  {
+    id: "loadIncreaseTime",
+    header: "Load Increase Time",
+    cell: ({ row }: any) => {
+      const loadIncreaseTime = row.original?.loadIncreaseTime ?? 0;
+      return <div>{loadIncreaseTime}</div>;
+    },
+    meta: { flex: 1, minWidth: 100, maxWidth: 200 },
+    enableHiding: true,
+    enableSorting: true,
+  },
+  {
+    id: "loadDecreaseTime",
+    header: "Load Decrease Time",
+    cell: ({ row }: any) => {
+      const loadDecreaseTime = row.original?.loadDecreaseTime ?? 0;
+      return <div>{loadDecreaseTime}</div>;
+    },
+    meta: { flex: 1, minWidth: 100, maxWidth: 200 },
+    enableHiding: true,
+    enableSorting: true,
+  },
+  {
     id: "battery",
     header: "Battery",
     cell: ({ row }: any) => {
@@ -639,7 +672,7 @@ export const getLiveVehicleColumns = (): ColumnDef<LiveTrack>[] => [
       };
 
       return (
-        <div className="flex items-center space-x-2 rotate-[-90deg] relative bottom-4">
+        <div className="flex items-center justify-center space-x-2 rotate-[-90deg] relative ">
           <div className="relative flex">
             <div className="flex space-x-0.5 p-0.5 border border-gray-400 bg-white">
               {[...Array(segments)].map((_, index) => (
@@ -710,7 +743,7 @@ export const getLiveVehicleColumns = (): ColumnDef<LiveTrack>[] => [
       const signalInfo = getSignalLabel(towerCount);
 
       return (
-        <div className="flex items-center space-x-3">
+        <div className="flex items-center justify-center space-x-3">
           <div
             className="flex items-end space-x-0.5"
             title={`${towerCount} cell towers detected`}

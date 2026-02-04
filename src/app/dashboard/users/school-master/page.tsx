@@ -165,7 +165,7 @@ export default function SchoolMaster() {
               setEditTarget(row);
               setEditDialogOpen(true);
             },
-            className: "cursor-pointer",
+            className: "cursor-pointer text-white",
             // note: original used updateSchoolMutation.isPending; keep as-is if desired
             disabled: false,
           },
@@ -173,7 +173,7 @@ export default function SchoolMaster() {
             type: "button",
             label: "Delete",
             onClick: () => setDeleteTarget(row),
-            className: "text-red-600 cursor-pointer",
+            className: "text-white cursor-pointer",
             disabled: false,
           },
           {
@@ -183,7 +183,7 @@ export default function SchoolMaster() {
             className: `${(row as any).Active
               ? "bg-red-100 text-red-700 hover:bg-red-200"
               : "bg-green-100 text-green-700 hover:bg-green-200"
-              } w-24`,
+              } w-24 cursor-pointer`,
             disabled: deactivateMutation.isPending,
           },
         ],

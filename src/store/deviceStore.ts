@@ -21,6 +21,7 @@ export interface DeviceFilters {
   searchTerm: string;
   branchId?: string;
   schoolId?: string;
+  category?: string;
 }
 
 // Enhanced auth data interface
@@ -148,7 +149,7 @@ export const useDeviceStore = create<DeviceState>()(
               set((state) => {
                 const newSingleDeviceData = new Map(state.singleDeviceData);
                 const newSingleDeviceLoading = new Set(
-                  state.singleDeviceLoading
+                  state.singleDeviceLoading,
                 );
 
                 const deviceKey = String(data.uniqueId || data.imei);
@@ -200,9 +201,9 @@ export const useDeviceStore = create<DeviceState>()(
                         .map(
                           (c) =>
                             "%" +
-                            ("00" + c.charCodeAt(0).toString(16)).slice(-2)
+                            ("00" + c.charCodeAt(0).toString(16)).slice(-2),
                         )
-                        .join("")
+                        .join(""),
                     );
 
                     const payload = JSON.parse(jsonPayload);
@@ -413,7 +414,7 @@ export const useDeviceStore = create<DeviceState>()(
 
               const chatStore = useChatStore.getState();
               const contact = chatStore.contacts.find(
-                (c) => c._id === data.userId && c.role === data.userRole
+                (c) => c._id === data.userId && c.role === data.userRole,
               );
 
               if (contact?.chatId) {
@@ -421,7 +422,7 @@ export const useDeviceStore = create<DeviceState>()(
                   contact.chatId,
                   data.userId,
                   data.userRole,
-                  data.isTyping
+                  data.isTyping,
                 );
               }
             },
@@ -483,7 +484,8 @@ export const useDeviceStore = create<DeviceState>()(
           newFilters.filter ||
           newFilters.searchTerm !== undefined ||
           newFilters.branchId !== undefined ||
-          newFilters.schoolId !== undefined
+          newFilters.schoolId !== undefined ||
+          newFilters.category !== undefined
         ) {
           updatedFilters.page = 1;
         }
@@ -734,8 +736,8 @@ export const useDeviceStore = create<DeviceState>()(
       partialize: (state) => ({
         filters: state.filters,
       }),
-    }
-  )
+    },
+  ),
 );
 
 // Export selectors for performance optimization

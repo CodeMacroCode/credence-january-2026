@@ -1,6 +1,5 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { ColumnVisibilitySelector } from "@/components/column-visibility-selector";
 import VehicleMap from "@/components/dashboard/VehicleMap";
 import ResponseLoader from "@/components/ResponseLoader";
@@ -12,7 +11,6 @@ import { Input } from "@/components/ui/input";
 import { useLiveDeviceData } from "@/hooks/livetrack/useLiveDeviceData";
 import { useReverseGeocode } from "@/hooks/useReverseGeocoding";
 import { DeviceData } from "@/types/socket";
-import { calculateTimeSince } from "@/util/calculateTimeSince";
 import { ChevronsLeft, ChevronsRight, Locate } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState, useRef } from "react";
 import { LiveTrack } from "@/components/dashboard/LiveTrack.tsx/livetrack";
@@ -22,14 +20,7 @@ import { getLiveVehicleColumns } from "@/components/columns/columns";
 import { RouteTimeline } from "@/components/dashboard/route/route-timeline";
 import { useSubscriptionExpiry } from "@/hooks/subscription/useSubscription";
 import { SubscriptionExpiry } from "@/components/dashboard/SubscriptionExpiry/SubscriptionExpiry";
-import { useBranchDropdown, useSchoolDropdown } from "@/hooks/useDropdown";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { useBranchDropdown, useSchoolDropdown, useCategoryDropdown } from "@/hooks/useDropdown";
 import {
   Popover,
   PopoverContent,
@@ -177,6 +168,11 @@ export default function DashboardClient() {
     isBranchDropdownOpen,
     !filters.schoolId
   );
+
+  // Category dropdown for vehicle type filter
+  const [isCategoryDropdownOpen, setIsCategoryDropdownOpen] = useState(false);
+  const { data: categoryData } = useCategoryDropdown(isCategoryDropdownOpen);
+
 
   const { expiredBranches, expiredBranchesCount } = useSubscriptionExpiry(
     showSubscriptionPopup
@@ -675,6 +671,7 @@ export default function DashboardClient() {
                                 ? userSchoolId
                                 : undefined,
                             branchId: undefined,
+                            category: undefined,
                           })
                         }
                       >
@@ -693,9 +690,23 @@ export default function DashboardClient() {
                 className="border-gray-200 hover:bg-gray-50 text-gray-700 cursor-pointer"
               />
 
-              <Button variant="outline" className="hidden lg:flex gap-2 cursor-pointer border-gray-200 hover:bg-gray-50 text-gray-700">
-                Vehicle Type <ChevronsRight className="w-4 h-4 rotate-90" />
-              </Button>
+              <Combobox
+                items={[
+                  { label: "All Types", value: "all" },
+                  ...(categoryData?.map((cat: any) => ({
+                    label: cat.categoryName,
+                    value: cat._id,
+                  })) || []),
+                ]}
+                value={filters.category || "all"}
+                onValueChange={(value) =>
+                  updateFilters({ category: value === "all" ? undefined : value })
+                }
+                onOpenChange={setIsCategoryDropdownOpen}
+                placeholder="Vehicle Type"
+                searchPlaceholder="Search type..."
+                className="hidden lg:flex cursor-pointer border-gray-200 hover:bg-gray-50 text-gray-700"
+              />
             </div>
           </div>
 
@@ -713,7 +724,7 @@ export default function DashboardClient() {
                         }`}
                       title={"Expand table"}
                     >
-                      <ChevronsRight className="w-4 h-4" />
+                      <ChevronsRight className="w-4 h-4 hover:text-white" />
                     </button>
                   </div>
                 )}
