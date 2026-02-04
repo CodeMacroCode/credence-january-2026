@@ -65,7 +65,7 @@ const DevicesPage = () => {
   // ---------------- Pagination & Sorting ----------------
   const [pagination, setPagination] = useState<PaginationState>({
     pageIndex: 0,
-    pageSize: 10,
+    pageSize: 15,
   });
   const [sorting, setSorting] = useState<SortingState>([]);
 
@@ -402,7 +402,7 @@ const DevicesPage = () => {
     enableVirtualization: true,
     estimatedRowHeight: 50,
     overscan: 5,
-    maxHeight: "600px",
+    maxHeight: "calc(100dvh - 250px)",
   });
 
   return (

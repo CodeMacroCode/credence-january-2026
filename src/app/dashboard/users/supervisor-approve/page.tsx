@@ -295,16 +295,14 @@ export default function Supervisor() {
                   disabled={isApprovingSupervisor}
                   className={`
                   px-3 py-1 text-xs font-medium rounded transition-all duration-200
-                  ${
-                    localStatus === value
+                  ${localStatus === value
                       ? color
                       : "bg-transparent text-gray-600 hover:bg-gray-100"
-                  }
-                  ${
-                    isApprovingSupervisor
+                    }
+                  ${isApprovingSupervisor
                       ? "opacity-50 cursor-not-allowed"
                       : "cursor-pointer"
-                  }
+                    }
                 `}
                 >
                   {label}
@@ -320,6 +318,37 @@ export default function Supervisor() {
     return cols;
   }, [handleDelete, handleEdit, isApprovingSupervisor, approveSupervisor]);
 
+  // ---------------- Dynamic Page Size Calculation ----------------
+  const [dynamicPageSize, setDynamicPageSize] = useState<number>(10);
+
+  const calculateOptimalRows = useCallback(() => {
+    const viewportHeight = window.innerHeight;
+    const headerHeight = 280; // Approximate height for supervisor page
+    const rowHeight = 50;
+    const paginationHeight = 60;
+
+    const availableHeight = viewportHeight - headerHeight - paginationHeight;
+    const optimalRows = Math.floor(availableHeight / rowHeight);
+
+    return Math.max(5, Math.min(15, optimalRows));
+  }, []);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setDynamicPageSize(calculateOptimalRows());
+    };
+
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, [calculateOptimalRows]);
+
+  useEffect(() => {
+    if (dynamicPageSize > 0 && pagination.pageSize !== dynamicPageSize) {
+      setPagination((prev: PaginationState) => ({ ...prev, pageSize: dynamicPageSize }));
+    }
+  }, [dynamicPageSize]);
+
   // ---------------- Table ----------------
   const { table, tableElement } = CustomTableServerSidePagination({
     data: supervisor || [],
@@ -332,7 +361,7 @@ export default function Supervisor() {
     sorting,
     emptyMessage: "No supervisors found",
     manualPagination: true,
-    pageSizeOptions: [5, 10, 15, 20, 30, 50, 100, 200, 300, 400, 500, "All"],
+    pageSizeOptions: [5, dynamicPageSize, 10, 15, 20, 30, 50, 100, 200, 300, 400, 500, "All"],
     showSerialNumber: true,
     enableSorting: true,
     enableMultiSelect: false,
@@ -340,7 +369,7 @@ export default function Supervisor() {
     enableVirtualization: true,
     estimatedRowHeight: 50,
     overscan: 5,
-    maxHeight: "600px",
+    maxHeight: "calc(100dvh - 280px)",
   });
 
   return (
@@ -353,9 +382,8 @@ export default function Supervisor() {
           variant="outline"
           size="sm"
           onClick={handleClearFilters}
-          className={`cursor-pointer flex items-center gap-2 ${
-            !hasActiveFilters ? "opacity-50 cursor-not-allowed" : ""
-          }`}
+          className={`cursor-pointer flex items-center gap-2 ${!hasActiveFilters ? "opacity-50 cursor-not-allowed" : ""
+            }`}
           disabled={!hasActiveFilters}
         >
           <FilterX className="h-4 w-4" />
@@ -413,27 +441,27 @@ export default function Supervisor() {
           {(role === "superAdmin" ||
             role === "school" ||
             role === "branchGroup") && (
-            <Combobox
-              items={branchItems}
-              value={filterBranchId}
-              onValueChange={setFilterBranchId}
-              className="cursor-pointer"
-              placeholder="Select Branch"
-              searchPlaceholder="Search branches..."
-              emptyMessage={
-                branchesLoading ? "Loading branches..." : "No branch found."
-              }
-              width="w-[150px]"
-              disabled={role === "superAdmin" && !filterSchoolId}
-              open={branchOpen}
-              onOpenChange={(open) => {
-                setBranchOpen(open);
-                if (open && role !== "school") {
-                  setShouldFetchBranches(true);
+              <Combobox
+                items={branchItems}
+                value={filterBranchId}
+                onValueChange={setFilterBranchId}
+                className="cursor-pointer"
+                placeholder="Select Branch"
+                searchPlaceholder="Search branches..."
+                emptyMessage={
+                  branchesLoading ? "Loading branches..." : "No branch found."
                 }
-              }}
-            />
-          )}
+                width="w-[150px]"
+                disabled={role === "superAdmin" && !filterSchoolId}
+                open={branchOpen}
+                onOpenChange={(open) => {
+                  setBranchOpen(open);
+                  if (open && role !== "school") {
+                    setShouldFetchBranches(true);
+                  }
+                }}
+              />
+            )}
 
           {/* Status Filter */}
           <Combobox
