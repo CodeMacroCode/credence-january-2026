@@ -345,3 +345,49 @@
 .custom-vehicle-marker {
     transition: all 0.3s ease;
 }
+/* Custom Cluster Marker Styles */
+.custom-cluster-marker {
+    background: transparent !important;
+    border: none !important;
+}
+
+.cluster-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    font-weight: 700;
+    color: white;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    border: 3px solid white;
+    transition: transform 0.2s ease;
+}
+
+.cluster-icon:hover {
+    transform: scale(1.1);
+}
+
+.cluster-small {
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(135deg, #4CAF50 0%, #388E3C 100%);
+    font-size: 14px;
+}
+
+.cluster-medium {
+    width: 50px;
+    height: 50px;
+    background: linear-gradient(135deg, #FF9800 0%, #F57C00 100%);
+    font-size: 16px;
+}
+
+.cluster-large {
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg, #F44336 0%, #D32F2F 100%);
+    font-size: 18px;
+}
+
+.cluster-count {
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}

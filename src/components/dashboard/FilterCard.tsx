@@ -23,8 +23,8 @@ export function FilterCard({
         <div
             onClick={onClick}
             className={cn(
-                "relative flex items-center justify-between p-3 bg-white rounded-xl shadow-sm border-l-4 cursor-pointer transition-all duration-200 hover:shadow-md min-w-[140px] flex-1 overflow-hidden", borderColor,
-                isActive && `border ${borderColor} border-l-4 transition-all duration-200 hover:shadow-md`
+                `relative flex items-center justify-between p-3 bg-white rounded-xl shadow-sm border ${borderColor} border-l-4 cursor-pointer transition-all duration-200 hover:shadow-md min-w-[140px] flex-1 overflow-hidden`,
+                isActive && `scale-105 shadow-lg ring-2 ring-offset-1 ring-primary/50`
             )}
         >
 
