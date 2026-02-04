@@ -203,7 +203,7 @@ export default function DashboardClient() {
     const paginationHeight = 60; // Height of pagination controls
 
     const availableHeight = viewportHeight - headerHeight - paginationHeight;
-    const optimalRows = Math.floor(availableHeight / rowHeight);
+    const optimalRows = Math.min(9, Math.floor(availableHeight / rowHeight));
 
     // Clamp between 5 and 15 rows
     return Math.max(5, Math.min(15, optimalRows));
