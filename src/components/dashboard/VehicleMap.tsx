@@ -655,7 +655,7 @@ const VehicleMap: React.FC<VehicleMapProps> = ({
         style={{ height: "100%", width: "100%" }}
         preferCanvas={true}
         zoomControl={true}
-        attributionControl={true}
+        attributionControl={false}
       >
         <TileLayer
           url={`https://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}`}
