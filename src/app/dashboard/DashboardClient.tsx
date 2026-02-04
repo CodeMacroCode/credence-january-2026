@@ -57,6 +57,7 @@ export default function DashboardClient() {
   const searchDebounceRef = useRef<NodeJS.Timeout | null>(null);
   const authRequestRef = useRef(false);
   const authRequestTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const pendingZoomRef = useRef(false); // Track if zoom is pending after filter change
 
   const [sorting, setSorting] = useState([]);
   const [columnVisibility, setColumnVisibility] = useState({});
@@ -309,11 +310,19 @@ export default function DashboardClient() {
         page: 1,
       });
 
-      // Trigger map to fit bounds
-      setFitBoundsTrigger((prev) => prev + 1);
+      // Mark that we need to zoom after data loads
+      pendingZoomRef.current = true;
     },
     [updateFilters]
   );
+
+  // Trigger zoom after data finishes loading
+  useEffect(() => {
+    if (!isLoading && pendingZoomRef.current) {
+      setFitBoundsTrigger((prev) => prev + 1);
+      pendingZoomRef.current = false;
+    }
+  }, [isLoading]);
 
 
   // **Pagination Handler**

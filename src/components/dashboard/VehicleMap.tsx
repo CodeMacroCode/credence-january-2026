@@ -479,26 +479,26 @@ const MapResizeHandler = () => {
 };
 
 // Optimized map controls
-const MapControls = ({
-  onFitBounds,
-  vehicleCount,
-}: {
-  onFitBounds: () => void;
-  vehicleCount: number;
-}) => {
-  return (
-    <div className="map-controls">
-      <button
-        className="map-control-button fit-bounds-btn"
-        onClick={onFitBounds}
-        title="Fit all vehicles in view"
-      >
-        <span className="control-icon">🎯</span>
-        <span className="control-text">Fit All ({vehicleCount})</span>
-      </button>
-    </div>
-  );
-};
+// const MapControls = ({
+//   onFitBounds,
+//   vehicleCount,
+// }: {
+//   onFitBounds: () => void;
+//   vehicleCount: number;
+// }) => {
+//   return (
+//     <div className="map-controls">
+//       <button
+//         className="map-control-button fit-bounds-btn"
+//         onClick={onFitBounds}
+//         title="Fit all vehicles in view"
+//       >
+//         <span className="control-icon">🎯</span>
+//         <span className="control-text">Fit All ({vehicleCount})</span>
+//       </button>
+//     </div>
+//   );
+// };
 
 // Custom cluster icon - memoized
 const createClusterCustomIcon = (cluster: any) => {
@@ -553,6 +553,7 @@ const VehicleMap: React.FC<VehicleMapProps> = ({
   showTrails = false,
   clusterMarkers = true,
   autoFitBounds = false,
+  fitBoundsTrigger = 0,
 }) => {
   const mapRef = useRef<L.Map | null>(null);
   const [isInitialLoad, setIsInitialLoad] = useState(true);
@@ -677,6 +678,7 @@ const VehicleMap: React.FC<VehicleMapProps> = ({
           vehicles={validVehicles}
           shouldFitBounds={shouldFitBounds}
           onBoundsFitted={handleBoundsFitted}
+          fitBoundsTrigger={fitBoundsTrigger}
         />
 
         {/* Render optimized markers */}
@@ -684,10 +686,10 @@ const VehicleMap: React.FC<VehicleMapProps> = ({
       </MapContainer>
 
       {/* Map Controls */}
-      <MapControls
+      {/* <MapControls
         onFitBounds={handleFitBounds}
         vehicleCount={validVehicles.length}
-      />
+      /> */}
     </div>
   );
 };
