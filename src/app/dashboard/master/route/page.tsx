@@ -321,7 +321,7 @@ export default function RoutePage() {
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button
-                className="cursor-pointer"
+                className="cursor-pointer text-white"
                 disabled={isExcelExporting || isPdfExporting}
               >
                 {isExcelExporting || isPdfExporting ? "Exporting..." : "Export"}
@@ -370,10 +370,10 @@ export default function RoutePage() {
                   setFilterSchoolId(val || undefined);
                   setFilterBranchId(undefined);
                 }}
-                placeholder="Filter School"
-                searchPlaceholder="Search School..."
+                placeholder="Filter Admin"
+                searchPlaceholder="Search Admin..."
                 width="w-[220px]"
-                emptyMessage="No schools found"
+                emptyMessage="No Admin found"
               />
             )}
 
@@ -385,10 +385,10 @@ export default function RoutePage() {
                 items={branchItems}
                 value={filterBranchId}
                 onValueChange={(val) => setFilterBranchId(val || undefined)}
-                placeholder="Filter Branch"
-                searchPlaceholder="Search Branch..."
+                placeholder="Filter User"
+                searchPlaceholder="Search User..."
                 width="w-[220px]"
-                emptyMessage="No branches found"
+                emptyMessage="No users found"
                 disabled={role === "superAdmin" && !filterSchoolId}
               />
             )}
@@ -396,7 +396,7 @@ export default function RoutePage() {
         </div>
 
         <Button
-          className="cursor-pointer"
+          className="cursor-pointer text-white"
           onClick={() => {
             setEditRoute(null);
             setSchoolId(undefined);

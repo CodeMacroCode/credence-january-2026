@@ -337,11 +337,11 @@ export default function RaiseTicketMaster() {
         cell: ({ row }) => row.original.type?.name || "N/A",
       },
       {
-        header: "School",
+        header: "Admin",
         cell: ({ row }) => row.original.schoolId?.schoolName || "N/A",
       },
       {
-        header: "Branch",
+        header: "User",
         cell: ({ row }) => row.original.branchId?.branchName || "N/A",
       },
       {
@@ -492,7 +492,7 @@ export default function RaiseTicketMaster() {
         <section>
           <Dialog onOpenChange={(open) => !open && handleDialogClose()}>
             <DialogTrigger asChild>
-              <Button variant="default">Raise Ticket</Button>
+              <Button variant="default" className="text-white cursor-pointer">Raise Ticket</Button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-[500px]">
               <form onSubmit={handleSubmit} className="space-y-4">
@@ -568,6 +568,7 @@ export default function RaiseTicketMaster() {
                   </DialogClose>
                   <Button
                     type="submit"
+                    className="text-white"
                     disabled={
                       addTicketMutation.isPending ||
                       isLoadingTicketTypes ||

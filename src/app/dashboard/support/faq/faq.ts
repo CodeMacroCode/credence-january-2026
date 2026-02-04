@@ -1,38 +1,52 @@
 export const faq = [
-    {
-        question: "How does the school bus tracking system work?",
-        answer: "With GPS-enabled tracking system, parents and schools can monitor the location of the bus in real-time using a mobile app. The tracking system offers real-time updates, route information, and accurate ETAs so you are always aware of where the bus is located."
-    },
-    {
-        question: "Will I get alerts when the bus is near my stop?",
-        answer: "Yes! You will receive an instant notification and alert that the bus is approaching or departing your child's stop so you will always be in the know, and on time."
-    },
-    {
-        question: "Is the tracking system secure?",
-        answer: "Definitely. Encryption and secure servers are used to safeguard your data. Only authorized parents and school personnel can access real-time bus information for total privacy and safety."
-    },
-    {
-        question: "What is the ETA feature in the school bus tracking app?",
-        answer: "The ETA (Estimated Time of Arrival) feature provides parents and school authorities with the real-time expected arrival time of the school bus at a specific bus stop."
-    },
-    {
-        question: "Do I need to install any special device or app?",
-        answer: "There is no complicated setup! The mobile app is available for parents to download, and the school already installed the GPS devices onto the buses so tracking can begin immediately."
-    },
-    {
-        question: "How can I track my child's bus in real time?",
-        answer: "Just open the app and tap on your child's profile shown on the dashboard. You'll see the exact location of the bus and its ETA."
-    },
-    {
-        question: "Will I get notifications when the bus is near my stop?",
-        answer: "Yes! The app sends automatic alerts when the bus is approaching or leaving your stop."
-    },
-    {
-        question: "Can multiple family members track the same bus?",
-        answer: "Yes, parents and guardians can log in with the same student ID provided by us to stay updated."
-    },
-    {
-        question: "Is my personal information safe in the app?",
-        answer: "Yes. All data is encrypted, and only authorized users can access your child's bus details."
-    }
+  {
+    question: "How can I track my vehicle live?",
+    answer:
+      "Once the GPS device is installed, just open the Credence app and you’ll see your vehicle’s live location on the map in real time.",
+  },
+  {
+    question: "Is Credence Tracker accurate?",
+    answer:
+      "Yes, it provides accurate location updates along with speed, distance, and travel details.",
+  },
+  {
+    question: "Will it work when my vehicle is switched off?",
+    answer:
+      "You can view the last location and full travel history. Live tracking resumes when the vehicle is turned on.",
+  },
+  {
+    question: "Can I check where my vehicle was yesterday or last week?",
+    answer:
+      "Yes, you can easily see route history, stops, and distance for any selected date.",
+  },
+  {
+    question: "Does it send alerts and notifications?",
+    answer:
+      "Yes, you’ll get instant alerts for ignition on/off, over-speeding, parking, and device issues.",
+  },
+  {
+    question: "Can I track more than one vehicle from one account?",
+    answer:
+      "Yes, you can manage and track multiple vehicles using a single Credence account.",
+  },
+  {
+    question: "Is the Credence app easy to use?",
+    answer:
+      "Absolutely. The app is designed to be simple and user-friendly, even for non-technical users.",
+  },
+  {
+    question: "Will it work on my mobile phone?",
+    answer:
+      "Yes, Credence Tracker works on both Android and iOS smartphones, and also on the web.",
+  },
+  {
+    question: "Is my data safe and secure?",
+    answer:
+      "Yes, all vehicle data is stored securely and accessed only by authorized users.",
+  },
+  {
+    question: "Who should use Credence Tracker?",
+    answer:
+      "It’s ideal for individual vehicle owners, businesses, fleet owners, schools, and transport companies.",
+  },
 ];

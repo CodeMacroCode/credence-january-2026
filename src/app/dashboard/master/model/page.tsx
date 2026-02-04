@@ -71,7 +71,7 @@ export default function ModelPage() {
       {/* HEADER */}
       <div className="flex justify-between items-center">
         <h2 className="text-xl font-bold">Models</h2>
-        <Button onClick={openCreateModal} className="bg-primary">
+        <Button onClick={openCreateModal} className="bg-primary text-white cursor-pointer">
           Add Model
         </Button>
       </div>
@@ -102,14 +102,14 @@ export default function ModelPage() {
             />
 
             <div className="flex justify-end gap-2">
-              <Button variant="outline" onClick={() => setIsModalOpen(false)}>
+              <Button variant="outline" className="cursor-pointer" onClick={() => setIsModalOpen(false)}>
                 Cancel
               </Button>
 
               <Button
                 onClick={handleSave}
                 disabled={isCreating || isUpdating}
-                className="bg-primary"
+                className="bg-primary text-white cursor-pointer"
               >
                 {editTarget
                   ? isUpdating

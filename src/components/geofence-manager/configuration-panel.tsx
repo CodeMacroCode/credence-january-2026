@@ -126,7 +126,7 @@ const GeofenceConfigurationPanel: React.FC<Props> = ({
   const schoolItems = useMemo(
     () =>
       schools.map((school) => ({
-        label: school.schoolName?.trim() || `School ${school._id}`,
+        label: school.schoolName?.trim() || `Admin ${school._id}`,
         value: school._id,
       })),
     [schools]
@@ -135,7 +135,7 @@ const GeofenceConfigurationPanel: React.FC<Props> = ({
   const branchItems = useMemo(
     () =>
       branches.map((branch) => ({
-        label: branch.branchName?.trim() || `Branch ${branch._id}`,
+        label: branch.branchName?.trim() || `User ${branch._id}`,
         value: branch._id,
       })),
     [branches]
@@ -209,7 +209,7 @@ const GeofenceConfigurationPanel: React.FC<Props> = ({
           //   "❌ School NOT found! Available IDs:",
           //   schools.map((s) => s._id)
           // );
-          toast.error("❌ School NOT found!");
+          toast.error("❌ Admin NOT found!");
         }
       }
 
@@ -293,7 +293,7 @@ const GeofenceConfigurationPanel: React.FC<Props> = ({
         <div className="flex justify-around items-center">
           {role === "superAdmin" && (
             <div className="space-y-2">
-              <Label>School</Label>
+              <Label>Adminl</Label>
               <Combobox
                 items={schoolItems}
                 value={selectedSchool?._id}
@@ -301,9 +301,9 @@ const GeofenceConfigurationPanel: React.FC<Props> = ({
                   const school = schools.find((s) => s._id === value) || null;
                   handleSchoolSelect(school);
                 }}
-                placeholder="Select school"
-                searchPlaceholder="Search school..."
-                emptyMessage="No school found"
+                placeholder="Select admin"
+                searchPlaceholder="Search admin..."
+                emptyMessage="No admin found"
                 width="w-[140px]"
               />
             </div>
@@ -311,7 +311,7 @@ const GeofenceConfigurationPanel: React.FC<Props> = ({
 
           {["superAdmin", "branchGroup", "school"].includes(role) && (
             <div className="space-y-2">
-              <Label>Branch</Label>
+              <Label>User</Label>
               <Combobox
                 items={branchItems}
                 value={selectedBranch?._id}
@@ -319,9 +319,9 @@ const GeofenceConfigurationPanel: React.FC<Props> = ({
                   const branch = branches.find((b) => b._id === value) || null;
                   handleBranchSelect(branch);
                 }}
-                placeholder="Select branch"
-                searchPlaceholder="Search branch..."
-                emptyMessage="No branch found"
+                placeholder="Select user"
+                searchPlaceholder="Search user..."
+                emptyMessage="No user found"
                 width="w-[140px]"
                 disabled={role === "superAdmin" && !selectedSchool}
               />
@@ -339,7 +339,7 @@ const GeofenceConfigurationPanel: React.FC<Props> = ({
                   handleRouteSelect(route);
                 }}
                 placeholder="Select route"
-                searchPlaceholder="Search school..."
+                searchPlaceholder="Search admin..."
                 emptyMessage="No route found"
                 width="w-[140px]"
                 disabled={!selectedBranch}
@@ -446,7 +446,7 @@ const GeofenceConfigurationPanel: React.FC<Props> = ({
             Street View
           </Button>
           <Button
-            className="w-full cursor-pointer"
+            className="w-full cursor-pointer text-white"
             onClick={saveGeofences}
             disabled={isLoading || !tempGeofence}
             type="button"

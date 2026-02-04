@@ -175,8 +175,8 @@ const TableBranchDropdown: React.FC<{
       >
         <span className="text-gray-700 truncate">
           {assignedBranches.length > 0
-            ? `${assignedBranches.length} branch(es)`
-            : "Assign Branches"}
+            ? `${assignedBranches.length} users`
+            : "Assign Users"}
         </span>
         <ChevronDown
           className={`h-4 w-4 text-gray-500 transition-transform flex-shrink-0 ml-2 ${isOpen ? "rotate-180" : ""
@@ -199,7 +199,7 @@ const TableBranchDropdown: React.FC<{
             {/* Header */}
             <div className="px-3 py-2 border-b border-gray-200 bg-blue-50 flex items-center justify-between">
               <span className="text-sm font-medium text-gray-700">
-                Assign Branches
+                Assign Users
               </span>
 
               <button
@@ -215,7 +215,7 @@ const TableBranchDropdown: React.FC<{
             <div className="p-2 border-b border-gray-200 bg-gray-50">
               <input
                 type="text"
-                placeholder="Search branches..."
+                placeholder="Search users..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500"
@@ -246,14 +246,14 @@ const TableBranchDropdown: React.FC<{
                 ))
               ) : (
                 <div className="px-3 py-3 text-center text-sm text-gray-500">
-                  No branches found
+                  No users found
                 </div>
               )}
             </div>
 
             {/* Footer */}
             <div className="px-3 py-2 border-t border-gray-200 bg-blue-50 flex justify-between items-center text-xs text-gray-600">
-              <span>{selectedCount} branch(es) selected</span>
+              <span>{selectedCount} users selected</span>
 
               <button
                 type="button"
@@ -335,7 +335,7 @@ const BranchDropdown: React.FC<{
               ) : null;
             })
           ) : (
-            <span className="text-gray-500">Select branches</span>
+            <span className="text-gray-500">Select Users</span>
           )}
           {selectedBranches.length > 3 && (
             <span className="inline-flex items-center bg-blue-50 text-blue-700 text-xs px-2 py-1 rounded-full">
@@ -355,7 +355,7 @@ const BranchDropdown: React.FC<{
           <div className="px-3 py-2 border-b border-gray-200 bg-blue-50">
             <div className="flex items-center justify-between">
               <span className="text-sm font-medium text-gray-700">
-                Branches
+                Users
               </span>
               <button
                 type="button"
@@ -397,7 +397,7 @@ const BranchDropdown: React.FC<{
               ))
             ) : (
               <div className="px-3 py-3 text-center text-sm text-gray-500">
-                No matching branches
+                No matching users
               </div>
             )}
           </div>
@@ -539,7 +539,7 @@ export default function UserAccessPage() {
       fetchBranchGroups();
     },
     onError: (err: any) =>
-      setError(err.response?.data?.message || "Failed to add branch group"),
+      setError(err.response?.data?.message || "Failed to add user group"),
   });
 
   const updateMutation = useMutation({
@@ -554,7 +554,7 @@ export default function UserAccessPage() {
       fetchBranchGroups();
     },
     onError: (err: any) =>
-      setError(err.response?.data?.message || "Failed to update branch group"),
+      setError(err.response?.data?.message || "Failed to update user group"),
   });
 
   const updateBranchesMutation = useMutation({
@@ -566,7 +566,7 @@ export default function UserAccessPage() {
       fetchBranchGroups();
     },
     onError: (err: any) => {
-      setError(err.response?.data?.message || "Failed to update branches");
+      setError(err.response?.data?.message || "Failed to update users");
     },
   });
 
@@ -578,7 +578,7 @@ export default function UserAccessPage() {
       fetchBranchGroups();
     },
     onError: (err: any) =>
-      setError(err.response?.data?.message || "Failed to delete branch group"),
+      setError(err.response?.data?.message || "Failed to delete user group"),
   });
 
   const deactivateMutation = useMutation({
@@ -599,12 +599,12 @@ export default function UserAccessPage() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["branchGroups"] });
-      toast.success("Branch group status updated successfully.");
+      toast.success("User group status updated successfully.");
       fetchBranchGroups();
     },
     onError: (err: any) => {
       toast.error(
-        `Failed to update branch group status: ${err.response?.data?.message || err.message
+        `Failed to update user group status: ${err.response?.data?.message || err.message
         }`
       );
     },
@@ -816,7 +816,7 @@ export default function UserAccessPage() {
         meta: { flex: 1, minWidth: 150, maxWidth: 200 },
       },
       {
-        header: "School Name",
+        header: "Admin",
         accessorFn: (row) => ({
           type: "text",
           value: row.schoolId?.schoolName || "N/A",
@@ -839,7 +839,7 @@ export default function UserAccessPage() {
         meta: { flex: 1, minWidth: 180, maxWidth: 220 },
       },
       {
-        header: "Assigned Branches",
+        header: "Assigned Users",
         accessorFn: (row) => {
           // console.log("Branches:", branchOptions);
           // console.log("Row:", row);
@@ -1020,12 +1020,12 @@ export default function UserAccessPage() {
 
         <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
           <DialogTrigger asChild>
-            <Button variant="default">Add Branch Group</Button>
+            <Button variant="default" className="text-white cursor-pointer">Add User Group</Button>
           </DialogTrigger>
           <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto">
             <form onSubmit={handleAddUser} className="space-y-4">
               <DialogHeader>
-                <DialogTitle>Add Branch Group</DialogTitle>
+                <DialogTitle>Add User Group</DialogTitle>
               </DialogHeader>
               <div className="grid gap-3">
                 <Label htmlFor="username">User Name</Label>
@@ -1036,11 +1036,11 @@ export default function UserAccessPage() {
                   required
                 />
 
-                <Label htmlFor="branchGroupName">Branch Group Name</Label>
+                <Label htmlFor="branchGroupName">User Group Name</Label>
                 <Input
                   id="branchGroupName"
                   name="branchGroupName"
-                  placeholder="Enter branch group name"
+                  placeholder="Enter user group name"
                   required
                 />
 
@@ -1061,17 +1061,17 @@ export default function UserAccessPage() {
                   required
                 />
 
-                <Label htmlFor="schoolId">School</Label>
+                <Label htmlFor="schoolId">Admin</Label>
                 <Combobox
                   items={schoolOptions}
                   value={selectedSchool}
                   onValueChange={handleSchoolChange}
-                  placeholder="Select School"
-                  searchPlaceholder="Search Schools..."
-                  emptyMessage="No schools found"
+                  placeholder="Select Admin"
+                  searchPlaceholder="Search Admin..."
+                  emptyMessage="No Admin found"
                 />
 
-                <Label htmlFor="assignedBranches">Assigned Branches</Label>
+                <Label htmlFor="assignedBranches">Assigned Users</Label>
                 <BranchDropdown
                   selectedBranches={selectedBranches}
                   branchOptions={filteredBranches}
@@ -1080,7 +1080,7 @@ export default function UserAccessPage() {
                 />
                 {selectedBranches.length > 0 && (
                   <div className="text-sm text-gray-600">
-                    Selected: {selectedBranches.length} branch(es)
+                    Selected: {selectedBranches.length} users
                   </div>
                 )}
               </div>
@@ -1088,7 +1088,7 @@ export default function UserAccessPage() {
                 <DialogClose asChild>
                   <Button variant="outline">Cancel</Button>
                 </DialogClose>
-                <Button type="submit" disabled={createMutation.isPending}>
+                <Button type="submit" className="text-white cursor-pointer" disabled={createMutation.isPending}>
                   {createMutation.isPending ? "Saving..." : "Save Group"}
                 </Button>
               </DialogFooter>
@@ -1109,7 +1109,7 @@ export default function UserAccessPage() {
             maxHeight={600}
             minHeight={200}
             showSerialNumber={true}
-            noDataMessage={error || "No branch groups found"}
+            noDataMessage={error || "No user groups found"}
             isLoading={isLoading}
           />
         </div>
@@ -1121,7 +1121,7 @@ export default function UserAccessPage() {
           {editTarget && (
             <form onSubmit={handleEditUser} className="space-y-4">
               <DialogHeader>
-                <DialogTitle>Edit Branch Group</DialogTitle>
+                <DialogTitle>Edit User Group</DialogTitle>
               </DialogHeader>
               <div className="grid gap-3">
                 <Label htmlFor="edit-username">User Name</Label>
@@ -1132,7 +1132,7 @@ export default function UserAccessPage() {
                   required
                 />
 
-                <Label htmlFor="edit-branchGroupName">Branch Group Name</Label>
+                <Label htmlFor="edit-branchGroupName">User Group Name</Label>
                 <Input
                   id="edit-branchGroupName"
                   name="branchGroupName"
@@ -1157,17 +1157,17 @@ export default function UserAccessPage() {
                   required
                 />
 
-                <Label htmlFor="edit-schoolId">School</Label>
+                <Label htmlFor="edit-schoolId">Admin</Label>
                 <Combobox
                   items={schoolOptions}
                   value={editSelectedSchool}
                   onValueChange={handleEditSchoolChange}
-                  placeholder="Select School"
-                  searchPlaceholder="Search Schools..."
-                  emptyMessage="No schools found"
+                  placeholder="Select Admin"
+                  searchPlaceholder="Search Admin..."
+                  emptyMessage="No Admin found"
                 />
 
-                <Label htmlFor="edit-assignedBranches">Assigned Branches</Label>
+                <Label htmlFor="edit-assignedBranches">Assigned Users</Label>
                 <BranchDropdown
                   selectedBranches={editSelectedBranches}
                   branchOptions={filteredEditBranches}
@@ -1176,7 +1176,7 @@ export default function UserAccessPage() {
                 />
                 {editSelectedBranches.length > 0 && (
                   <div className="text-sm text-gray-600">
-                    Selected: {editSelectedBranches.length} branch(es)
+                    Selected: {editSelectedBranches.length} users
                   </div>
                 )}
               </div>

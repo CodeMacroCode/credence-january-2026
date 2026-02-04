@@ -120,11 +120,11 @@ export const getRouteColumns = (
       accessorKey: "deviceObjId.name",
     },
     {
-      header: "School",
+      header: "Admin",
       accessorKey: "schoolId.schoolName",
     },
     {
-      header: "Branch",
+      header: "User",
       accessorKey: "branchId.branchName",
     },
     {
@@ -142,12 +142,12 @@ export const getRouteColumns = (
     },
     {
       id: "lastGeofence",
-      header: "School Point (last stop)",
+      header: "last stop",
       accessorFn: (row: Route) => row.endPointGeoId?.geofenceName ?? "—",
     },
     {
       id: "lastGeofenceAddress",
-      header: "School Point (last stop)",
+      header: "last stop address",
       accessorFn: (row: Route) => row.endPointGeoId?.address ?? "—",
       meta: {
         wrapConfig: { wrap: "wrap", maxWidth: "260px" },
@@ -283,12 +283,12 @@ export const getStudentColumns = (
     },
     {
       id: "school",
-      headers: "School",
+      headers: "Admin",
       accessorFn: (row: Student) => row.schoolId?.schoolName ?? "—",
     },
     {
       id: "branch",
-      headers: "Branch",
+      headers: "User",
       accessorFn: (row: Student) => row.branchId?.branchName ?? "—",
     },
     {
@@ -426,12 +426,12 @@ export const getDeviceColumns = (
     },
     {
       id: "school",
-      header: "School",
+      header: "Admin",
       accessorFn: (row: Device) => row.schoolId?.schoolName ?? "—",
     },
     {
       id: "branch",
-      header: "Branch",
+      header: "User",
       accessorFn: (row: Device) => row.branchId?.branchName ?? "—",
     },
     {
@@ -552,7 +552,7 @@ export const getLiveVehicleColumns = (): ColumnDef<LiveTrack>[] => [
 
       return (
         <div>
-          <img src={imageUrl} className="w-20" alt="school bus status" />
+          <img src={imageUrl} className="w-20" alt="vehicle status" />
         </div>
       );
     },
@@ -837,12 +837,12 @@ export const getParentsColumns = (
     { header: "Mobile No.", accessorKey: "mobileNo" },
     {
       id: "school",
-      header: "School",
+      header: "Admin",
       accessorFn: (row: Parent) => row.schoolId?.schoolName ?? "—",
     },
     {
       id: "branch",
-      header: "Branch",
+      header: "User",
       accessorFn: (row: Parent) => row.branchId?.branchName ?? "—",
     },
     {
@@ -911,14 +911,14 @@ export const getGeofenceCoumns = (
     },
     {
       id: "schoolName",
-      header: "School Name",
+      header: "Admin",
       accessorFn: (row) => row.school?.schoolName || "N/A",
       enableHiding: true,
       enableSorting: true,
     },
     {
       id: "branchName",
-      header: "Branch Name",
+      header: "User",
       accessorFn: (row) => row.branch?.branchName || "N/A",
       enableHiding: true,
       enableSorting: true,
@@ -996,12 +996,12 @@ export const getDriverColumns = (
     },
     {
       id: "School",
-      header: "school",
+      header: "Admin",
       accessorFn: (row: Driver) => row.schoolId?.schoolName ?? "—",
     },
     {
       id: "Branch",
-      header: "branch",
+      header: "User",
       accessorFn: (row: Driver) => row.branchId?.branchName ?? "—",
     },
     {
@@ -1129,12 +1129,12 @@ export const getSupervisorColumns = (
     },
     {
       id: "school",
-      header: "School",
+      header: "Admin",
       accessorFn: (row: Supervisor) => row.schoolId?.schoolName ?? "—",
     },
     {
       id: "branch",
-      header: "Branch",
+      header: "User",
       accessorFn: (row: Supervisor) => row.branchId?.branchName ?? "—",
     },
     {

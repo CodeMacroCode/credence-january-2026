@@ -39,6 +39,7 @@ import { Button } from "@/components/ui/button";
 import { ListFilter, X } from "lucide-react";
 import { useAuthStore } from "@/store/authStore";
 import { Combobox } from "@/components/ui/combobox";
+import { FilterCard } from "@/components/dashboard/FilterCard";
 
 type ViewState = "split" | "tableExpanded" | "mapExpanded";
 type StatusFilter = "all" | "running" | "idle" | "stopped" | "inactive" | "new";
@@ -97,41 +98,34 @@ export default function DashboardClient() {
   const { addresses, loadingAddresses, queueForGeocoding } =
     useReverseGeocode();
 
-  const statusColors: Record<string, { default: string; active: string }> = {
+  const statusConfig: Record<string, { color: string; icon: string }> = {
     Running: {
-      default:
-        "bg-white text-green-600 border border-green-400 hover:bg-[#63be77] hover:text-white",
-      active: "bg-[#63be77] text-white border border-green-400",
+      color: "border-green-500",
+      icon: "/car/side-view/carGreen.svg",
     },
     Overspeed: {
-      default:
-        "bg-white text-[#df6c1a] border border-[#df6c1a] hover:bg-[#df6c1a] hover:text-white",
-      active: "bg-[#df6c1a] text-white border border-[#df6c1a]",
+      color: "border-orange-500",
+      icon: "/car/side-view/carOrange.svg",
     },
     Idle: {
-      default:
-        "bg-white text-[#ffb20e] border border-[#ffb20e] hover:bg-[#ffb20e] hover:text-white",
-      active: "bg-[#ffb20e] text-white border border-[#ffb20e]",
+      color: "border-yellow-500",
+      icon: "/car/side-view/carYellow.svg",
     },
     Stopped: {
-      default:
-        "bg-white text-[#ee6464] border border-[#ee6464] hover:bg-[#ee6464] hover:text-white",
-      active: "bg-[#ee6464] text-white border border-[#ee6464]",
+      color: "border-red-500",
+      icon: "/car/side-view/carRed.svg",
     },
     Inactive: {
-      default:
-        "bg-white text-[#949494] border border-[#949494] hover:bg-[#949494] hover:text-white",
-      active: "bg-[#949494] text-white border border-[#949494]",
+      color: "border-gray-500",
+      icon: "/car/side-view/carGrey.svg",
     },
     New: {
-      default:
-        "bg-white text-[#2196f3] border border-[#2196f3] hover:bg-[#2196f3] hover:text-white",
-      active: "bg-[#2196f3] text-white border border-[#2196f3]",
+      color: "border-blue-500",
+      icon: "/car/side-view/carBlue.svg",
     },
     Total: {
-      default:
-        "bg-white text-[#4eb4e1] border border-[#4eb4e1] hover:bg-[#4eb4e1] hover:text-white",
-      active: "bg-[#4eb4e1] text-white border border-[#4eb4e1]",
+      color: "border-[#deb887]",
+      icon: "/car/side-view/carWhite.svg",
     },
   };
 
@@ -206,7 +200,7 @@ export default function DashboardClient() {
   useEffect(() => {
     // Check localStorage to see if popup has been shown before
     const hasPopupBeenShown = localStorage.getItem(SUBSCRIPTION_POPUP_KEY);
-    updateFilters({ page: 1, limit: 10, filter: "all", searchTerm: "" });
+    updateFilters({ page: 1, limit: 5, filter: "all", searchTerm: "" });
 
     if (!hasPopupBeenShown) {
       // If no value exists in localStorage, show the popup
@@ -462,7 +456,7 @@ export default function DashboardClient() {
     enableVirtualization: true,
     estimatedRowHeight: 20,
     overscan: 5,
-    maxHeight: "calc(100vh - 200px)",
+    maxHeight: "calc(100dvh - 280px)",
   });
 
   const bottomDrawerProps = useMemo(() => {
@@ -514,30 +508,71 @@ export default function DashboardClient() {
 
       <ResponseLoader isLoading={isLoading} />
 
+
       {/* Main Dashboard Content */}
-      <div className="relative min-h-screen bg-white">
-        {/* Dashboard Content - Always visible in background */}
-        <div>
-          <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-3 mb-4">
-            <div className="flex items-center gap-2 sm:gap-3 w-full lg:w-auto">
+      <div className="relative h-screen bg-gray-50/50 px-4">
+        {/* Dashboard Content */}
+        <div className="space-y-4">
+
+          {/* Top Row: Filter Cards */}
+          <div className="flex flex-wrap gap-4 overflow-x-auto py-2 px-2">
+            {counts.map((countObj, index) => {
+              const [key, value] = Object.entries(countObj)[0];
+              const label = key.charAt(0).toUpperCase() + key.slice(1);
+              const statusKey = key.toLowerCase() as StatusFilter;
+              const isActive = activeStatus === (key === "total" ? "all" : statusKey);
+              const config = statusConfig[label] || statusConfig["Total"];
+
+              return (
+                <FilterCard
+                  key={index}
+                  label={label}
+                  count={value}
+                  icon={config.icon}
+                  borderColor={config.color}
+                  isActive={isActive}
+                  onClick={() => handleStatusFilter(key === "total" ? "all" : statusKey)}
+                />
+              );
+            })}
+          </div>
+
+          {/* Second Row: Search and Controls */}
+          <div className="flex flex-col lg:flex-row justify-between items-center gap-4 bg-white p-3 rounded-lg shadow-sm border border-gray-100">
+            {/* Search Bar (Left) */}
+            <div className="relative w-full lg:w-1/3">
               <Input
-                placeholder="Search bus number or name..."
-                className="flex-1 min-w-0 lg:min-w-[200px] xl:min-w-[250px]"
+                placeholder="Search bus number"
+                className="w-full pl-9 bg-gray-50 border-gray-200 focus:bg-white transition-colors"
                 value={searchInput}
                 onChange={(e) => handleSearchChange(e.target.value)}
               />
-              <ColumnVisibilitySelector
-                columns={table.getAllColumns()}
-                buttonVariant="outline"
-                buttonSize="default"
-              />
+              <div className="absolute left-3 top-2.5 text-gray-400">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <circle cx="11" cy="11" r="8"></circle>
+                  <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg>
+              </div>
+            </div>
 
+            {/* Controls (Right) */}
+            <div className="flex items-center gap-2 w-full lg:w-auto justify-end">
               {userRole !== "branch" && (
                 <Popover>
                   <PopoverTrigger asChild>
-                    <Button variant="outline" className="h-10 gap-2 ml-2 cursor-pointer">
+                    <Button variant="outline" className="h-10 gap-2 cursor-pointer border-gray-200 hover:bg-gray-50 text-gray-700">
                       <ListFilter className="h-4 w-4" />
-                      Filters
+                      Filter
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent className="w-80" align="end">
@@ -565,16 +600,17 @@ export default function DashboardClient() {
                             placeholder="Select School"
                             searchPlaceholder="Search school..."
                             width="w-full"
+                            className="cursor-pointer"
                           />
                         </div>
                       )}
 
                       {/* Branch Dropdown */}
                       <div className="space-y-2">
-                        <h4 className="font-medium text-sm leading-none mb-2">Branch</h4>
+                        <h4 className="font-medium text-sm leading-none mb-2">Users</h4>
                         <Combobox
                           items={[
-                            { label: "All Branches", value: "all" },
+                            { label: "All Users", value: "all" },
                             ...(branchData?.map((branch: any) => ({
                               label: branch.branchName,
                               value: branch._id,
@@ -588,13 +624,14 @@ export default function DashboardClient() {
                           placeholder="Select Branch"
                           searchPlaceholder="Search branch..."
                           width="w-full"
+                          className="cursor-pointer"
                         />
                       </div>
 
                       {/* Clear Filters Button */}
                       <Button
                         variant="ghost"
-                        className="w-full justify-start text-muted-foreground hover:text-foreground cursor-pointer"
+                        className="w-full justify-start cursor-pointer text-muted-foreground hover:text-foreground cursor-pointer"
                         onClick={() =>
                           updateFilters({
                             schoolId:
@@ -613,69 +650,22 @@ export default function DashboardClient() {
                 </Popover>
               )}
 
-              {/* Added margin for spacing */}
-              <div className="ml-4"></div>
-            </div>
+              <ColumnVisibilitySelector
+                columns={table.getAllColumns()}
+                buttonVariant="outline"
+                buttonSize="default"
+                className="border-gray-200 hover:bg-gray-50 text-gray-700 cursor-pointer"
+              />
 
-            {/* Device/Status Count Buttons with Filtering */}
-            <div className="flex flex-wrap gap-2 w-full lg:w-auto">
-              {counts.map((countObj, index) => {
-                const [key, value] = Object.entries(countObj)[0];
-                const label = key.charAt(0).toUpperCase() + key.slice(1);
-                const statusKey = key.toLowerCase() as StatusFilter;
-                const isActive =
-                  activeStatus === (key === "total" ? "all" : statusKey);
-
-                return (
-                  <button
-                    key={index}
-                    onClick={() =>
-                      handleStatusFilter(key === "total" ? "all" : statusKey)
-                    }
-                    className={`
-                      inline-flex items-center justify-center
-                      ${isActive
-                        ? statusColors[label].active
-                        : statusColors[label].default
-                      }
-                      font-semibold text-[9px] sm:text-[10px]
-                      px-2 sm:px-3 py-2 sm:py-2.5 rounded-lg
-                      shadow-md hover:shadow-lg
-                      transform transition-all duration-200 ease-in-out
-                      hover:scale-105 active:scale-95
-                      focus:outline-none focus:ring-4 focus:ring-opacity-50
-                      min-w-[40px] sm:min-w-[60px] max-w-[100px]
-                      cursor-pointer
-                      select-none
-                      relative
-                      overflow-hidden
-                      group
-                      ${isActive
-                        ? "status-button-active ring-4 ring-blue-300"
-                        : ""
-                      }
-                    `}
-                    type="button"
-                    aria-label={`${label} count: ${value}`}
-                    aria-pressed={isActive}
-                  >
-                    <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/20 to-transparent group-hover:translate-x-full transition-transform duration-700 ease-out" />
-
-                    <span className="relative z-10 flex items-center gap-2">
-                      <span className="font-medium">{label}</span>
-                      <span className="bg-white/20 backdrop-blur-sm px-2 py-0.5 rounded-full text-xs font-bold">
-                        {value}
-                      </span>
-                    </span>
-                  </button>
-                );
-              })}
+              <Button variant="outline" className="hidden lg:flex gap-2 cursor-pointer border-gray-200 hover:bg-gray-50 text-gray-700">
+                Vehicle Type <ChevronsRight className="w-4 h-4 rotate-90" />
+              </Button>
             </div>
           </div>
 
           {/* Main Layout */}
           <div className="dashboard">
-            <div className="flex flex-col lg:flex-row gap-2 lg:gap-0 h-auto lg:h-[80vh] xl:h-[85vh]">
+            <div className="flex flex-col lg:flex-row gap-2 lg:gap-0">
               <section className={`overflow-auto min-h-[300px] lg:min-h-0 ${getTableClass}`}>
                 {viewState === "mapExpanded" && (
                   <div className="absolute top-1/2 left-0 z-50 hidden lg:block">
@@ -733,7 +723,7 @@ export default function DashboardClient() {
                 {viewState !== "tableExpanded" && (
                   <VehicleMap
                     vehicles={devices}
-                    height="100%"
+                    height="calc(100dvh - 200px)"
                     autoFitBounds={false}
                     showTrails={false}
                     clusterMarkers={devices.length > 100}
@@ -764,10 +754,16 @@ export default function DashboardClient() {
           </div>
         </div>
 
+
         {/* Drawer */}
-        <div>
+        <div className="lg:hidden">
+          {/* Drawer only for mobile if needed, or keeping it for both but controlling visibility */}
           <BottomDrawer {...bottomDrawerProps} />
         </div>
+        <div className="hidden lg:block">
+          <BottomDrawer {...bottomDrawerProps} />
+        </div>
+
 
         <LiveTrack open={open} setOpen={setOpen} selectedImei={selectedImei} />
 

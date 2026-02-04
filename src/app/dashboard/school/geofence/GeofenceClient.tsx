@@ -370,11 +370,11 @@ export default function GeofenceClient() {
                   setFilterSchoolId(val || undefined);
                   setFilterBranchId(undefined);
                 }}
-                placeholder="Filter School"
-                searchPlaceholder="Search School..."
+                placeholder="Filter Admin"
+                searchPlaceholder="Search Admin..."
                 width="w-[150px]"
                 className="cursor-pointer"
-                emptyMessage="No schools found"
+                emptyMessage="No Admin found"
               />
             )}
 
@@ -386,11 +386,11 @@ export default function GeofenceClient() {
                 items={branchItems}
                 value={filterBranchId}
                 onValueChange={(val) => setFilterBranchId(val || undefined)}
-                placeholder="Filter Branch"
-                searchPlaceholder="Search Branch..."
+                placeholder="Filter Users"
+                searchPlaceholder="Search Users..."
                 width="w-[150px]"
                 className="cursor-pointer"
-                emptyMessage="No branches found"
+                emptyMessage="No Users found"
                 disabled={role === "superAdmin" && !filterSchoolId}
               />
             )}
@@ -414,7 +414,7 @@ export default function GeofenceClient() {
         <div>
           <Dialog>
             <DialogTrigger asChild>
-              <Button className="cursor-pointer" onClick={handleAddGeofence}>
+              <Button className="cursor-pointer text-white" onClick={handleAddGeofence}>
                 Add Geofence
               </Button>
             </DialogTrigger>

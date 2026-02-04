@@ -18,7 +18,6 @@ import {
   SidebarRail,
   SidebarSeparator,
 } from "@/components/ui/sidebar";
-import { Input } from "@/components/ui/input";
 import { useRouter, usePathname } from "next/navigation";
 import RouteLoader from "@/components/RouteLoader";
 import { useTransition } from "react";
@@ -45,10 +44,10 @@ import {
   CheckCircle,
   XCircle,
   MessageCircle,
+  Group,
 } from "lucide-react";
 import { GiGps } from "react-icons/gi";
 import Image from "next/image";
-import Model from "@/app/dashboard/master/model/page";
 
 type UserRole = "superAdmin" | "school" | "branchGroup" | "branch" | null;
 
@@ -64,8 +63,8 @@ const iconMap: Record<string, React.ElementType> = {
   Status: AlertCircle,
   "Approved Request": CheckCircle,
   "Denied Request": XCircle,
-  "School Master": School,
-  "Branch Master": School,
+  "Admin Master": School,
+  "User Master": School,
   "Parents Master": Users,
   "Driver Approve": UserCheck,
   "Student Approve": UserCheck,
@@ -73,7 +72,7 @@ const iconMap: Record<string, React.ElementType> = {
   "Device": Smartphone,
   "Read Device": Smartphone,
   Devices: Smartphone,
-  "User Access": Settings,
+  "Group": Group,
   Notification: Bell,
   "Status Report": FileBarChart,
   "Distance Report": Route,
@@ -123,21 +122,25 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           if (role === "superAdmin") {
             return [
               { title: "Device", url: "/dashboard/users/add-device" },
-              { title: "School Master", url: "/dashboard/users/school-master" },
-              { title: "Branch Master", url: "/dashboard/users/branch-master" },
-              { title: "User Access", url: "/dashboard/users/user-access" },
-              {
-                title: "Student Details",
-                url: "/dashboard/school/student-details",
-              },
-              {
-                title: "Parents Master",
-                url: "/dashboard/users/parents-master",
-              },
+              { title: "Admin Master", url: "/dashboard/users/school-master" },
+              { title: "User Master", url: "/dashboard/users/branch-master" },
+              { title: "Group", url: "/dashboard/users/user-access" },
+              // {
+              //   title: "Student Details",
+              //   url: "/dashboard/school/student-details",
+              // },
+              // {
+              //   title: "Parents Master",
+              //   url: "/dashboard/users/parents-master",
+              // },
               { title: "Routes", url: "/dashboard/master/route" },
               {
                 title: "Geofence",
                 url: "/dashboard/school/geofence",
+              },
+              {
+                title: "Driver Approve",
+                url: "/dashboard/users/driver-approve",
               },
               // { title: "Notification", url: "/dashboard/users/notification" },
               { title: "Model", url: "/dashboard/master/model" },
@@ -147,17 +150,17 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             return [
               { title: "Device", url: "/dashboard/users/add-device" },
               {
-                title: "Branch Master",
+                title: "User Master",
                 url: "/dashboard/users/branch-master",
               },
-              {
-                title: "Student Details",
-                url: "/dashboard/school/student-details",
-              },
-              {
-                title: "Parents Master",
-                url: "/dashboard/users/parents-master",
-              },
+              // {
+              //   // title: "Student Details",
+              //   url: "/dashboard/school/student-details",
+              // },
+              // {
+              //   title: "Parents Master",
+              //   url: "/dashboard/users/parents-master",
+              // },
               {
                 title: "Routes",
                 url: "/dashboard/master/route",
@@ -170,14 +173,14 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           } else {
             return [
               { title: "Device", url: "/dashboard/users/add-device" },
-              {
-                title: "Student Details",
-                url: "/dashboard/school/student-details",
-              },
-              {
-                title: "Parents Master",
-                url: "/dashboard/users/parents-master",
-              },
+              // {
+              //   // title: "Student Details",
+              //   url: "/dashboard/school/student-details",
+              // },
+              // {
+              //   title: "Parents Master",
+              //   url: "/dashboard/users/parents-master",
+              // },
               {
                 title: "Routes",
                 url: "/dashboard/master/route",
@@ -188,22 +191,22 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               },
             ];
           }
-        case "Admin":
-          return [
-            { title: "Pickup And Drop", url: "/dashboard/school/pickup-drop" },
-            { title: "Leave Request", url: "/dashboard/school/leave-request" },
-          ];
-        case "Users":
-          return [
-            {
-              title: "Driver Approve",
-              url: "/dashboard/users/driver-approve",
-            },
-            {
-              title: "Supervisor Approve",
-              url: "/dashboard/users/supervisor-approve",
-            },
-          ];
+        // case "Admin":
+        //   return [
+        //     { title: "Pickup And Drop", url: "/dashboard/school/pickup-drop" },
+        //     { title: "Leave Request", url: "/dashboard/school/leave-request" },
+        //   ];
+        // case "Users":
+        //   return [
+        //     {
+        //       title: "Driver Approve",
+        //       url: "/dashboard/users/driver-approve",
+        //     },
+        //     // {
+        //     //   title: "Supervisor Approve",
+        //     //   url: "/dashboard/users/supervisor-approve",
+        //     // },
+        //   ];
         case "Reports":
           return [
             { title: "Status Report", url: "/dashboard/reports/status-report" },
@@ -257,6 +260,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       item.title.toLowerCase().includes(searchQuery.toLowerCase())
     );
   }, [sidebarData, searchQuery]);
+
+  // Reset search query when active section changes
+  React.useEffect(() => {
+    setSearchQuery("");
+  }, [activeSection]);
 
   React.useEffect(() => {
     if (!sidebarData || sidebarData.length === 0) return;

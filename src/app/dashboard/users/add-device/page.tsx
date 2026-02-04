@@ -483,11 +483,11 @@ const DevicesPage = () => {
                   setShouldFetchSchools(true);
                 }
               }}
-              placeholder="Filter School"
-              searchPlaceholder="Search School..."
+              placeholder="Filter Admin"
+              searchPlaceholder="Search Admin..."
               className="cursor-pointer"
               width="w-[150px]"
-              emptyMessage={schoolsLoading ? "Loading..." : "No schools found"}
+              emptyMessage={schoolsLoading ? "Loading..." : "No Admin found"}
             />
           )}
 
@@ -510,12 +510,12 @@ const DevicesPage = () => {
                     setShouldFetchBranches(true);
                   }
                 }}
-                placeholder="Filter Branch"
-                searchPlaceholder="Search Branch..."
+                placeholder="Filter Users"
+                searchPlaceholder="Search Users..."
                 className="cursor-pointer"
                 width="w-[150px]"
                 emptyMessage={
-                  branchesLoading ? "Loading..." : "No branches found"
+                  branchesLoading ? "Loading..." : "No Users found"
                 }
                 disabled={role === "superAdmin" && !filterSchoolId}
               />

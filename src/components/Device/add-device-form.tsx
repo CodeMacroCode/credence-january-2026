@@ -482,10 +482,10 @@ export function AddDeviceForm({
               )}
             </div>
 
-            {/* School */}
+            {/* Admin */}
             <div className="space-y-2">
               <Label>
-                School <span className="text-red-500">*</span>
+                Admin <span className="text-red-500">*</span>
               </Label>
               <Controller
                 name="schoolId"
@@ -495,9 +495,9 @@ export function AddDeviceForm({
                     items={schoolItems}
                     value={field.value}
                     onValueChange={field.onChange}
-                    placeholder="Select school"
-                    searchPlaceholder="Search schools..."
-                    emptyMessage="No school found"
+                    placeholder="Select admin"
+                    searchPlaceholder="Search admins..."
+                    emptyMessage="No admin found"
                     width="w-full"
                     disabled={isLoadingSchools || isLoading}
                   />
@@ -510,10 +510,10 @@ export function AddDeviceForm({
               )}
             </div>
 
-            {/* Branch */}
+            {/* User */}
             <div className="space-y-2">
               <Label>
-                Branch <span className="text-red-500">*</span>
+                User <span className="text-red-500">*</span>
               </Label>
               <Controller
                 name="branchId"
@@ -525,12 +525,12 @@ export function AddDeviceForm({
                     onValueChange={field.onChange}
                     placeholder={
                       !selectedSchoolId
-                        ? "Select school first"
-                        : "Select branch"
+                        ? "Select Admin first"
+                        : "Select User"
                     }
-                    searchPlaceholder="Search branches..."
+                    searchPlaceholder="Search users..."
                     emptyMessage={
-                      isFetchingBranches ? "Loading..." : "No branch found"
+                      isFetchingBranches ? "Loading..." : "No user found"
                     }
                     width="w-full"
                     disabled={
@@ -561,7 +561,7 @@ export function AddDeviceForm({
                     value={field.value}
                     onValueChange={field.onChange}
                     placeholder={
-                      !selectedBranchId ? "Select branch first" : "Select route"
+                      !selectedBranchId ? "Select user first" : "Select route"
                     }
                     searchPlaceholder="Search routes..."
                     emptyMessage={
@@ -592,7 +592,7 @@ export function AddDeviceForm({
                     onValueChange={field.onChange}
                     placeholder={
                       !selectedBranchId
-                        ? "Select branch first"
+                        ? "Select user first"
                         : "Select driver"
                     }
                     searchPlaceholder="Search drivers..."

@@ -85,7 +85,7 @@ export default function SchoolMaster() {
   // Define the columns for the table
   const columns: ColumnDef<School, CellContent>[] = [
     {
-      header: "School Name",
+      header: "Admin",
       accessorFn: (row) => ({
         type: "text",
         value: row.schoolName ?? "",
@@ -210,7 +210,7 @@ export default function SchoolMaster() {
   // Define the fields for the edit dialog
   const schoolFieldConfigs: FieldConfig[] = [
     {
-      label: "School Name",
+      label: "Admin",
       key: "schoolName",
       type: "text",
       required: true,
@@ -276,10 +276,10 @@ export default function SchoolMaster() {
 
       setEditDialogOpen(false);
       setEditTarget(null);
-      alert("School updated successfully.");
+      alert("Admin updated successfully.");
     },
     onError: (err) => {
-      alert("Failed to update school.\nerror: " + err);
+      alert("Failed to update admin.\nerror: " + err);
     },
   });
 
@@ -292,10 +292,10 @@ export default function SchoolMaster() {
       queryClient.setQueryData<School[]>(["schools"], (oldData) =>
         oldData?.filter((school) => school._id !== deletedId)
       );
-      alert("School deleted successfully.");
+      alert("Admin deleted successfully.");
     },
     onError: (err) => {
-      alert("Failed to delete school.\nerror: " + err);
+      alert("Failed to delete admin.\nerror: " + err);
     },
   });
 
@@ -317,11 +317,11 @@ export default function SchoolMaster() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["schools"] });
-      toast.success("School status updated successfully.");
+      toast.success("Admin status updated successfully.");
     },
     onError: (err: any) => {
       toast.error(
-        `Failed to update school status: ${err.response?.data?.message || err.message
+        `Failed to update admin status: ${err.response?.data?.message || err.message
         }`
       );
     },
@@ -398,7 +398,7 @@ export default function SchoolMaster() {
       await addSchoolMutation.mutateAsync(data);
       closeButtonRef.current?.click();
       form.reset();
-      toast.success("School added successfully.");
+      toast.success("Admin added successfully.");
     } catch (err) {
       toast.error(err.response?.data.message);
     }
@@ -460,20 +460,20 @@ export default function SchoolMaster() {
         <section>
           <Dialog>
             <DialogTrigger asChild>
-              <Button variant="default">Add School</Button>
+              <Button variant="default" className="text-white">Add Admin</Button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-[600px]">
               <form onSubmit={handleSubmit} className="space-y-4">
                 <DialogHeader>
-                  <DialogTitle>Add School</DialogTitle>
+                  <DialogTitle>Add Admin</DialogTitle>
                 </DialogHeader>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="grid gap-2">
-                    <Label htmlFor="schoolName">School Name</Label>
+                    <Label htmlFor="schoolName">Admin</Label>
                     <Input
                       id="schoolName"
                       name="schoolName"
-                      placeholder="Enter school name"
+                      placeholder="Enter admin name"
                       required
                     />
                   </div>
@@ -495,7 +495,7 @@ export default function SchoolMaster() {
                       id="mobileNo"
                       name="mobileNo"
                       type="tel"
-                      placeholder="Enter school mobile number"
+                      placeholder="Enter admin mobile number"
                       pattern="[0-9]{10}"
                       maxLength={10}
                       autoComplete="tel"
@@ -547,8 +547,8 @@ export default function SchoolMaster() {
                       Cancel
                     </Button>
                   </DialogClose>
-                  <Button type="submit" disabled={addSchoolMutation.isPending}>
-                    {addSchoolMutation.isPending ? "Saving..." : "Save School"}
+                  <Button type="submit" className="text-white" disabled={addSchoolMutation.isPending}>
+                    {addSchoolMutation.isPending ? "Saving..." : "Save Admin"}
                   </Button>
                 </DialogFooter>
               </form>
@@ -567,7 +567,7 @@ export default function SchoolMaster() {
           maxHeight={600}
           minHeight={200}
           showSerialNumber={true}
-          noDataMessage="No schools found"
+          noDataMessage="No admin found"
           isLoading={isLoading}
         />
       </section>
@@ -601,8 +601,8 @@ export default function SchoolMaster() {
             }}
             onSave={handleSave}
             fields={schoolFieldConfigs}
-            title="Edit School"
-            description="Update the school information below. Fields marked with * are required."
+            title="Edit Admin"
+            description="Update the admin information below. Fields marked with * are required."
             avatarConfig={{
               imageKey: "logo",
               nameKeys: ["schoolName"],

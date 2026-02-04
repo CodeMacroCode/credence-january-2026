@@ -26,6 +26,7 @@ export default function DashboardLayout({
   const activeSection = useNavigationStore((state) => state.activeSection);
   const SHOW_SIDEBAR_SECTIONS = [
     "Master",
+    // "Admin",
     "School",
     "Users",
     "Reports",

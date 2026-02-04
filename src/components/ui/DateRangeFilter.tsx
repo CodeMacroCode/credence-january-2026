@@ -32,19 +32,19 @@ const DateRangeFilter: React.FC<DateRangeFilterProps> = ({
   const [showYearSelector, setShowYearSelector] = useState<boolean>(false);
   const [showMonthSelector, setShowMonthSelector] = useState<boolean>(false);
 
-    useEffect(() => {
-      // Only update if props are provided
-      if (defaultStartDate !== undefined) {
-        setSelectedStartDate(defaultStartDate);
-        // Update calendar month to show the selected date
-        if (defaultStartDate) {
-          setCurrentMonth(new Date(defaultStartDate));
-        }
+  useEffect(() => {
+    // Only update if props are provided
+    if (defaultStartDate !== undefined) {
+      setSelectedStartDate(defaultStartDate);
+      // Update calendar month to show the selected date
+      if (defaultStartDate) {
+        setCurrentMonth(new Date(defaultStartDate));
       }
-      if (defaultEndDate !== undefined) {
-        setSelectedEndDate(defaultEndDate);
-      }
-    }, [defaultStartDate, defaultEndDate]);
+    }
+    if (defaultEndDate !== undefined) {
+      setSelectedEndDate(defaultEndDate);
+    }
+  }, [defaultStartDate, defaultEndDate]);
 
   const months = [
     "Jan",
@@ -269,45 +269,45 @@ const DateRangeFilter: React.FC<DateRangeFilterProps> = ({
   // Filter presets based on maxDays limit
   const presets = maxDays
     ? allPresets.filter((preset) => {
-        // Always show Custom Range
-        if (preset.label === "Custom Range") return true;
+      // Always show Custom Range
+      if (preset.label === "Custom Range") return true;
 
-        // For other presets, check if they exceed maxDays
-        const startDate =
-          preset.label === "Today"
-            ? today
-            : preset.label === "Yesterday"
+      // For other presets, check if they exceed maxDays
+      const startDate =
+        preset.label === "Today"
+          ? today
+          : preset.label === "Yesterday"
             ? yesterday
             : preset.label === "Last Week"
-            ? lastWeekStart
-            : preset.label === "This Week"
-            ? thisWeekStart
-            : preset.label === "This Month"
-            ? thisMonthStart
-            : preset.label === "Last Month"
-            ? lastMonthStart
-            : null;
+              ? lastWeekStart
+              : preset.label === "This Week"
+                ? thisWeekStart
+                : preset.label === "This Month"
+                  ? thisMonthStart
+                  : preset.label === "Last Month"
+                    ? lastMonthStart
+                    : null;
 
-        const endDate =
-          preset.label === "Today"
-            ? today
-            : preset.label === "Yesterday"
+      const endDate =
+        preset.label === "Today"
+          ? today
+          : preset.label === "Yesterday"
             ? yesterday
             : preset.label === "Last Week"
-            ? lastWeekEnd
-            : preset.label === "This Week"
-            ? today
-            : preset.label === "This Month"
-            ? today
-            : preset.label === "Last Month"
-            ? lastMonthEnd
-            : null;
+              ? lastWeekEnd
+              : preset.label === "This Week"
+                ? today
+                : preset.label === "This Month"
+                  ? today
+                  : preset.label === "Last Month"
+                    ? lastMonthEnd
+                    : null;
 
-        if (!startDate || !endDate) return true;
+      if (!startDate || !endDate) return true;
 
-        const daysDiff = getDaysBetween(startDate, endDate);
-        return daysDiff <= maxDays;
-      })
+      const daysDiff = getDaysBetween(startDate, endDate);
+      return daysDiff <= maxDays;
+    })
     : allPresets;
 
   const isPresetActive = (label: string): boolean => {
@@ -405,8 +405,8 @@ const DateRangeFilter: React.FC<DateRangeFilterProps> = ({
           <Calendar className="mr-2 h-4 w-4" />
           {selectedStartDate && selectedEndDate
             ? `${formatDate(selectedStartDate)} - ${formatDate(
-                selectedEndDate
-              )}`
+              selectedEndDate
+            )}`
             : title}
         </Button>
       </PopoverTrigger>
@@ -423,7 +423,7 @@ const DateRangeFilter: React.FC<DateRangeFilterProps> = ({
                   className={cn(
                     "w-full justify-start h-8 px-2 font-normal cursor-pointer",
                     isPresetActive(preset.label) &&
-                      "bg-accent text-accent-foreground",
+                    "bg-accent text-accent-foreground",
                     preset.disabled && "opacity-50 cursor-not-allowed"
                   )}
                   onClick={preset.action}
@@ -547,12 +547,12 @@ const DateRangeFilter: React.FC<DateRangeFilterProps> = ({
                       "h-8 w-8 p-0 font-normal cursor-pointer",
                       !isCurrentMonth && "text-muted-foreground opacity-50",
                       isSelected &&
-                        "bg-primary hover:bg-primary hover:text-primary-foreground",
+                      "bg-primary hover:bg-primary hover:text-primary-foreground",
                       inRange &&
-                        !isSelected &&
-                        "bg-[#FFE58A] text-accent-foreground",
+                      !isSelected &&
+                      "bg-[#dbeafe] text-accent-foreground",
                       disabled &&
-                        "opacity-30 cursor-not-allowed hover:bg-transparent"
+                      "opacity-30 cursor-not-allowed hover:bg-transparent"
                     )}
                   >
                     {date.getDate()}

@@ -68,7 +68,7 @@ export const useExport = () => {
   const exportToPDF = async (
     data: unknown[],
     columns: ExportColumn[],
-    config: ExportConfig = {}
+    config: ExportConfig = {},
   ) => {
     try {
       if (!data?.length) {
@@ -111,7 +111,7 @@ export const useExport = () => {
       doc.text(
         dateText,
         doc.internal.pageSize.width - 15 - doc.getTextWidth(dateText),
-        21
+        21,
       );
 
       // Metadata
@@ -135,7 +135,7 @@ export const useExport = () => {
           return col.formatter
             ? col.formatter(value, item) // 👈 pass the whole row too
             : value?.toString() || "--";
-        })
+        }),
       );
 
       // Generate main table
@@ -173,8 +173,12 @@ export const useExport = () => {
 
       // Handle nested tables if configured
       if (config.nestedTable) {
-        const { dataKey, columns: nestedColumns, title: nestedTitle } = config.nestedTable;
-        
+        const {
+          dataKey,
+          columns: nestedColumns,
+          title: nestedTitle,
+        } = config.nestedTable;
+
         data.forEach((item: any, index: number) => {
           const nestedData = item[dataKey];
           if (!nestedData?.length) return;
@@ -190,14 +194,17 @@ export const useExport = () => {
           }
 
           // Add nested table title
-          const parentIdentifier = item.vehicleName || item.name || `Row ${index + 1}`;
+          const parentIdentifier =
+            item.vehicleName || item.name || `Row ${index + 1}`;
           doc.setFontSize(10);
           doc.setFont(CONFIG.fonts.primary, "bold");
           doc.setTextColor(...CONFIG.colors.tertiary);
           doc.text(
-            nestedTitle ? `${nestedTitle} - ${parentIdentifier}` : `Details for ${parentIdentifier}`,
+            nestedTitle
+              ? `${nestedTitle} - ${parentIdentifier}`
+              : `Details for ${parentIdentifier}`,
             15,
-            yPos
+            yPos,
           );
           yPos += 5;
 
@@ -206,12 +213,14 @@ export const useExport = () => {
           const nestedRows = nestedData.map((nestedItem: any) =>
             nestedColumns.map((col) => {
               const value = col.key.includes(".")
-                ? col.key.split(".").reduce((obj: any, key: string) => obj?.[key], nestedItem)
+                ? col.key
+                    .split(".")
+                    .reduce((obj: any, key: string) => obj?.[key], nestedItem)
                 : nestedItem[col.key];
               return col.formatter
                 ? col.formatter(value, nestedItem)
                 : value?.toString() || "--";
-            })
+            }),
           );
 
           // Generate nested table
@@ -251,7 +260,7 @@ export const useExport = () => {
           15,
           doc.internal.pageSize.height - 15,
           doc.internal.pageSize.width - 15,
-          doc.internal.pageSize.height - 15
+          doc.internal.pageSize.height - 15,
         );
 
         doc.setFontSize(9);
@@ -264,7 +273,7 @@ export const useExport = () => {
         doc.text(
           pageText,
           doc.internal.pageSize.width - 15 - pageWidth,
-          doc.internal.pageSize.height - 10
+          doc.internal.pageSize.height - 10,
         );
       }
 
@@ -273,7 +282,7 @@ export const useExport = () => {
     } catch (error) {
       console.error("PDF Export Error:", error);
       toast.error(
-        error instanceof Error ? error.message : "Failed to export PDF"
+        error instanceof Error ? error.message : "Failed to export PDF",
       );
     }
   };
@@ -281,13 +290,13 @@ export const useExport = () => {
   const exportToExcel = async (
     data: unknown[],
     columns: ExportColumn[],
-    config: ExportConfig = {}
+    config: ExportConfig = {},
   ) => {
     try {
-      if (!data?.length){
+      if (!data?.length) {
         toast.error("No data available for Excel export");
-         throw new Error("No data available for Excel export");
-}
+        throw new Error("No data available for Excel export");
+      }
       const workbook = new ExcelJS.Workbook();
       const worksheet = workbook.addWorksheet("Data Report");
       const compunknownName = config.compunknownName || CONFIG.compunknown.name;
@@ -315,7 +324,7 @@ export const useExport = () => {
       subtitleRow.fill = {
         type: "pattern",
         pattern: "solid",
-        fgColor: { argb: "FFE58A" },
+        fgColor: { argb: "dbeafe" },
       };
       subtitleRow.alignment = { horizontal: "center" };
       worksheet.mergeCells(`A2:${String.fromCharCode(64 + columns.length)}2`);
@@ -351,7 +360,9 @@ export const useExport = () => {
       data.forEach((item: any) => {
         const rowData = columns.map((col) => {
           const value = col.key.includes(".")
-            ? col.key.split(".").reduce((obj: any, key: string) => obj?.[key], item)
+            ? col.key
+                .split(".")
+                .reduce((obj: any, key: string) => obj?.[key], item)
             : item[col.key];
           return col.formatter
             ? col.formatter(value, item)
@@ -371,15 +382,21 @@ export const useExport = () => {
 
         // Handle nested table if configured
         if (config.nestedTable) {
-          const { dataKey, columns: nestedColumns, title: nestedTitle } = config.nestedTable;
+          const {
+            dataKey,
+            columns: nestedColumns,
+            title: nestedTitle,
+          } = config.nestedTable;
           const nestedData = item[dataKey];
-          
+
           if (nestedData?.length) {
             // Add spacer and nested title
             worksheet.addRow([]);
-            const parentIdentifier = item.vehicleName || item.name || 'Details';
+            const parentIdentifier = item.vehicleName || item.name || "Details";
             const nestedTitleRow = worksheet.addRow([
-              nestedTitle ? `${nestedTitle} - ${parentIdentifier}` : `Day-Wise Details for ${parentIdentifier}`
+              nestedTitle
+                ? `${nestedTitle} - ${parentIdentifier}`
+                : `Day-Wise Details for ${parentIdentifier}`,
             ]);
             nestedTitleRow.font = { bold: true, size: 10, italic: true };
             nestedTitleRow.fill = {
@@ -388,17 +405,19 @@ export const useExport = () => {
               fgColor: { argb: "E8E8E8" },
             };
             worksheet.mergeCells(
-              `A${nestedTitleRow.number}:${String.fromCharCode(64 + nestedColumns.length)}${nestedTitleRow.number}`
+              `A${nestedTitleRow.number}:${String.fromCharCode(64 + nestedColumns.length)}${nestedTitleRow.number}`,
             );
 
             // Add nested headers
-            const nestedHeaderRow = worksheet.addRow(nestedColumns.map((col) => col.header));
+            const nestedHeaderRow = worksheet.addRow(
+              nestedColumns.map((col) => col.header),
+            );
             nestedHeaderRow.eachCell((cell) => {
               cell.font = { bold: true, size: 10, color: { argb: "000000" } };
               cell.fill = {
                 type: "pattern",
                 pattern: "solid",
-                fgColor: { argb: "FFE58A" },
+                fgColor: { argb: "dbeafe" },
               };
               cell.alignment = { vertical: "middle", horizontal: "center" };
               cell.border = {
@@ -413,7 +432,9 @@ export const useExport = () => {
             nestedData.forEach((nestedItem: any) => {
               const nestedRowData = nestedColumns.map((col) => {
                 const value = col.key.includes(".")
-                  ? col.key.split(".").reduce((obj: any, key: string) => obj?.[key], nestedItem)
+                  ? col.key
+                      .split(".")
+                      .reduce((obj: any, key: string) => obj?.[key], nestedItem)
                   : nestedItem[col.key];
                 return col.formatter
                   ? col.formatter(value, nestedItem)
@@ -454,7 +475,7 @@ export const useExport = () => {
       worksheet.mergeCells(
         `A${footerRow.number}:${String.fromCharCode(64 + columns.length)}${
           footerRow.number
-        }`
+        }`,
       );
 
       const buffer = await workbook.xlsx.writeBuffer();
@@ -466,7 +487,7 @@ export const useExport = () => {
     } catch (error) {
       console.error("Excel Export Error:", error);
       toast.error(
-        error instanceof Error ? error.message : "Failed to export Excel file"
+        error instanceof Error ? error.message : "Failed to export Excel file",
       );
     }
   };

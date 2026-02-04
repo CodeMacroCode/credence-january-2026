@@ -165,7 +165,7 @@ const BranchEditDialog = ({
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Branch Name */}
             <div className="grid gap-2">
-              <Label htmlFor="edit-branchName">Branch Name *</Label>
+              <Label htmlFor="edit-branchName">User *</Label>
               <Input
                 id="edit-branchName"
                 value={formData.branchName || ""}
@@ -179,14 +179,14 @@ const BranchEditDialog = ({
             {/* School Name (for superadmin only) */}
             {isSuperAdmin && (
               <div className="grid gap-2">
-                <Label htmlFor="edit-schoolId">School *</Label>
+                <Label htmlFor="edit-schoolId">Admin *</Label>
                 <Combobox
                   items={schoolOptions}
                   value={formData.schoolId}
                   onValueChange={(value) =>
                     handleFieldChange("schoolId", value)
                   }
-                  placeholder="Select school..."
+                  placeholder="Select admin..."
                   width="w-full"
                 />
               </div>
@@ -744,11 +744,11 @@ export default function BranchMaster() {
       setIsVerified(false);
 
       // alert("Branch updated successfully.");
-      toast.success("Branch updated successfully.");
+      toast.success("User updated successfully.");
     },
     onError: (err: any) => {
       alert(
-        `Failed to update branch: ${err.response?.data?.message || err.message}`
+        `Failed to update user: ${err.response?.data?.message || err.message}`
       );
     },
   });
@@ -767,11 +767,11 @@ export default function BranchMaster() {
       setDeleteTarget(null);
 
       // alert("Branch deleted successfully.");
-      toast.error("Branch deleted successfully.");
+      toast.error("User deleted successfully.");
     },
     onError: (err: any) => {
       alert(
-        `Failed to delete branch: ${err.response?.data?.message || err.message}`
+        `Failed to delete user: ${err.response?.data?.message || err.message}`
       );
     },
   });
@@ -794,11 +794,11 @@ export default function BranchMaster() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["branches"] });
-      toast.success("Branch status updated successfully.");
+      toast.success("User status updated successfully.");
     },
     onError: (err: any) => {
       toast.error(
-        `Failed to update branch status: ${err.response?.data?.message || err.message
+        `Failed to update user status: ${err.response?.data?.message || err.message
         }`
       );
     },
@@ -914,7 +914,7 @@ export default function BranchMaster() {
   const columns = useMemo<ColumnDef<branch, CellContent>[]>(
     () => [
       {
-        header: "Branch Name",
+        header: "User Name",
         accessorFn: (row) => ({
           type: "text",
           value: row.branchName ?? "",
@@ -926,7 +926,7 @@ export default function BranchMaster() {
       ...(isSuperAdmin
         ? [
           {
-            header: "School Name",
+            header: "Admin Name",
             accessorFn: (row) => ({
               type: "text",
               value: row.schoolId?.schoolName ?? "",
@@ -1092,13 +1092,13 @@ export default function BranchMaster() {
     <main>
       <ResponseLoader isLoading={isLoading} />
 
-      <header className="px-3 py-2 border-b border-gray-200 bg-blue-50 flex items-center justify-between">
+      <header className="px-3 py-2 border-b border-gray-200 flex items-center justify-between">
         <section className="flex space-x-4">
           <SearchComponent
             data={filterResults}
-            displayKey={["branchName", "username", "email", "branchMobile"]}
+            displayKey={["user", "username", "email", "mobile"]}
             onResults={handleSearchResults}
-            className="w-[300px] mb-4"
+            className="w-[250px] mb-4"
           />
           <div>
             <DateRangeFilter
@@ -1139,20 +1139,20 @@ export default function BranchMaster() {
           {(isSuperAdmin || isSchoolRole || isBranchGroup) && (
             <Dialog>
               <DialogTrigger asChild>
-                <Button variant="default">Add branch</Button>
+                <Button variant="default" className="text-white">Add User</Button>
               </DialogTrigger>
               <DialogContent className="sm:max-w-[600px]">
                 <form onSubmit={handleSubmit} className="space-y-4">
                   <DialogHeader>
-                    <DialogTitle>Add branch</DialogTitle>
+                    <DialogTitle>Add User</DialogTitle>
                   </DialogHeader>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="grid gap-2">
-                      <Label htmlFor="branchName">Branch Name *</Label>
+                      <Label htmlFor="branchName">User Name *</Label>
                       <Input
                         id="branchName"
                         name="branchName"
-                        placeholder="Enter branch name"
+                        placeholder="Enter user name"
                         required
                       />
                     </div>
@@ -1160,14 +1160,14 @@ export default function BranchMaster() {
                     {/* Show School field only for superadmin */}
                     {isSuperAdmin && (
                       <div className="grid gap-2">
-                        <Label htmlFor="schoolId">School *</Label>
+                        <Label htmlFor="schoolId">Admin *</Label>
                         <Combobox
                           items={schoolOptions}
                           value={school}
                           onValueChange={setSchool}
-                          placeholder="Search school..."
-                          searchPlaceholder="Search schools..."
-                          emptyMessage="No school found."
+                          placeholder="Search admin..."
+                          searchPlaceholder="Search admin..."
+                          emptyMessage="No admin found."
                           width="w-full"
                           onSearchChange={setSchoolSearch}
                           searchValue={schoolSearch}
@@ -1178,13 +1178,13 @@ export default function BranchMaster() {
                     {/* Show school info for non-superadmin roles */}
                     {(isSchoolRole || isBranchGroup) && userSchoolName && (
                       <div className="grid gap-2">
-                        <Label htmlFor="schoolInfo">School</Label>
+                        <Label htmlFor="schoolInfo">Admin</Label>
                         <Input
                           id="schoolInfo"
                           value={userSchoolName}
                           disabled
                           className="bg-gray-100"
-                          placeholder="Your assigned school"
+                          placeholder="Your assigned admin"
                         />
                         <input
                           type="hidden"
@@ -1192,7 +1192,7 @@ export default function BranchMaster() {
                           value={userSchoolId || ""}
                         />
                         <p className="text-xs text-gray-500">
-                          School is automatically assigned to your account
+                          Admin is automatically assigned to your account
                         </p>
                       </div>
                     )}
@@ -1214,7 +1214,7 @@ export default function BranchMaster() {
                         id="branchMobile"
                         name="branchMobile"
                         type="tel"
-                        placeholder="Enter branch mobile number"
+                        placeholder="Enter user mobile number"
                         pattern="[0-9]{10}"
                         maxLength={10}
                         autoComplete="tel"
@@ -1283,11 +1283,12 @@ export default function BranchMaster() {
                     </DialogClose>
                     <Button
                       type="submit"
+                      className="text-white"
                       disabled={addbranchMutation.isPending}
                     >
                       {addbranchMutation.isPending
                         ? "Saving..."
-                        : "Save branch"}
+                        : "Save user"}
                     </Button>
                   </DialogFooter>
                 </form>
@@ -1307,7 +1308,7 @@ export default function BranchMaster() {
           maxHeight={600}
           minHeight={200}
           showSerialNumber={true}
-          noDataMessage="No branches found"
+          noDataMessage="No users found"
           isLoading={isLoading}
         />
       </section>

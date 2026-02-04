@@ -217,17 +217,17 @@ export default function AddDriverForm({
     switch (decodedTokenRole) {
       case "superAdmin":
         if (!selectedSchoolId) {
-          newErrors.school = "School is required";
+          newErrors.school = "Admin is required";
         }
         if (!selectedBranchId) {
-          newErrors.branch = "Branch is required";
+          newErrors.branch = "User is required";
         }
         break;
 
       case "school":
       case "branchGroup":
         if (!selectedBranchId) {
-          newErrors.branch = "Branch is required";
+          newErrors.branch = "User is required";
         }
         break;
     }
@@ -389,7 +389,7 @@ export default function AddDriverForm({
           {decodedTokenRole === "superAdmin" && (
             <div className="col-span-2">
               <label className="text-sm font-medium">
-                School <span className="text-red-500">*</span>
+                Admin <span className="text-red-500">*</span>
               </label>
               <Combobox
                 items={schools.map((s: any) => ({
@@ -401,10 +401,10 @@ export default function AddDriverForm({
                   setSelectedSchoolId(value);
                   if (errors.school) setErrors({ ...errors, school: "" });
                 }}
-                placeholder="Select School"
-                searchPlaceholder="Search schools..."
+                placeholder="Select Admin"
+                searchPlaceholder="Search Admins..."
                 emptyMessage={
-                  isLoadingSchools ? "Loading schools..." : "No school found."
+                  isLoadingSchools ? "Loading Admins..." : "No Admin found."
                 }
                 width="w-full"
                 open={schoolOpen}
@@ -422,7 +422,7 @@ export default function AddDriverForm({
               className={decodedTokenRole === "superAdmin" ? "" : "col-span-2"}
             >
               <label className="text-sm font-medium">
-                Branch <span className="text-red-500">*</span>
+                User <span className="text-red-500">*</span>
               </label>
               <Combobox
                 items={branches.map((b: any) => ({
@@ -436,12 +436,12 @@ export default function AddDriverForm({
                 }}
                 placeholder={
                   selectedSchoolId || decodedTokenRole !== "superAdmin"
-                    ? "Select Branch"
-                    : "Select school first"
+                    ? "Select User"
+                    : "Select admin first"
                 }
-                searchPlaceholder="Search branches..."
+                searchPlaceholder="Search users..."
                 emptyMessage={
-                  isLoadingBranches ? "Loading branches..." : "No branch found."
+                  isLoadingBranches ? "Loading users..." : "No user found."
                 }
                 width="w-full"
                 disabled={
@@ -480,7 +480,7 @@ export default function AddDriverForm({
               placeholder={
                 selectedBranchId || decodedTokenRole === "branch"
                   ? "Select Route"
-                  : "Select branch first"
+                  : "Select user first"
               }
               searchPlaceholder="Search routes..." // Changed from vehicles
               emptyMessage={
@@ -509,7 +509,7 @@ export default function AddDriverForm({
             Cancel
           </Button>
           <Button
-            className="bg-primary cursor-pointer"
+            className="bg-primary cursor-pointer text-white"
             onClick={handleSave}
             disabled={isCreating || isUpdating}
           >

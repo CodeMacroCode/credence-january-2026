@@ -729,12 +729,12 @@ export const ReportFilter: React.FC<ReportFilterProps> = ({
     if (mergedConfig.showSchool && role === "superAdmin") {
       if (mergedConfig.multiSelectSchool) {
         if (selectedSchools.length === 0) {
-          alert("Please select at least one school");
+          alert("Please select at least one admin");
           return;
         }
       } else {
         if (!filters.schoolId) {
-          alert("Please select a school");
+          alert("Please select an admin");
           return;
         }
       }
@@ -873,7 +873,7 @@ export const ReportFilter: React.FC<ReportFilterProps> = ({
             <div className="space-y-2">
               <label className="text-sm font-medium flex items-center gap-2">
                 <Building2 className="h-4 w-4 text-muted-foreground" />
-                School{mergedConfig.multiSelectSchool && "s"}
+                Admin{mergedConfig.multiSelectSchool && "s"}
               </label>
               <Combobox
                 items={schoolItems}
@@ -884,15 +884,15 @@ export const ReportFilter: React.FC<ReportFilterProps> = ({
                 onSelectedValuesChange={handleSchoolsChange}
                 placeholder={
                   mergedConfig.multiSelectSchool
-                    ? "Select Schools"
-                    : "Select School"
+                    ? "Select Admins"
+                    : "Select Admin"
                 }
-                searchPlaceholder="Search Schools..."
+                searchPlaceholder="Search Admins..."
                 className="cursor-pointer w-full"
                 showBadges={mergedConfig.showBadges}
                 maxBadges={mergedConfig.maxBadges}
                 emptyMessage={
-                  schoolsLoading ? "Loading schools..." : "No schools found"
+                  schoolsLoading ? "Loading admins..." : "No admins found"
                 }
                 open={schoolOpen}
                 onOpenChange={(open) => {
@@ -913,7 +913,7 @@ export const ReportFilter: React.FC<ReportFilterProps> = ({
               <div className="space-y-2">
                 <label className="text-sm font-medium flex items-center gap-2">
                   <GitBranch className="h-4 w-4 text-muted-foreground" />
-                  Branch{mergedConfig.multiSelectBranch && "es"}
+                  User{mergedConfig.multiSelectBranch && "es"}
                 </label>
                 <Combobox
                   items={branchItems}
@@ -926,19 +926,19 @@ export const ReportFilter: React.FC<ReportFilterProps> = ({
                     role === "superAdmin" &&
                     !selectedSchool &&
                     selectedSchools.length === 0
-                      ? "Select school first"
+                      ? "Select admin first"
                       : mergedConfig.multiSelectBranch
-                      ? "Select Branches"
-                      : "Select Branch"
+                      ? "Select Users"
+                      : "Select user"
                   }
-                  searchPlaceholder="Search Branches..."
+                  searchPlaceholder="Search Users..."
                   className="cursor-pointer w-full"
                   showBadges={mergedConfig.showBadges}
                   maxBadges={mergedConfig.maxBadges}
                   emptyMessage={
                     branchesLoading
-                      ? "Loading branches..."
-                      : "No branches found"
+                      ? "Loading users..."
+                      : "No users found"
                   }
                   disabled={
                     role === "superAdmin" &&
@@ -977,7 +977,7 @@ export const ReportFilter: React.FC<ReportFilterProps> = ({
                     ? mergedConfig.multiSelectDevice
                       ? "Select Vehicles"
                       : "Select Vehicle"
-                    : "Select branch first"
+                    : "Select users first"
                 }
                 searchPlaceholder="Search vehicles..."
                 className="cursor-pointer w-full"
@@ -1026,7 +1026,7 @@ export const ReportFilter: React.FC<ReportFilterProps> = ({
             <Button
               onClick={handleSubmit}
               disabled={!isValid || mergedConfig.submitButtonDisabled}
-              className="px-6 cursor-pointer mt-6"
+              className="px-6 cursor-pointer mt-6 text-white"
               size="lg"
             >
               {mergedConfig.submitButtonText}

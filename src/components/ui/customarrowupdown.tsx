@@ -12,8 +12,8 @@ export function CustomArrowUpDown({
   size = 20,
   className = "",
 }: CustomArrowUpDownProps) {
-  const upColor = direction === "asc" ? "#FFE58A" : "#000000";   
-  const downColor = direction === "desc" ? "#FFE58A" : "#000000";
+  const upColor = direction === "asc" ? "#000000" : "#dbeafe";
+  const downColor = direction === "desc" ? "#000000" : "#dbeafe";
 
   return (
     <svg

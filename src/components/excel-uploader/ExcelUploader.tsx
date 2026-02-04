@@ -257,7 +257,7 @@ export const ExcelUploader = ({
     // Validate school selection
     if (!effectiveSchoolId) {
       toast.error("Missing selection", {
-        description: "Please select a school",
+        description: "Please select a admin",
       });
       return;
     }
@@ -265,7 +265,7 @@ export const ExcelUploader = ({
     // Validate branch selection
     if (!selectedBranch) {
       toast.error("Missing selection", {
-        description: "Please select a branch",
+        description: "Please select a user",
       });
       return;
     }
@@ -347,9 +347,9 @@ export const ExcelUploader = ({
       return "Upload your Excel file";
     }
     if (role === "school" || role === "branchGroup") {
-      return "Select your branch, then upload your Excel file";
+      return "Select your user, then upload your Excel file";
     }
-    return "Select your school and branch, then upload your Excel file";
+    return "Select your admin and user, then upload your Excel file";
   };
 
   return (
@@ -379,16 +379,16 @@ export const ExcelUploader = ({
             {showSchoolDropdown && (
               <div className="space-y-2">
                 <Label className="text-sm font-medium">
-                  School <span className="text-destructive">*</span>
+                  Admin <span className="text-destructive">*</span>
                 </Label>
                 <Combobox
                   items={schoolItems}
                   value={selectedSchool}
                   onValueChange={(value) => setSelectedSchool(value || "")}
-                  placeholder="Select School"
-                  searchPlaceholder="Search schools..."
+                  placeholder="Select Admin"
+                  searchPlaceholder="Search Admin..."
                   emptyMessage={
-                    isLoadingSchools ? "Loading..." : "No schools found"
+                    isLoadingSchools ? "Loading..." : "No Admin found"
                   }
                   width="w-full"
                   disabled={isUploading}
@@ -398,24 +398,24 @@ export const ExcelUploader = ({
               </div>
             )}
 
-            {/* Branch Dropdown */}
+            {/* User Dropdown */}
             {showBranchDropdown && (
               <div className="space-y-2">
                 <Label className="text-sm font-medium">
-                  Branch <span className="text-destructive">*</span>
+                  User <span className="text-destructive">*</span>
                 </Label>
                 <Combobox
                   items={branchItems}
                   value={selectedBranch}
                   onValueChange={(value) => setSelectedBranch(value || "")}
-                  placeholder="Select Branch"
-                  searchPlaceholder="Search branches..."
+                  placeholder="Select User"
+                  searchPlaceholder="Search users..."
                   emptyMessage={
                     !effectiveSchoolId
-                      ? "Select a school first"
+                      ? "Select a admin first"
                       : isLoadingBranches
                       ? "Loading..."
-                      : "No branches found"
+                      : "No users found"
                   }
                   width="w-full"
                   disabled={!effectiveSchoolId || isUploading}
@@ -576,7 +576,7 @@ export const ExcelUploader = ({
                 <div className="space-y-1 text-center">
                   <p className="font-medium">
                     {isUploadDisabled
-                      ? "Please select a branch first"
+                      ? "Please select a user first"
                       : "Drop your file here, or click to browse"}
                   </p>
                   <p className="text-sm text-muted-foreground">
@@ -592,7 +592,7 @@ export const ExcelUploader = ({
         <Button
           onClick={handleUpload}
           disabled={isUploadDisabled || !selectedFile || isUploading}
-          className="w-full h-11 gap-2 font-medium cursor-pointer"
+          className="w-full h-11 gap-2 font-medium cursor-pointer text-white"
           size="lg"
         >
           {isUploading ? (

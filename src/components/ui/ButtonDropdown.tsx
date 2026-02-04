@@ -64,7 +64,7 @@ export default function IconDropdown({ items }: { items: Item[] }) {
                     setIsOpen(false)
                   }}
                   className="rounded-full w-12 h-12 flex items-center justify-center shadow-md border-none"
-                  style={{ backgroundColor: "#FFE58A" }}
+                  style={{ backgroundColor: "#dbeafe" }}
                   whileHover={{ scale: 1.1 }}
                   whileTap={{ scale: 0.95 }}
                 >
@@ -80,7 +80,7 @@ export default function IconDropdown({ items }: { items: Item[] }) {
                       initial={{ opacity: 0, x: -10 }}
                       animate={{ opacity: 1, x: 0 }}
                       exit={{ opacity: 0, x: -10 }}
-                      className="absolute right-full top-1/2 transform -translate-y-1/2 mr-2 bg-[#FFE58A] text-black text-sm px-2 py-1 rounded shadow"
+                      className="absolute right-full top-1/2 transform -translate-y-1/2 mr-2 bg-[#dbeafe] text-black text-sm px-2 py-1 rounded shadow"
                     >
                       {item.label}
                     </motion.span>
@@ -95,7 +95,7 @@ export default function IconDropdown({ items }: { items: Item[] }) {
       <motion.button
         onClick={toggleDropdown}
         className="rounded-full w-12 h-12 flex items-center justify-center border-none shadow-md"
-        style={{ backgroundColor: "#FFE58A" }}
+        style={{ backgroundColor: "#dbeafe" }}
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
       >

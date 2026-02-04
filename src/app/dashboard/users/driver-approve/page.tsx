@@ -465,7 +465,7 @@ export default function Driver() {
         <div className="flex items-center justify-between">
           <Button
             onClick={() => setShowForm(true)}
-            className="mb-3 cursor-pointer"
+            className="mb-3 cursor-pointer text-white"
           >
             Add Driver
           </Button>

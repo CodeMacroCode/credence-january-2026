@@ -67,7 +67,7 @@ export default function CategoryPage() {
     <div className="p-4 space-y-4">
       <div className="flex justify-between items-center">
         <h2 className="text-xl font-bold">Categories</h2>
-        <Button onClick={openCreateModal} className="bg-primary">
+        <Button onClick={openCreateModal} className="bg-primary text-white">
           Add Category
         </Button>
       </div>
@@ -97,13 +97,13 @@ export default function CategoryPage() {
             />
 
             <div className="flex justify-end gap-2">
-              <Button variant="outline" onClick={() => setIsModalOpen(false)}>
+              <Button variant="outline" className="cursor-pointer" onClick={() => setIsModalOpen(false)}>
                 Cancel
               </Button>
               <Button
                 onClick={handleSave}
                 disabled={isCreating || isUpdating}
-                className="bg-primary"
+                className="bg-primary text-white cursor-pointer"
               >
                 {editTarget
                   ? isUpdating
@@ -126,13 +126,13 @@ export default function CategoryPage() {
               Delete category <b>{deleteTarget.categoryName}</b>?
             </p>
             <div className="flex justify-end gap-2">
-              <Button variant="outline" onClick={() => setDeleteTarget(null)}>
+              <Button variant="outline" className="cursor-pointer" onClick={() => setDeleteTarget(null)}>
                 Cancel
               </Button>
               <Button
                 onClick={confirmDelete}
                 disabled={isDeleting}
-                className="bg-red-600 text-white"
+                className="bg-red-600 text-white cursor-pointer"
               >
                 {isDeleting ? "Deleting..." : "Delete"}
               </Button>

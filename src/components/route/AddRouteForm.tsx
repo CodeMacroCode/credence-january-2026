@@ -234,7 +234,7 @@ export default function AddRouteForm({
       case "school":
       case "branchGroup":
         if (!selectedBranchId || !selectedBranchId) {
-          alert("School and Branch is required");
+          alert("Admin and User is required");
           return;
         }
         break;
@@ -306,19 +306,19 @@ export default function AddRouteForm({
         {/* SCHOOL */}
         {decodedTokenRole === "superAdmin" && (
           <div>
-            <label className="text-sm font-medium">School *</label>
+            <label className="text-sm font-medium">Admin *</label>
             <Popover>
               <PopoverTrigger asChild>
                 <Button variant="outline" className="w-full justify-between">
                   {schools.find((s) => s._id === selectedSchoolId)
-                    ?.schoolName || "Select School"}
+                    ?.schoolName || "Select Admin"}
                   <ChevronsUpDown className="h-4 w-4 opacity-50" />
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-[340px] p-0">
                 <Command>
-                  <CommandInput placeholder="Search school..." />
-                  <CommandEmpty>No schools found</CommandEmpty>
+                  <CommandInput placeholder="Search admin..." />
+                  <CommandEmpty>No admin found</CommandEmpty>
                   <CommandGroup className="max-h-[220px] overflow-y-auto">
                     {schools.map((s) => (
                       <CommandItem
@@ -346,7 +346,7 @@ export default function AddRouteForm({
         {/* BRANCH */}
         {decodedTokenRole !== "branch" && (
           <div>
-            <label className="text-sm font-medium">Branch *</label>
+            <label className="text-sm font-medium">User *</label>
             <Popover>
               <PopoverTrigger asChild>
                 <Button
@@ -359,15 +359,15 @@ export default function AddRouteForm({
                   {branches.find((b) => b._id === selectedBranchId)
                     ?.branchName ||
                     (selectedSchoolId
-                      ? "Select Branch"
-                      : "Select school first")}
+                      ? "Select User"
+                      : "Select admin first")}
                   <ChevronsUpDown className="h-4 w-4 opacity-50" />
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-[340px] p-0">
                 <Command>
-                  <CommandInput placeholder="Search branch..." />
-                  <CommandEmpty>No branches found</CommandEmpty>
+                  <CommandInput placeholder="Search user..." />
+                  <CommandEmpty>No users found</CommandEmpty>
                   <CommandGroup className="max-h-[220px] overflow-y-auto">
                     {branches.map((b) => (
                       <CommandItem
@@ -409,7 +409,7 @@ export default function AddRouteForm({
                 disabled={decodedTokenRole !== "branch" && !selectedBranchId}
               >
                 {devices.find((d) => d._id === deviceObjId)?.name ||
-                  (selectedBranchId ? "Select Device" : "Select branch first")}
+                  (selectedBranchId ? "Select Device" : "Select user first")}
                 <ChevronsUpDown className="h-4 w-4 opacity-50" />
               </Button>
             </PopoverTrigger>
@@ -480,7 +480,7 @@ export default function AddRouteForm({
         {/* LAST STOP - Only visible in edit mode */}
         {initialData && (
           <div>
-            <label className="text-sm font-medium">School Point(Last Stop)</label>
+            <label className="text-sm font-medium">Last Stop</label>
 
             {isLoadingLastStop && (
               <div className="text-sm text-muted-foreground mb-2">
@@ -523,7 +523,7 @@ export default function AddRouteForm({
             Cancel
           </Button>
           <Button
-            className="bg-primary cursor-pointer"
+            className="bg-primary cursor-pointer text-white"
             onClick={handleSave}
             disabled={isCreating || isUpdating}
           >

@@ -131,7 +131,7 @@ const SearchComponent = <T extends Record<string, unknown>>({
           placeholder={placeholder}
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          className="w-full border rounded px-3 py-2 bg-[#FFE58A]"
+          className="w-full border rounded px-3 py-2 bg-[#dbeafe]"
           icon={<SearchIcon />}
         />
       </div>
