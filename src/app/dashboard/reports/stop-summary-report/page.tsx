@@ -395,6 +395,7 @@ const StopSummaryReportPage: React.FC = () => {
                 },
             },
             {
+                id: "vehicleNumber",
                 accessorKey: "name",
                 header: "Vehicle Number",
                 size: 150,
@@ -529,7 +530,7 @@ const StopSummaryReportPage: React.FC = () => {
     });
 
     return (
-        <div className="p-6">
+        <div className="p-6 h-full overflow-auto">
             <ResponseLoader isLoading={isFetching} />
 
             <ReportFilter

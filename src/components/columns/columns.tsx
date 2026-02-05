@@ -989,7 +989,7 @@ export const getGeofenceCoumns = (
               e.stopPropagation();
               onEdit(row.original); // Use the callback
             }}
-            className="cursor-pointer bg-[#f3c623] hover:bg-[#D3A80C]"
+            className="cursor-pointer bg-[#0c235c] hover:bg-[#D3A80C]"
           >
             Edit
           </Button>
@@ -1099,7 +1099,7 @@ export const getDriverColumns = (
               e.stopPropagation();
               onEdit(row.original); // Use the callback
             }}
-            className="cursor-pointer bg-[#f3c623] hover:bg-[#D3A80C]"
+            className="cursor-pointer bg-[#0c235c] hover:bg-[#D3A80C]"
           >
             Edit
           </Button>
@@ -1198,7 +1198,7 @@ export const getSupervisorColumns = (
               e.stopPropagation();
               onEdit(row.original); // Use the callback
             }}
-            className="cursor-pointer bg-[#f3c623] hover:bg-[#D3A80C]"
+            className="cursor-pointer bg-[#0c235c] hover:bg-[#D3A80C]"
           >
             Edit
           </Button>

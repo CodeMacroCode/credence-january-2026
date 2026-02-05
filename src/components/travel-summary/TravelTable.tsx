@@ -104,7 +104,7 @@ export function TravelTable<T extends Record<string, unknown>>({
           <Table>
             <TableHeader
               className="sticky top-0 z-10"
-              style={{ backgroundColor: "#f3c623" }}
+              style={{ backgroundColor: "#0c235c" }}
             >
               {table.getHeaderGroups().map((headerGroup) => (
                 <TableRow key={headerGroup.id} className="border-b">
@@ -113,7 +113,8 @@ export function TravelTable<T extends Record<string, unknown>>({
                       key={header.id}
                       className="text-foreground px-2 py-2 sm:px-4 sm:py-3 text-xs sm:text-sm font-medium uppercase tracking-wider border-r last:border-r-0"
                       style={{
-                        backgroundColor: "#f3c623",
+                        backgroundColor: "#0c235c",
+                        color: "white",
                         width: header.id === "serialNumber" ? "60px" : "auto",
                         minWidth:
                           header.id === "serialNumber" ? "60px" : "auto",
@@ -121,11 +122,10 @@ export function TravelTable<T extends Record<string, unknown>>({
                     >
                       {header.isPlaceholder ? null : (
                         <div
-                          className={`flex items-center justify-center gap-1 w-full ${
-                            header.column.getCanSort()
+                          className={`flex items-center justify-center gap-1 w-full ${header.column.getCanSort()
                               ? "cursor-pointer select-none"
                               : ""
-                          }`}
+                            }`}
                           onClick={header.column.getToggleSortingHandler()}
                         >
                           <span className="truncate">

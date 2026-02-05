@@ -37,7 +37,7 @@ export function FilterCard({
         <div
             onClick={onClick}
             className={cn(
-                `relative flex items-center justify-between p-3 bg-white rounded-xl shadow-sm ${isActive ? "border-2" : "border"} ${borderColor} border-l-5 cursor-pointer transition-all duration-200 hover:shadow-md hover:scale-105 ${isActive && "scale-105"} min-w-[140px] flex-1 overflow-hidden`,
+                `relative flex items-center justify-between p-3 bg-white rounded-xl shadow-sm ${isActive ? "border-2" : "border"} ${borderColor} border-l-7 cursor-pointer transition-all duration-200 hover:shadow-md hover:scale-105 ${isActive && "scale-105"} min-w-[140px] flex-1 overflow-hidden`,
             )}
         >
             {/* Active gradient background effect with animation */}

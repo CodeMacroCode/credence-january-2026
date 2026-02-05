@@ -421,7 +421,7 @@ function HistoryReportContent() {
     return Math.max(
       0,
       (currentData?.attributes?.totalDistance ?? 0) -
-        (first?.attributes?.totalDistance ?? 0)
+      (first?.attributes?.totalDistance ?? 0)
     );
   }, [activePlayback, currentData]);
 
@@ -517,7 +517,7 @@ function HistoryReportContent() {
     });
     setHasGenerated(true);
   };
-  
+
   // Sync uniqueId from URL with dropdown selection and set today's date
   useEffect(() => {
     if (uniqueIdFromUrl && vehicleData && !selectedVehicle) {
@@ -622,7 +622,7 @@ function HistoryReportContent() {
         {/* Sliding Menu Trigger */}
         <div>
           <Button
-            className="fixed top-[225px] right-0 z-[9999] rounded-l-full rounded-r-none w-[68px] bg-[#f3c623] cursor-pointer shadow-[var(--shadow-panel)]"
+            className="fixed top-[225px] right-0 z-[9999] rounded-l-full rounded-r-none w-[68px] bg-[#0c235c] cursor-pointer shadow-[var(--shadow-panel)]"
             onClick={() => setIsSidebarOpen(true)}
           >
             <Menu />
@@ -635,11 +635,10 @@ function HistoryReportContent() {
           <div className="w-full">
             {isFetching ? (
               <div
-                className={`w-full mt-3 transition-all duration-300 ease-in-out ${
-                  isMapExpanded
+                className={`w-full mt-3 transition-all duration-300 ease-in-out ${isMapExpanded
                     ? "h-[100vh] md:h-[80vh] lg:h-[90vh]"
                     : "h-[50vh] md:h-[25vh] lg:h-[40vh]"
-                }`}
+                  }`}
                 style={{ zIndex: 0 }}
               >
                 <FullScreenSpinner />
@@ -652,7 +651,7 @@ function HistoryReportContent() {
                 <div>
                   <div
                     onClick={handleMapExpand}
-                    className="h-3 w-full bg-[#f3c623] relative flex items-center justify-center hover:cursor-pointer"
+                    className="h-3 w-full bg-[#0c235c] relative flex items-center justify-center hover:cursor-pointer"
                   >
                     <div className="flex flex-col items-center bg-[#d7a901] w-[100px]">
                       <svg
@@ -701,11 +700,10 @@ function HistoryReportContent() {
               </div>
             ) : (
               <div
-                className={`w-full mt-3 transition-all duration-300 ease-in-out ${
-                  isMapExpanded
+                className={`w-full mt-3 transition-all duration-300 ease-in-out ${isMapExpanded
                     ? "h-[80vh] md:h-[60vh] lg:h-[70vh]"
                     : "h-[50vh] md:h-[25vh] lg:h-[40vh]"
-                }`}
+                  }`}
                 style={{ zIndex: 0 }}
               >
                 <VehicleMap
@@ -722,7 +720,7 @@ function HistoryReportContent() {
                 <div>
                   <div
                     onClick={handleMapExpand}
-                    className="h-3 w-full bg-[#f3c623] relative flex items-center justify-center hover:cursor-pointer"
+                    className="h-3 w-full bg-[#0c235c] relative flex items-center justify-center hover:cursor-pointer"
                   >
                     <div className="flex flex-col items-center bg-[#d7a901] w-[100px]">
                       <svg
@@ -837,7 +835,7 @@ function HistoryReportContent() {
                       <SpeedTimelineGraph
                         data={chartData}
                         options={chartOptions}
-                        onHoverSeek={() => {}}
+                        onHoverSeek={() => { }}
                         isExpanded={isMapExpanded}
                       />
                     </div>

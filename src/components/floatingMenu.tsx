@@ -115,7 +115,7 @@ export function FloatingMenu({
                       <TooltipTrigger asChild>
                         <Button
                           size="lg"
-                          className="h-12 w-12 rounded-full shadow-lg hover:shadow-xl transition-all bg-[#F3C623] hover:bg-[#FFB823] border-0"
+                          className="h-12 w-12 rounded-full shadow-lg hover:shadow-xl transition-all bg-[#0c235c] hover:bg-[#FFB823] border-0"
                           onClick={() => handleAction(item.action, item.label)}
                         >
                           <item.icon className="h-5 w-5 text-white" />
@@ -144,11 +144,10 @@ export function FloatingMenu({
               <TooltipTrigger asChild>
                 <Button
                   size="lg"
-                  className={`h-14 w-14 rounded-full shadow-lg hover:shadow-xl transition-all border-0 ${
-                    isOpen
+                  className={`h-14 w-14 rounded-full shadow-lg hover:shadow-xl transition-all border-0 ${isOpen
                       ? "bg-black hover:bg-gray-800"
-                      : "bg-[#F3C623] hover:bg-[#FFB823]"
-                  }`}
+                      : "bg-[#0c235c] hover:bg-[#FFB823]"
+                    }`}
                   onClick={toggleMenu}
                 >
                   <motion.div
