@@ -141,7 +141,7 @@ export const BottomDrawer = ({
           <div className="p-3 sm:p-4 space-y-4">
             {selectedDevice ? (
               <>
-                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4">
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">
                   <div>
                     <label className="flex items-center gap-2">
                       <img
@@ -235,6 +235,23 @@ export const BottomDrawer = ({
                           timeZone: "UTC",
                         }
                       )}` || "N/A"}
+                    </p>
+                  </div>
+                  <div>
+                    <label className="flex items-center gap-2">
+                      <img
+                        src="/dashboard-icons/fuel.png"
+                        className="w-6"
+                        alt=""
+                      />{" "}
+                      <span className="text-stone-600">Fuel Consumption</span>
+                    </label>
+
+                    <p className="ml-8">
+                      {isLoading
+                        ? "Loading..."
+                        : `${distance?.fuelConsumption ? distance?.fuelConsumption : 0}` +
+                        " Litre"}
                     </p>
                   </div>
                 </div>

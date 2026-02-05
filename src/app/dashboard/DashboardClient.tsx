@@ -745,7 +745,7 @@ export default function DashboardClient() {
                       viewState === "mapExpanded" ? "Show both" : "Expand map"
                     }
                   >
-                    <ChevronsLeft className="w-4 h-4" />
+                    <ChevronsLeft className="w-4 h-4 hover:text-white" />
                   </button>
 
                   <button
@@ -760,7 +760,7 @@ export default function DashboardClient() {
                         : "Expand table"
                     }
                   >
-                    <ChevronsRight className="w-4 h-4" />
+                    <ChevronsRight className="w-4 h-4 hover:text-white" />
                   </button>
                 </div>
               )}
