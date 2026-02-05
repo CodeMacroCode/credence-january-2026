@@ -37,13 +37,13 @@ export function FilterCard({
         <div
             onClick={onClick}
             className={cn(
-                `relative flex items-center justify-between p-3 bg-white rounded-xl shadow-sm border ${borderColor} border-l-4 cursor-pointer transition-all duration-200 hover:shadow-md hover:scale-105 min-w-[140px] flex-1 overflow-hidden`,
+                `relative flex items-center justify-between p-3 bg-white rounded-xl shadow-sm ${isActive ? "border-2" : "border"} ${borderColor} border-l-5 cursor-pointer transition-all duration-200 hover:shadow-md hover:scale-105 ${isActive && "scale-105"} min-w-[140px] flex-1 overflow-hidden`,
             )}
         >
             {/* Active gradient background effect with animation */}
             {isActive && (
                 <div
-                    className="absolute inset-0 pointer-events-none animate-gradient-fade"
+                    className={`absolute inset-0 pointer-events-none animate-gradient-fade`}
                     style={{
                         background: `linear-gradient(to top, rgba(${rgbColor}, 0.35) 0%, rgba(${rgbColor}, 0.15) 40%, transparent 70%)`,
                     }}
