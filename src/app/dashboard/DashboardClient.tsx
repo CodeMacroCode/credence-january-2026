@@ -773,7 +773,7 @@ export default function DashboardClient() {
                     height="calc(100dvh - 280px)"
                     autoFitBounds={false}
                     showTrails={false}
-                    clusterMarkers={devices.length > 100}
+                    clusterMarkers={devices.length > 10}
                     zoom={6}
                     selectedVehicleId={selectedVehicleId}
                     onVehicleSelect={setSelectedVehicleId}
