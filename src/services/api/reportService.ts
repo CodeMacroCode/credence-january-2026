@@ -30,7 +30,7 @@ export const reportService = {
     const res = await api.post(
       "/report/distance-report",
       { uniqueIds },
-      { params }
+      { params },
     );
 
     return res.data;
@@ -52,7 +52,7 @@ export const reportService = {
   },
 
   getGeofenceAlertsReport: async (
-    params: Record<string, any>
+    params: Record<string, any>,
   ): Promise<any> => {
     const res = await api.get("/report/geofence-alerts-report", { params });
     return res.data;
@@ -79,7 +79,7 @@ export const reportService = {
     const res = await api.post(
       "/report/travel-summary-report",
       { uniqueIds },
-      { params }
+      { params },
     );
 
     return res.data;
@@ -101,13 +101,29 @@ export const reportService = {
     const res = await api.post(
       "/report/routeCompletion",
       { uniqueIds },
-      { params }
+      { params },
     );
     return res.data;
   },
 
   getHistoryReport: async (params: Record<string, any>): Promise<any> => {
     const res = await api.get("/device-trips-with-route", { params });
+    return res.data;
+  },
+
+  getStopSummaryReport: async ({
+    uniqueIds,
+    ...params
+  }: {
+    uniqueIds: string[];
+    from: string;
+    to: string;
+  }): Promise<any> => {
+    const res = await api.post(
+      "/report/stop-summary",
+      { uniqueIds },
+      { params },
+    );
     return res.data;
   },
 };

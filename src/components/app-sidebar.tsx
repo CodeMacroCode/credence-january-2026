@@ -218,6 +218,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               title: "History Report",
               url: "/dashboard/reports/history-report",
             },
+            { title: "Stoppage Summary", url: "/dashboard/reports/stop-summary-report" },
             { title: "Stop Report", url: "/dashboard/reports/stop-report" },
             {
               title: "Travel Summary",

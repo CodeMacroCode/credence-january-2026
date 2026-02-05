@@ -547,7 +547,7 @@ const DateRangeFilter: React.FC<DateRangeFilterProps> = ({
                       "h-8 w-8 p-0 font-normal cursor-pointer",
                       !isCurrentMonth && "text-muted-foreground opacity-50",
                       isSelected &&
-                      "bg-primary hover:bg-primary hover:text-primary-foreground",
+                      "bg-primary hover:bg-primary hover:text-white text-white hover:scale-105",
                       inRange &&
                       !isSelected &&
                       "bg-[#dbeafe] text-accent-foreground",
@@ -578,7 +578,7 @@ const DateRangeFilter: React.FC<DateRangeFilterProps> = ({
           >
             Clear
           </Button>
-          <Button className="cursor-pointer" onClick={handleApply}>
+          <Button className="cursor-pointer text-white" onClick={handleApply}>
             Apply
           </Button>
         </div>
