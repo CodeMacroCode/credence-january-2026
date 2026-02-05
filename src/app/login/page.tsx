@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/store/authStore";
+import { useAccessStore } from "@/store/accessStore";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -31,6 +32,7 @@ const loginSchema = z.object({
 export default function LoginPage() {
   const router = useRouter();
   const { isAuthenticated, login } = useAuthStore();
+  const { setAccess } = useAccessStore();
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -58,6 +60,12 @@ export default function LoginPage() {
       if (data?.token) {
         localStorage.clear();
         login(data.token, values.rememberMe ? 30 : undefined);
+
+        // Store access permissions if present
+        if (data.access) {
+          setAccess(data.access);
+        }
+
         router.push("/dashboard");
       } else {
         form.setError("root", {

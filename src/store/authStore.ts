@@ -3,6 +3,7 @@ import { jwtDecode } from "jwt-decode";
 import Cookies from "js-cookie";
 import { getQueryClient } from "@/lib/queryClient";
 import { useDeviceStore } from "./deviceStore";
+import { useAccessStore } from "./accessStore";
 
 interface DecodedToken {
   id: string;
@@ -74,6 +75,9 @@ export const useAuthStore = create<AuthState>((set) => ({
 
     // Disconnect sockets
     useDeviceStore.getState().disconnect();
+
+    // Clear access permissions
+    useAccessStore.getState().clearAccess();
 
     // Clear react-query cache
     getQueryClient().clear();

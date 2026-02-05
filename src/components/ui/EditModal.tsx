@@ -516,7 +516,7 @@ export const DynamicEditDialog: React.FC<DynamicEditDialogProps> = ({
                   Cancel
                 </Button>
 
-                <Button type="submit" disabled={isSubmitting}>
+                <Button type="submit" className="text-white" disabled={isSubmitting}>
                   {isSubmitting ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />

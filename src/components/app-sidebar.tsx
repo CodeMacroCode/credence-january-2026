@@ -4,6 +4,7 @@ import * as React from "react";
 import Cookies from "js-cookie";
 import { getDecodedToken } from "@/lib/jwt";
 import { useNavigationStore } from "@/store/navigationStore";
+import { useAccessStore } from "@/store/accessStore";
 import { useSidebar } from "@/components/ui/sidebar";
 import {
   Sidebar,
@@ -94,6 +95,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const activeSection = useNavigationStore((state) => state.activeSection);
   const [isLoading, setIsLoading] = React.useState(true);
   const [searchQuery, setSearchQuery] = React.useState("");
+  const access = useAccessStore((state) => state.access);
 
   const router = useRouter();
   const pathname = usePathname();
@@ -250,10 +252,52 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     []
   );
 
+  // Access permission mapping for Master section
+  const masterAccessMap: Record<string, keyof NonNullable<typeof access>['master']> = {
+    "Routes": "route",
+    "Geofence": "geofence",
+    "Driver Approve": "driver",
+  };
+
+  // Access permission mapping for Reports section
+  const reportAccessMap: Record<string, keyof NonNullable<typeof access>['reports']> = {
+    "Status Report": "status",
+    "History Report": "history",
+    "Stoppage Summary": "stoppageSummary",
+    "Stop Report": "stop",
+    "Travel Summary": "travel",
+    "Trip Report": "trip",
+    "Idle Report": "idle",
+    "Alerts/Events": "alert",
+    "Route Report": "routeReport",
+  };
+
   const sidebarData = React.useMemo(() => {
     if (!activeSection || !userRole) return [];
-    return getSidebarData(activeSection, userRole);
-  }, [activeSection, userRole, getSidebarData]);
+
+    let items = getSidebarData(activeSection, userRole);
+
+    // Apply access filtering for school and branchGroup roles
+    if ((userRole === "school" || userRole === "branchGroup") && access) {
+      if (activeSection === "Master") {
+        items = items.filter(item => {
+          const accessKey = masterAccessMap[item.title];
+          // If no mapping, always show (e.g., Device, User Master)
+          if (!accessKey) return true;
+          return access.master?.[accessKey] === true;
+        });
+      } else if (activeSection === "Reports") {
+        items = items.filter(item => {
+          const accessKey = reportAccessMap[item.title];
+          // If no mapping, always show (e.g., Distance Report)
+          if (!accessKey) return true;
+          return access.reports?.[accessKey] === true;
+        });
+      }
+    }
+
+    return items;
+  }, [activeSection, userRole, getSidebarData, access]);
 
   const filteredData = React.useMemo(() => {
     if (!searchQuery.trim()) return sidebarData;

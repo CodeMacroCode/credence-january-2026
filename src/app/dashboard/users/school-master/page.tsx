@@ -17,6 +17,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import DateRangeFilter from "@/components/ui/DateRangeFilter";
+import { Combobox } from "@/components/ui/combobox";
 import { FloatingMenu } from "@/components/floatingMenu";
 import {
   getCoreRowModel,
@@ -57,6 +58,83 @@ export default function SchoolMaster() {
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
   const { exportToPDF, exportToExcel } = useExport();
+
+  // Master options for dropdown
+  const masterOptions = [
+    { value: "route", label: "Route" },
+    { value: "geofence", label: "Geofence" },
+    { value: "driver", label: "Driver" },
+  ];
+
+  // Report options for dropdown
+  const reportOptions = [
+    { value: "status", label: "Status Report" },
+    { value: "history", label: "History Report" },
+    { value: "stoppageSummary", label: "Stoppage Summary Report" },
+    { value: "stop", label: "Stop Report" },
+    { value: "travel", label: "Travel Summary Report" },
+    { value: "trip", label: "Trip Report" },
+    { value: "idle", label: "Idle Report" },
+    { value: "alert", label: "Alert Report" },
+    { value: "routeReport", label: "Route Report" },
+  ];
+
+  // Permissions state for add admin form - arrays for multi-select
+  const [selectedMasterPermissions, setSelectedMasterPermissions] = useState<string[]>([]);
+  const [selectedReportPermissions, setSelectedReportPermissions] = useState<string[]>([]);
+
+  // Permissions state for edit admin form
+  const [editMasterPermissions, setEditMasterPermissions] = useState<string[]>([]);
+  const [editReportPermissions, setEditReportPermissions] = useState<string[]>([]);
+
+  const resetPermissions = () => {
+    setSelectedMasterPermissions([]);
+    setSelectedReportPermissions([]);
+  };
+
+  const resetEditPermissions = () => {
+    setEditMasterPermissions([]);
+    setEditReportPermissions([]);
+  };
+
+  // Load access permissions when edit target changes
+  useEffect(() => {
+    console.log("🔍 editTarget changed:", editTarget);
+
+    if (editTarget) {
+      const access = (editTarget as any).access;
+      console.log("🔍 access object:", access);
+
+      if (access) {
+        // Convert true values to array of keys
+        const masterPerms: string[] = [];
+        const reportPerms: string[] = [];
+
+        if (access?.master) {
+          Object.entries(access.master).forEach(([key, value]) => {
+            console.log(`🔍 master.${key}:`, value);
+            if (value === true) masterPerms.push(key);
+          });
+        }
+        if (access?.reports) {
+          Object.entries(access.reports).forEach(([key, value]) => {
+            console.log(`🔍 reports.${key}:`, value);
+            if (value === true) reportPerms.push(key);
+          });
+        }
+
+        console.log("🔍 Setting master perms:", masterPerms);
+        console.log("🔍 Setting report perms:", reportPerms);
+        setEditMasterPermissions(masterPerms);
+        setEditReportPermissions(reportPerms);
+      } else {
+        console.log("🔍 No access object found, resetting");
+        resetEditPermissions();
+      }
+    } else {
+      resetEditPermissions();
+    }
+  }, [editTarget]);
 
   // Fetch school data
   const {
@@ -152,7 +230,6 @@ export default function SchoolMaster() {
       meta: { flex: 1, minWidth: 200 },
       enableHiding: true,
     },
-
     {
       header: "Action",
       accessorFn: (row) => ({
@@ -392,15 +469,35 @@ export default function SchoolMaster() {
       mobileNo: (form.elements.namedItem("mobileNo") as HTMLInputElement)
         ?.value,
       fullAccess: fullAccessEl ? !!fullAccessEl.checked : false,
+      // Access - convert arrays to true/false values
+      access: {
+        master: {
+          route: selectedMasterPermissions.includes("route"),
+          geofence: selectedMasterPermissions.includes("geofence"),
+          driver: selectedMasterPermissions.includes("driver"),
+        },
+        reports: {
+          status: selectedReportPermissions.includes("status"),
+          history: selectedReportPermissions.includes("history"),
+          stoppageSummary: selectedReportPermissions.includes("stoppageSummary"),
+          stop: selectedReportPermissions.includes("stop"),
+          travel: selectedReportPermissions.includes("travel"),
+          trip: selectedReportPermissions.includes("trip"),
+          idle: selectedReportPermissions.includes("idle"),
+          alert: selectedReportPermissions.includes("alert"),
+          routeReport: selectedReportPermissions.includes("routeReport"),
+        },
+      },
     };
 
     try {
       await addSchoolMutation.mutateAsync(data);
       closeButtonRef.current?.click();
       form.reset();
+      resetPermissions();
       toast.success("Admin added successfully.");
-    } catch (err) {
-      toast.error(err.response?.data.message);
+    } catch (err: any) {
+      toast.error(err.response?.data?.message || "Failed to add admin");
     }
   };
 
@@ -525,20 +622,65 @@ export default function SchoolMaster() {
                     />
                   </div>
 
-                  {/* If you want the fullAccess checkbox back in the form,
-                      uncomment the block below. The handleSubmit safely reads it either way.
-                  */}
-                  {/*
-                  <div className="flex items-center gap-3 mt-6">
-                    <input
-                      type="checkbox"
-                      id="fullAccess"
-                      name="fullAccess"
-                      className="h-5 w-5"
-                    />
-                    <Label htmlFor="fullAccess">Full Access</Label>
+                  {/* Permissions Section */}
+                  <div className="col-span-full border rounded-lg p-4 mt-2">
+                    <div className="flex items-center justify-between mb-4">
+                      <Label className="text-base font-semibold">Access</Label>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          setSelectedMasterPermissions(masterOptions.map(o => o.value));
+                          setSelectedReportPermissions(reportOptions.map(o => o.value));
+                        }}
+                      >
+                        Select All
+                      </Button>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {/* Master Permissions Dropdown */}
+                      <div>
+                        <p className="text-sm font-medium text-gray-700 mb-2">Master</p>
+                        <Combobox
+                          items={masterOptions}
+                          multiple={true}
+                          selectedValues={selectedMasterPermissions}
+                          onSelectedValuesChange={setSelectedMasterPermissions}
+                          className="cursor-pointer"
+                          placeholder="Select master permissions..."
+                          searchPlaceholder="Search permissions..."
+                          emptyMessage="No permissions found"
+                          width="w-full"
+                          showSelectAll={true}
+                          selectAllLabel="Select All"
+                          showBadges={true}
+                          maxBadges={2}
+                        />
+                      </div>
+
+                      {/* Reports Permissions Dropdown */}
+                      <div>
+                        <p className="text-sm font-medium text-gray-700 mb-2">Reports</p>
+                        <Combobox
+                          items={reportOptions}
+                          multiple={true}
+                          selectedValues={selectedReportPermissions}
+                          onSelectedValuesChange={setSelectedReportPermissions}
+                          className="cursor-pointer"
+                          placeholder="Select report permissions..."
+                          searchPlaceholder="Search reports..."
+                          emptyMessage="No reports found"
+                          width="w-full"
+                          showSelectAll={true}
+                          selectAllLabel="Select All"
+                          showBadges={true}
+                          maxBadges={2}
+                        />
+                      </div>
+                    </div>
                   </div>
-                  */}
                 </div>
 
                 <DialogFooter>
@@ -592,22 +734,176 @@ export default function SchoolMaster() {
 
       <section>
         {editTarget && (
-          <DynamicEditDialog
-            data={editTarget}
-            isOpen={editDialogOpen}
-            onClose={() => {
-              setEditDialogOpen(false);
-              setEditTarget(null);
-            }}
-            onSave={handleSave}
-            fields={schoolFieldConfigs}
-            title="Edit Admin"
-            description="Update the admin information below. Fields marked with * are required."
-            avatarConfig={{
-              imageKey: "logo",
-              nameKeys: ["schoolName"],
-            }}
-          />
+          <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
+            <DialogContent className="sm:max-w-[600px]">
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  const form = e.currentTarget;
+                  const updatedData = {
+                    schoolName: (form.elements.namedItem("editSchoolName") as HTMLInputElement)?.value,
+                    mobileNo: (form.elements.namedItem("editMobileNo") as HTMLInputElement)?.value,
+                    username: (form.elements.namedItem("editUsername") as HTMLInputElement)?.value,
+                    password: (form.elements.namedItem("editPassword") as HTMLInputElement)?.value,
+                    access: {
+                      master: {
+                        route: editMasterPermissions.includes("route"),
+                        geofence: editMasterPermissions.includes("geofence"),
+                        driver: editMasterPermissions.includes("driver"),
+                      },
+                      reports: {
+                        status: editReportPermissions.includes("status"),
+                        history: editReportPermissions.includes("history"),
+                        stoppageSummary: editReportPermissions.includes("stoppageSummary"),
+                        stop: editReportPermissions.includes("stop"),
+                        travel: editReportPermissions.includes("travel"),
+                        trip: editReportPermissions.includes("trip"),
+                        idle: editReportPermissions.includes("idle"),
+                        alert: editReportPermissions.includes("alert"),
+                        routeReport: editReportPermissions.includes("routeReport"),
+                      },
+                    },
+                  };
+
+                  updateSchoolMutation.mutate({
+                    schoolId: editTarget._id,
+                    data: updatedData,
+                  });
+                }}
+                className="space-y-4"
+              >
+                <DialogHeader>
+                  <DialogTitle>Edit Admin</DialogTitle>
+                </DialogHeader>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="grid gap-2">
+                    <Label htmlFor="editSchoolName">Admin *</Label>
+                    <Input
+                      id="editSchoolName"
+                      name="editSchoolName"
+                      defaultValue={editTarget.schoolName}
+                      placeholder="Enter admin name"
+                      required
+                    />
+                  </div>
+
+                  <div className="grid gap-2">
+                    <Label htmlFor="editMobileNo">Mobile No *</Label>
+                    <Input
+                      id="editMobileNo"
+                      name="editMobileNo"
+                      type="tel"
+                      defaultValue={editTarget.mobileNo}
+                      placeholder="Enter mobile number"
+                      pattern="[0-9]{10}"
+                      maxLength={10}
+                      required
+                    />
+                  </div>
+
+                  <div className="grid gap-2">
+                    <Label htmlFor="editUsername">Username *</Label>
+                    <Input
+                      id="editUsername"
+                      name="editUsername"
+                      defaultValue={editTarget.username}
+                      placeholder="Enter username"
+                      required
+                    />
+                  </div>
+
+                  <div className="grid gap-2">
+                    <Label htmlFor="editPassword">Password *</Label>
+                    <Input
+                      id="editPassword"
+                      name="editPassword"
+                      type="text"
+                      defaultValue={editTarget.password}
+                      placeholder="Enter password"
+                      required
+                    />
+                  </div>
+
+                  {/* Access Section */}
+                  <div className="col-span-full border rounded-lg p-4 mt-2">
+                    <div className="flex items-center justify-between mb-4">
+                      <Label className="text-base font-semibold">Access</Label>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          setEditMasterPermissions(masterOptions.map(o => o.value));
+                          setEditReportPermissions(reportOptions.map(o => o.value));
+                        }}
+                      >
+                        Select All
+                      </Button>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {/* Master Permissions Dropdown */}
+                      <div>
+                        <p className="text-sm font-medium text-gray-700 mb-2">Master</p>
+                        <Combobox
+                          items={masterOptions}
+                          multiple={true}
+                          selectedValues={editMasterPermissions}
+                          onSelectedValuesChange={setEditMasterPermissions}
+                          className="cursor-pointer"
+                          placeholder="Select master permissions..."
+                          searchPlaceholder="Search permissions..."
+                          emptyMessage="No permissions found"
+                          width="w-full"
+                          showSelectAll={true}
+                          selectAllLabel="Select All"
+                          showBadges={true}
+                          maxBadges={2}
+                        />
+                      </div>
+
+                      {/* Reports Permissions Dropdown */}
+                      <div>
+                        <p className="text-sm font-medium text-gray-700 mb-2">Reports</p>
+                        <Combobox
+                          items={reportOptions}
+                          multiple={true}
+                          selectedValues={editReportPermissions}
+                          onSelectedValuesChange={setEditReportPermissions}
+                          className="cursor-pointer"
+                          placeholder="Select report permissions..."
+                          searchPlaceholder="Search reports..."
+                          emptyMessage="No reports found"
+                          width="w-full"
+                          showSelectAll={true}
+                          selectAllLabel="Select All"
+                          showBadges={true}
+                          maxBadges={2}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <DialogFooter>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => {
+                      setEditDialogOpen(false);
+                      setEditTarget(null);
+                      resetEditPermissions();
+                    }}
+                  >
+                    Cancel
+                  </Button>
+                  <Button type="submit" className="text-white" disabled={updateSchoolMutation.isPending}>
+                    {updateSchoolMutation.isPending ? "Saving..." : "Save Changes"}
+                  </Button>
+                </DialogFooter>
+              </form>
+            </DialogContent>
+          </Dialog>
         )}
       </section>
 

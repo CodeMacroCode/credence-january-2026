@@ -240,19 +240,8 @@ export const useDeviceStore = create<DeviceState>()(
                 }
               }
 
-              // Request initial data after a short auth settle delay
-              const state = get();
-              setTimeout(() => {
-                if (window.location.pathname === "/dashboard") {
-                  deviceService.requestDeviceData(state.filters);
-                }
-
-                if (state.activeSingleDevices.size > 0) {
-                  state.activeSingleDevices.forEach((uniqueId) => {
-                    deviceService.requestSingleDeviceData(uniqueId, false);
-                  });
-                }
-              }, 1000);
+              // Note: Initial device data request is handled by layout.tsx useEffect
+              // when isConnected becomes true, so we don't duplicate it here.
             },
 
             onError: (error: string) => {
