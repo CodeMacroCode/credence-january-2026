@@ -52,6 +52,7 @@ export function LogoutButton() {
       console.log("TOKEN: ", Cookies.get("token"))
       router.push("/login"); // redirect to login page
       window.location.reload();
+      console.log("REFRESHHHHHHHHHHHHHHHHHHH DONE");
     } catch (error) {
       console.error("❌ Error deleting FCM token:", error);
       // Still logout even if token deletion fails

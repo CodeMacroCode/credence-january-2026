@@ -67,7 +67,7 @@ export default function DashboardLayout({
     <TooltipProvider delayDuration={0}>
       <SidebarProvider defaultOpen={false}>
         {SHOW_SIDEBAR_SECTIONS.includes(activeSection) && <AppSidebar />}
-        <SidebarInset className="overflow-hidden flex flex-col h-screen">
+        <SidebarInset className="overflow-auto md:overflow-hidden flex flex-col h-screen">
           <header className="sticky top-0 z-20 flex h-14 md:h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear overflow-hidden bg-background border-b">
             <div className="flex items-center gap-2 px-2 md:px-4 min-w-0 relative z-20">
               {SHOW_SIDEBAR_SECTIONS.includes(activeSection) && (
@@ -89,7 +89,7 @@ export default function DashboardLayout({
             </div>
           </header>
 
-          <main className="pt-2 md:pt-4 px-2 md:px-4 overflow-hidden h-full">
+          <main className="pt-2 md:pt-4 px-2 md:px-4 overflow-auto md:overflow-hidden h-full">
             <FCMHandler />
             {children}
           </main>
