@@ -1,6 +1,5 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/store/authStore";
 import { useNotificationStore } from "@/store/notificationStore";
 import { getMessaging, deleteToken } from "firebase/messaging";
@@ -10,7 +9,6 @@ import { LogOut } from "lucide-react";
 
 export function LogoutButton() {
   const logout = useAuthStore((state) => state.logout);
-  const router = useRouter();
 
   const handleLogout = async () => {
     try {
@@ -47,17 +45,15 @@ export function LogoutButton() {
       localStorage.removeItem("userId");
 
       /** delete fmc token */
-
       logout(); // clear state + token
       console.log("TOKEN: ", Cookies.get("token"))
-      router.push("/login"); // redirect to login page
-      window.location.reload();
-      console.log("REFRESHHHHHHHHHHHHHHHHHHH DONE");
+      window.location.href = "/login";
+
     } catch (error) {
       console.error("❌ Error deleting FCM token:", error);
       // Still logout even if token deletion fails
       logout();
-      router.push("/login");
+      window.location.href = "/login";
     }
   };
 
