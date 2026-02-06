@@ -17,7 +17,7 @@ export interface DeviceData {
   };
   batteryLevel: number;
   gsmSignal: number;
-  category: string;
+  deviceCategory: string;
   status: string;
   lastUpdate: string;
   name: string;
@@ -33,10 +33,18 @@ export interface DeviceData {
 export interface DeviceFilters {
   page: number;
   limit: number;
-  filter: "all" | "running" | "idle" | "stopped" | "inactive" | "new" | "overspeed";
+  filter:
+    | "all"
+    | "running"
+    | "idle"
+    | "stopped"
+    | "inactive"
+    | "new"
+    | "overspeed";
   searchTerm: string;
   branchId?: string;
   schoolId?: string;
+  deviceCategory?: string;
 }
 
 // Response structure from all-device-data event

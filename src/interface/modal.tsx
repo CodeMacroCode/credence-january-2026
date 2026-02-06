@@ -289,7 +289,7 @@ export interface LiveTrack {
   noOfStops?: number;
   gsmSignal?: number;
   batteryLevel?: number;
-  category?: string;
+  deviceCategory?: string;
   status?: string;
   lastUpdate?: string;
   name?: string;

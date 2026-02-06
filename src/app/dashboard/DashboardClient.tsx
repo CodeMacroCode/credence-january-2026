@@ -671,7 +671,7 @@ export default function DashboardClient() {
                                 ? userSchoolId
                                 : undefined,
                             branchId: undefined,
-                            category: undefined,
+                            deviceCategory: undefined,
                           })
                         }
                       >
@@ -698,9 +698,9 @@ export default function DashboardClient() {
                     value: cat._id,
                   })) || []),
                 ]}
-                value={filters.category || "all"}
+                value={filters.deviceCategory || "all"}
                 onValueChange={(value) =>
-                  updateFilters({ category: value === "all" ? undefined : value })
+                  updateFilters({ deviceCategory: value === "all" ? undefined : value })
                 }
                 onOpenChange={setIsCategoryDropdownOpen}
                 placeholder="Vehicle Type"

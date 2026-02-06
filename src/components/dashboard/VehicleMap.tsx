@@ -32,7 +32,7 @@ interface VehicleData {
     todayDistance: number;
   };
   gsmSignal: number;
-  category: string;
+  deviceCategory: string;
   status: string;
   lastUpdate: string;
   name: string;
@@ -231,7 +231,7 @@ const VehicleBusMarker = React.memo(
               </div>
               <div className="detail-row">
                 <span className="label">Category:</span>
-                <span className="value">{vehicle.category}</span>
+                <span className="value">{vehicle.deviceCategory}</span>
               </div>
               <div className="detail-row">
                 <span className="label">Mileage:</span>
