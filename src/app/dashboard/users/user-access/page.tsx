@@ -53,7 +53,32 @@ interface BranchGroupAccess {
   schoolId?: { _id: string; schoolName: string };
   AssignedBranch?: { _id: string; branchName: string }[];
   createdAt?: string;
+  access?: {
+    master?: Record<string, boolean>;
+    reports?: Record<string, boolean>;
+  };
+  [key: string]: any;
 }
+
+// Master options for dropdown
+const masterOptions = [
+  { value: "route", label: "Route" },
+  { value: "geofence", label: "Geofence" },
+  { value: "driver", label: "Driver" },
+];
+
+// Report options for dropdown
+const reportOptions = [
+  { value: "status", label: "Status Report" },
+  { value: "history", label: "History Report" },
+  { value: "stoppageSummary", label: "Stoppage Summary Report" },
+  { value: "stop", label: "Stop Report" },
+  { value: "travel", label: "Travel Summary Report" },
+  { value: "trip", label: "Trip Report" },
+  { value: "idle", label: "Idle Report" },
+  { value: "alert", label: "Alert Report" },
+  { value: "routeReport", label: "Route Report" },
+];
 
 interface SelectOption {
   label: string;
@@ -441,6 +466,15 @@ export default function UserAccessPage() {
   const { data: schoolData } = useSchoolData();
   const { data: branchDataFromHook } = useBranchData();
 
+  // Permissions state
+  const [selectedMasterPermissions, setSelectedMasterPermissions] = useState<string[]>([]);
+  const [selectedReportPermissions, setSelectedReportPermissions] = useState<string[]>([]);
+
+  const resetPermissions = () => {
+    setSelectedMasterPermissions([]);
+    setSelectedReportPermissions([]);
+  };
+
   const schoolOptions: SelectOption[] =
     schoolData?.map((s) => ({ label: s.schoolName, value: s._id })) || [];
   const branchOptions: SelectOption[] =
@@ -456,7 +490,7 @@ export default function UserAccessPage() {
       setBranchGroupsData(response);
       setFilteredData(response);
     } catch (err) {
-      setError("Failed to load user data.");
+      // setError("Failed to load user data.");
       setBranchGroupsData([]);
       setFilteredData([]);
     } finally {
@@ -514,10 +548,6 @@ export default function UserAccessPage() {
   // Handle search
   const handleSearchResults = useCallback((results: BranchGroupAccess[]) => {
     setFilteredData(results);
-  }, []);
-
-  const handleSearchChange = useCallback((searchTerm: string) => {
-    setGlobalFilter(searchTerm);
   }, []);
 
   const handleDateRangeChange = useCallback(
@@ -653,13 +683,13 @@ export default function UserAccessPage() {
     [updateBranchesMutation]
   );
 
-  const handleSchoolChange = (schoolId: string | null) => {
-    setSelectedSchool(schoolId);
+  const handleSchoolChange = (schoolId: string | undefined) => {
+    setSelectedSchool(schoolId || null);
     setSelectedBranches([]);
   };
 
-  const handleEditSchoolChange = (schoolId: string | null) => {
-    setEditSelectedSchool(schoolId);
+  const handleEditSchoolChange = (schoolId: string | undefined) => {
+    setEditSelectedSchool(schoolId || null);
     setEditSelectedBranches([]);
   };
 
@@ -673,6 +703,24 @@ export default function UserAccessPage() {
       schoolId: selectedSchool,
       branchGroupName: formData.get("branchGroupName") as string,
       AssignedBranch: selectedBranches,
+      access: {
+        master: {
+          route: selectedMasterPermissions.includes("route"),
+          geofence: selectedMasterPermissions.includes("geofence"),
+          driver: selectedMasterPermissions.includes("driver"),
+        },
+        reports: {
+          status: selectedReportPermissions.includes("status"),
+          history: selectedReportPermissions.includes("history"),
+          stoppageSummary: selectedReportPermissions.includes("stoppageSummary"),
+          stop: selectedReportPermissions.includes("stop"),
+          travel: selectedReportPermissions.includes("travel"),
+          trip: selectedReportPermissions.includes("trip"),
+          idle: selectedReportPermissions.includes("idle"),
+          alert: selectedReportPermissions.includes("alert"),
+          routeReport: selectedReportPermissions.includes("routeReport"),
+        },
+      },
     };
     await createMutation.mutateAsync(newBranchGroup);
   };
@@ -688,6 +736,24 @@ export default function UserAccessPage() {
       schoolId: editSelectedSchool || editTarget.schoolId?._id,
       branchGroupName: formData.get("branchGroupName") as string,
       AssignedBranch: editSelectedBranches,
+      access: {
+        master: {
+          route: selectedMasterPermissions.includes("route"),
+          geofence: selectedMasterPermissions.includes("geofence"),
+          driver: selectedMasterPermissions.includes("driver"),
+        },
+        reports: {
+          status: selectedReportPermissions.includes("status"),
+          history: selectedReportPermissions.includes("history"),
+          stoppageSummary: selectedReportPermissions.includes("stoppageSummary"),
+          stop: selectedReportPermissions.includes("stop"),
+          travel: selectedReportPermissions.includes("travel"),
+          trip: selectedReportPermissions.includes("trip"),
+          idle: selectedReportPermissions.includes("idle"),
+          alert: selectedReportPermissions.includes("alert"),
+          routeReport: selectedReportPermissions.includes("routeReport"),
+        },
+      },
     };
     await updateMutation.mutateAsync({
       id: editTarget._id,
@@ -703,6 +769,7 @@ export default function UserAccessPage() {
     if (!isAddDialogOpen) {
       setSelectedBranches([]);
       setSelectedSchool(null);
+      resetPermissions();
     }
   }, [isAddDialogOpen]);
 
@@ -713,7 +780,32 @@ export default function UserAccessPage() {
           ? editTarget.AssignedBranch.map((b) => b._id)
           : []
       );
+      setEditSelectedBranches(
+        editTarget.AssignedBranch
+          ? editTarget.AssignedBranch.map((b) => b._id)
+          : []
+      );
       setEditSelectedSchool(editTarget.schoolId?._id || null);
+
+      // Populate permissions
+      if (editTarget.access) {
+        const masterPerms: string[] = [];
+        const reportPerms: string[] = [];
+        if (editTarget.access.master) {
+          Object.entries(editTarget.access.master).forEach(([key, value]) => {
+            if (value === true) masterPerms.push(key);
+          });
+        }
+        if (editTarget.access.reports) {
+          Object.entries(editTarget.access.reports).forEach(([key, value]) => {
+            if (value === true) reportPerms.push(key);
+          });
+        }
+        setSelectedMasterPermissions(masterPerms);
+        setSelectedReportPermissions(reportPerms);
+      } else {
+        resetPermissions();
+      }
     }
   }, [editTarget, isEditDialogOpen]);
 
@@ -722,6 +814,7 @@ export default function UserAccessPage() {
       setEditSelectedBranches([]);
       setEditSelectedSchool(null);
       setEditTarget(null);
+      resetPermissions();
     }
   }, [isEditDialogOpen]);
 
@@ -740,7 +833,7 @@ export default function UserAccessPage() {
     () => [
       {
         header: "Group Name",
-        accessorFn: (row) => ({
+        accessorFn: (row: BranchGroupAccess) => ({
           type: "text",
           value: row.branchGroupName || "N/A",
           render: () => row.branchGroupName || "N/A",
@@ -749,7 +842,7 @@ export default function UserAccessPage() {
       },
       {
         header: "User Name",
-        accessorFn: (row) => ({
+        accessorFn: (row: BranchGroupAccess) => ({
           type: "text",
           value: row.username || "N/A",
           render: () => row.username || "N/A",
@@ -768,7 +861,7 @@ export default function UserAccessPage() {
       // },
       {
         header: "Password",
-        accessorFn: (row) => ({
+        accessorFn: (row: BranchGroupAccess) => ({
           type: "custom",
           render: () => {
             // Inline component WITH hooks allowed here
@@ -808,7 +901,7 @@ export default function UserAccessPage() {
 
       {
         header: "Mobile No",
-        accessorFn: (row) => ({
+        accessorFn: (row: BranchGroupAccess) => ({
           type: "text",
           value: row.mobileNo || "N/A",
           render: () => row.mobileNo || "N/A",
@@ -817,7 +910,7 @@ export default function UserAccessPage() {
       },
       {
         header: "Admin",
-        accessorFn: (row) => ({
+        accessorFn: (row: BranchGroupAccess) => ({
           type: "text",
           value: row.schoolId?.schoolName || "N/A",
           render: () => row.schoolId?.schoolName || "N/A",
@@ -826,7 +919,7 @@ export default function UserAccessPage() {
       },
       {
         header: "Registration Date",
-        accessorFn: (row) => ({
+        accessorFn: (row: BranchGroupAccess) => ({
           type: "text",
           value: row.createdAt
             ? new Date(row.createdAt).toLocaleDateString("en-GB")
@@ -840,7 +933,7 @@ export default function UserAccessPage() {
       },
       {
         header: "Assigned Users",
-        accessorFn: (row) => {
+        accessorFn: (row: BranchGroupAccess) => {
           // console.log("Branches:", branchOptions);
           // console.log("Row:", row);
           // // Filter branches that belong to this row's school
@@ -884,7 +977,7 @@ export default function UserAccessPage() {
 
       {
         header: "Action",
-        accessorFn: (row) => ({
+        accessorFn: (row: BranchGroupAccess) => ({
           type: "group",
           items: [
             {
@@ -1000,7 +1093,6 @@ export default function UserAccessPage() {
               "schoolId.schoolName",
             ]}
             onResults={handleSearchResults}
-            onSearchChange={handleSearchChange}
             className="w-[300px]"
           />
           <div>
@@ -1064,7 +1156,7 @@ export default function UserAccessPage() {
                 <Label htmlFor="schoolId">Admin</Label>
                 <Combobox
                   items={schoolOptions}
-                  value={selectedSchool}
+                  value={selectedSchool || undefined}
                   onValueChange={handleSchoolChange}
                   placeholder="Select Admin"
                   searchPlaceholder="Search Admin..."
@@ -1083,6 +1175,63 @@ export default function UserAccessPage() {
                     Selected: {selectedBranches.length} users
                   </div>
                 )}
+
+                {/* Permissions Section - Add */}
+                <div className="border rounded-lg p-4 mt-2">
+                  <div className="flex items-center justify-between mb-4">
+                    <Label className="text-base font-semibold">Access</Label>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        setSelectedMasterPermissions(masterOptions.map(o => o.value));
+                        setSelectedReportPermissions(reportOptions.map(o => o.value));
+                      }}
+                    >
+                      Select All
+                    </Button>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <p className="text-sm font-medium text-gray-700 mb-2">Master</p>
+                      <Combobox
+                        items={masterOptions}
+                        multiple={true}
+                        selectedValues={selectedMasterPermissions}
+                        onSelectedValuesChange={setSelectedMasterPermissions}
+                        className="cursor-pointer"
+                        placeholder="Select master permissions..."
+                        searchPlaceholder="Search permissions..."
+                        emptyMessage="No permissions found"
+                        width="w-full"
+                        showSelectAll={true}
+                        selectAllLabel="Select All"
+                        showBadges={true}
+                        maxBadges={2}
+                      />
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-gray-700 mb-2">Reports</p>
+                      <Combobox
+                        items={reportOptions}
+                        multiple={true}
+                        selectedValues={selectedReportPermissions}
+                        onSelectedValuesChange={setSelectedReportPermissions}
+                        className="cursor-pointer"
+                        placeholder="Select report permissions..."
+                        searchPlaceholder="Search reports..."
+                        emptyMessage="No reports found"
+                        width="w-full"
+                        showSelectAll={true}
+                        selectAllLabel="Select All"
+                        showBadges={true}
+                        maxBadges={2}
+                      />
+                    </div>
+                  </div>
+                </div>
               </div>
               <DialogFooter>
                 <DialogClose asChild>
@@ -1160,7 +1309,7 @@ export default function UserAccessPage() {
                 <Label htmlFor="edit-schoolId">Admin</Label>
                 <Combobox
                   items={schoolOptions}
-                  value={editSelectedSchool}
+                  value={editSelectedSchool || undefined}
                   onValueChange={handleEditSchoolChange}
                   placeholder="Select Admin"
                   searchPlaceholder="Search Admin..."
@@ -1179,6 +1328,63 @@ export default function UserAccessPage() {
                     Selected: {editSelectedBranches.length} users
                   </div>
                 )}
+
+                {/* Permissions Section - Edit */}
+                <div className="border rounded-lg p-4 mt-2">
+                  <div className="flex items-center justify-between mb-4">
+                    <Label className="text-base font-semibold">Access</Label>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        setSelectedMasterPermissions(masterOptions.map(o => o.value));
+                        setSelectedReportPermissions(reportOptions.map(o => o.value));
+                      }}
+                    >
+                      Select All
+                    </Button>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <p className="text-sm font-medium text-gray-700 mb-2">Master</p>
+                      <Combobox
+                        items={masterOptions}
+                        multiple={true}
+                        selectedValues={selectedMasterPermissions}
+                        onSelectedValuesChange={setSelectedMasterPermissions}
+                        className="cursor-pointer"
+                        placeholder="Select master permissions..."
+                        searchPlaceholder="Search permissions..."
+                        emptyMessage="No permissions found"
+                        width="w-full"
+                        showSelectAll={true}
+                        selectAllLabel="Select All"
+                        showBadges={true}
+                        maxBadges={2}
+                      />
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-gray-700 mb-2">Reports</p>
+                      <Combobox
+                        items={reportOptions}
+                        multiple={true}
+                        selectedValues={selectedReportPermissions}
+                        onSelectedValuesChange={setSelectedReportPermissions}
+                        className="cursor-pointer"
+                        placeholder="Select report permissions..."
+                        searchPlaceholder="Search reports..."
+                        emptyMessage="No reports found"
+                        width="w-full"
+                        showSelectAll={true}
+                        selectAllLabel="Select All"
+                        showBadges={true}
+                        maxBadges={2}
+                      />
+                    </div>
+                  </div>
+                </div>
               </div>
               <DialogFooter>
                 <Button
@@ -1187,7 +1393,7 @@ export default function UserAccessPage() {
                 >
                   Cancel
                 </Button>
-                <Button type="submit" disabled={updateMutation.isPending}>
+                <Button type="submit" className="text-white" disabled={updateMutation.isPending}>
                   {updateMutation.isPending ? "Updating..." : "Update Group"}
                 </Button>
               </DialogFooter>

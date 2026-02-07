@@ -55,7 +55,8 @@ export function TravelTable<T extends Record<string, unknown>>({
   maxHeight = "500px",
   columnVisibility,
   onColumnVisibilityChange,
-}: TravelTableProps<T>) {
+  headerBackgroundColor = "#0c235c", // Default to the dark blue
+}: TravelTableProps<T> & { headerBackgroundColor?: string }) {
   // Serial number column
   const serialNumberColumn: ColumnDef<T> = {
     id: "serialNumber",
@@ -104,7 +105,7 @@ export function TravelTable<T extends Record<string, unknown>>({
           <Table>
             <TableHeader
               className="sticky top-0 z-10"
-              style={{ backgroundColor: "#0c235c" }}
+              style={{ backgroundColor: headerBackgroundColor }}
             >
               {table.getHeaderGroups().map((headerGroup) => (
                 <TableRow key={headerGroup.id} className="border-b">
@@ -113,7 +114,7 @@ export function TravelTable<T extends Record<string, unknown>>({
                       key={header.id}
                       className="text-foreground px-2 py-2 sm:px-4 sm:py-3 text-xs sm:text-sm font-medium uppercase tracking-wider border-r last:border-r-0"
                       style={{
-                        backgroundColor: "#0c235c",
+                        backgroundColor: headerBackgroundColor,
                         color: "white",
                         width: header.id === "serialNumber" ? "60px" : "auto",
                         minWidth:
@@ -123,8 +124,8 @@ export function TravelTable<T extends Record<string, unknown>>({
                       {header.isPlaceholder ? null : (
                         <div
                           className={`flex items-center justify-center gap-1 w-full ${header.column.getCanSort()
-                              ? "cursor-pointer select-none"
-                              : ""
+                            ? "cursor-pointer select-none"
+                            : ""
                             }`}
                           onClick={header.column.getToggleSortingHandler()}
                         >

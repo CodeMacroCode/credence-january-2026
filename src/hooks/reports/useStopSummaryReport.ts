@@ -6,19 +6,35 @@ import { useQuery, keepPreviousData } from "@tanstack/react-query";
 interface Props {
   filters: Record<string, any>;
   hasGenerated?: boolean;
+  page?: number;
+  limit?: number;
 }
 
-export const useStopSummaryReport = ({ filters, hasGenerated }: Props) => {
+export const useStopSummaryReport = ({
+  filters,
+  hasGenerated,
+  page = 1,
+  limit = 10,
+}: Props) => {
   const uniqueIds = filters?.uniqueIds || [];
 
   return useQuery({
-    queryKey: ["stop-summary-report", uniqueIds, filters?.from, filters?.to],
+    queryKey: [
+      "stop-summary-report",
+      uniqueIds,
+      filters?.from,
+      filters?.to,
+      page,
+      limit,
+    ],
 
     queryFn: () =>
       reportService.getStopSummaryReport({
         uniqueIds,
         from: filters?.from,
         to: filters?.to,
+        limit: limit,
+        page: page,
       }),
 
     enabled:

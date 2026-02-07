@@ -28,6 +28,10 @@ export interface Branch {
   subscriptionExpirationDate: string;
   createdAt: string;
   Active?: boolean;
+  access?: {
+    master?: Record<string, boolean>;
+    reports?: Record<string, boolean>;
+  };
 }
 
 export interface Device {
@@ -185,6 +189,10 @@ export interface BranchGroup {
   email: string;
   role: string;
   fcmToken: string;
+  access?: {
+    master?: Record<string, boolean>;
+    reports?: Record<string, boolean>;
+  };
 }
 
 // Define the structure of a LeaveRequest

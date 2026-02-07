@@ -68,6 +68,26 @@ interface DecodedToken {
   [key: string]: any;
 }
 
+// Master options for dropdown
+const masterOptions = [
+  { value: "route", label: "Route" },
+  { value: "geofence", label: "Geofence" },
+  { value: "driver", label: "Driver" },
+];
+
+// Report options for dropdown
+const reportOptions = [
+  { value: "status", label: "Status Report" },
+  { value: "history", label: "History Report" },
+  { value: "stoppageSummary", label: "Stoppage Summary Report" },
+  { value: "stop", label: "Stop Report" },
+  { value: "travel", label: "Travel Summary Report" },
+  { value: "trip", label: "Trip Report" },
+  { value: "idle", label: "Idle Report" },
+  { value: "alert", label: "Alert Report" },
+  { value: "routeReport", label: "Route Report" },
+];
+
 // Helper function to decode JWT token
 const getDecodedToken = (token: string): DecodedToken | null => {
   try {
@@ -106,6 +126,7 @@ const BranchEditDialog = ({
   isSuperAdmin,
   isSchoolRole,
   updatebranchMutation,
+  isBranchGroup,
 }: {
   data: any;
   isOpen: boolean;
@@ -117,6 +138,7 @@ const BranchEditDialog = ({
   isSuperAdmin: boolean;
   isSchoolRole: boolean;
   updatebranchMutation: any;
+  isBranchGroup: boolean;
 }) => {
   const [formData, setFormData] = useState(data);
   const [expirationDate, setExpirationDate] = useState<Date | null>(
@@ -125,6 +147,10 @@ const BranchEditDialog = ({
       : null
   );
 
+  // Permissions state for edit form
+  const [selectedMasterPermissions, setSelectedMasterPermissions] = useState<string[]>([]);
+  const [selectedReportPermissions, setSelectedReportPermissions] = useState<string[]>([]);
+
   useEffect(() => {
     setFormData(data);
     setExpirationDate(
@@ -132,6 +158,28 @@ const BranchEditDialog = ({
         ? new Date(data.subscriptionExpirationDate)
         : null
     );
+
+    // Initialize permissions from data.access
+    if (data.access) {
+      const masterPerms: string[] = [];
+      const reportPerms: string[] = [];
+
+      if (data.access.master) {
+        Object.entries(data.access.master).forEach(([key, value]) => {
+          if (value === true) masterPerms.push(key);
+        });
+      }
+      if (data.access.reports) {
+        Object.entries(data.access.reports).forEach(([key, value]) => {
+          if (value === true) reportPerms.push(key);
+        });
+      }
+      setSelectedMasterPermissions(masterPerms);
+      setSelectedReportPermissions(reportPerms);
+    } else {
+      setSelectedMasterPermissions([]);
+      setSelectedReportPermissions([]);
+    }
   }, [data]);
 
   const handleSave = () => {
@@ -140,6 +188,24 @@ const BranchEditDialog = ({
       subscriptionExpirationDate: expirationDate
         ? expirationDate.toISOString().split("T")[0]
         : null,
+      access: {
+        master: {
+          route: selectedMasterPermissions.includes("route"),
+          geofence: selectedMasterPermissions.includes("geofence"),
+          driver: selectedMasterPermissions.includes("driver"),
+        },
+        reports: {
+          status: selectedReportPermissions.includes("status"),
+          history: selectedReportPermissions.includes("history"),
+          stoppageSummary: selectedReportPermissions.includes("stoppageSummary"),
+          stop: selectedReportPermissions.includes("stop"),
+          travel: selectedReportPermissions.includes("travel"),
+          trip: selectedReportPermissions.includes("trip"),
+          idle: selectedReportPermissions.includes("idle"),
+          alert: selectedReportPermissions.includes("alert"),
+          routeReport: selectedReportPermissions.includes("routeReport"),
+        },
+      },
     };
     onSave(updatedData);
   };
@@ -238,7 +304,7 @@ const BranchEditDialog = ({
             </div>
 
             {/* Expiration Date */}
-            {(isSuperAdmin || isSchoolRole) && (
+            {(isSuperAdmin || isSchoolRole || isBranchGroup) && (
               // <div className="grid gap-2">
               //   <Label htmlFor="edit-expirationDate">Expiration Date</Label>
               //   <DatePicker
@@ -263,8 +329,8 @@ const BranchEditDialog = ({
               />
             )}
 
-            {/* Full Access Checkbox */}
-            {(isSuperAdmin || isSchoolRole) && (
+            {/* Full Access Checkbox
+            {(isSuperAdmin || isSchoolRole || isBranchGroup) && (
               <div className="flex items-center gap-3 mt-2">
                 <input
                   type="checkbox"
@@ -277,6 +343,68 @@ const BranchEditDialog = ({
                 />
                 <Label htmlFor="edit-fullAccess">Full Access</Label>
               </div>
+            )} */}
+
+            {/* Permissions Section */}
+            {(isSuperAdmin || isSchoolRole || isBranchGroup) && (
+              <div className="col-span-full border rounded-lg p-4 mt-2">
+                <div className="flex items-center justify-between mb-4">
+                  <Label className="text-base font-semibold">Access</Label>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      setSelectedMasterPermissions(masterOptions.map(o => o.value));
+                      setSelectedReportPermissions(reportOptions.map(o => o.value));
+                    }}
+                  >
+                    Select All
+                  </Button>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {/* Master Permissions Dropdown */}
+                  <div>
+                    <p className="text-sm font-medium text-gray-700 mb-2">Master</p>
+                    <Combobox
+                      items={masterOptions}
+                      multiple={true}
+                      selectedValues={selectedMasterPermissions}
+                      onSelectedValuesChange={setSelectedMasterPermissions}
+                      className="cursor-pointer"
+                      placeholder="Select master permissions..."
+                      searchPlaceholder="Search permissions..."
+                      emptyMessage="No permissions found"
+                      width="w-full"
+                      showSelectAll={true}
+                      selectAllLabel="Select All"
+                      showBadges={true}
+                      maxBadges={2}
+                    />
+                  </div>
+
+                  {/* Reports Permissions Dropdown */}
+                  <div>
+                    <p className="text-sm font-medium text-gray-700 mb-2">Reports</p>
+                    <Combobox
+                      items={reportOptions}
+                      multiple={true}
+                      selectedValues={selectedReportPermissions}
+                      onSelectedValuesChange={setSelectedReportPermissions}
+                      className="cursor-pointer"
+                      placeholder="Select report permissions..."
+                      searchPlaceholder="Search reports..."
+                      emptyMessage="No reports found"
+                      width="w-full"
+                      showSelectAll={true}
+                      selectAllLabel="Select All"
+                      showBadges={true}
+                      maxBadges={2}
+                    />
+                  </div>
+                </div>
+              </div>
             )}
           </div>
         </div>
@@ -288,6 +416,7 @@ const BranchEditDialog = ({
           <Button
             onClick={handleSave}
             disabled={updatebranchMutation.isPending}
+            className="text-white"
           >
             {updatebranchMutation.isPending ? "Saving..." : "Save Changes"}
           </Button>
@@ -302,7 +431,6 @@ export default function BranchMaster() {
   const closeButtonRef = useRef<HTMLButtonElement>(null);
   const [filteredData, setFilteredData] = useState<branch[]>([]);
   const [filterResults, setFilterResults] = useState<branch[]>([]);
-  const [accessTarget, setAccessTarget] = useState<branch | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<branch | null>(null);
   const [editTarget, setEditTarget] = useState<branch | null>(null);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
@@ -312,13 +440,22 @@ export default function BranchMaster() {
   const { data: schoolData } = useSchoolData();
   const [school, setSchool] = useState<string>("");
   const [schoolSearch, setSchoolSearch] = useState("");
-  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
   const [isVerificationDialogOpen, setIsVerificationDialogOpen] =
     useState(false);
   const [isVerified, setIsVerified] = useState(false);
   const [currentProtectedField, setCurrentProtectedField] = useState<
     string | null
   >(null);
+
+  // Permissions state for add user form
+  const [selectedMasterPermissions, setSelectedMasterPermissions] = useState<string[]>([]);
+  const [selectedReportPermissions, setSelectedReportPermissions] = useState<string[]>([]);
+
+  const resetPermissions = () => {
+    setSelectedMasterPermissions([]);
+    setSelectedReportPermissions([]);
+  };
 
   // FIXED: Combine all user info into a single state to avoid synchronization issues
   const [userInfo, setUserInfo] = useState<{
@@ -686,7 +823,8 @@ export default function BranchMaster() {
         setSchool("");
         setSchoolSearch("");
       }
-      setSelectedDate(null);
+      setSelectedDate(undefined);
+      resetPermissions();
 
       // alert("Branch added successfully.");
       toast.success("Branch added successfully.");
@@ -698,31 +836,7 @@ export default function BranchMaster() {
     },
   });
 
-  // Mutation for Access control
-  const accessMutation = useMutation({
-    mutationFn: async (branch: { _id: string; fullAccess: boolean }) => {
-      console.log("Acccess Mutation Fn:", branch);
-      return await api.put(`branch/accessgrant/${branch._id}`, {
-        fullAccess: branch.fullAccess,
-      });
-    },
-    onSuccess: async () => {
-      // Wait for invalidation and refetch to complete
-      await queryClient.invalidateQueries({
-        queryKey: ["branches"],
-        refetchType: "active",
-      });
 
-      setAccessTarget(null);
-      // alert("Access updated successfully.");
-      toast.success("Access updated successfully.");
-    },
-    onError: (err: any) => {
-      alert(
-        `Failed to update access: ${err.response?.data?.message || err.message}`
-      );
-    },
-  });
 
   const updatebranchMutation = useMutation({
     mutationFn: async ({
@@ -877,6 +991,24 @@ export default function BranchMaster() {
         isSuperAdmin || isSchoolRole || isBranchGroup
           ? form.fullAccess?.checked
           : false,
+      access: {
+        master: {
+          route: selectedMasterPermissions.includes("route"),
+          geofence: selectedMasterPermissions.includes("geofence"),
+          driver: selectedMasterPermissions.includes("driver"),
+        },
+        reports: {
+          status: selectedReportPermissions.includes("status"),
+          history: selectedReportPermissions.includes("history"),
+          stoppageSummary: selectedReportPermissions.includes("stoppageSummary"),
+          stop: selectedReportPermissions.includes("stop"),
+          travel: selectedReportPermissions.includes("travel"),
+          trip: selectedReportPermissions.includes("trip"),
+          idle: selectedReportPermissions.includes("idle"),
+          alert: selectedReportPermissions.includes("alert"),
+          routeReport: selectedReportPermissions.includes("routeReport"),
+        },
+      },
     };
 
     try {
@@ -992,30 +1124,9 @@ export default function BranchMaster() {
       ...(isSuperAdmin
         ? [
           {
-            header: "Access",
-            accessorFn: (row) => ({
-              type: "group",
-              items: [
-                {
-                  type: "button",
-                  label: row.fullAccess
-                    ? "Grant Limited Access"
-                    : "Grant Full Access",
-                  onClick: () => setAccessTarget(row),
-                  disabled: accessMutation.isPending,
-                  className: `w-full border border-gray-300 rounded px-3 py-2 text-left bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm min-h-[38px] flex items-center justify-between ${row.fullAccess ? "text-red-600" : "text-emerald-600"
-                    }`,
-                },
-              ],
-            }),
-            meta: { flex: 1.5, minWidth: 230 },
-            enableSorting: false,
-            enableHiding: true,
-          },
-          {
             header: "Notifications",
             // ✅ Use cell for custom components
-            accessorFn: (row) => (
+            accessorFn: (row: branch) => (
               <BranchNotificationCell branchId={row._id} />
             ),
             meta: { flex: 1.5, minWidth: 230 },
@@ -1036,13 +1147,13 @@ export default function BranchMaster() {
                     setEditTarget(row);
                     setEditDialogOpen(true);
                   },
-                  disabled: accessMutation.isPending,
+
                 },
                 {
                   type: "button",
                   label: "Delete",
                   className:
-                    "text-blue-700 hover:text-blue-900 font-medium text-red-600 font-semibold cursor-pointer xt-xs py-1.5 px-2.5 rounded-md whitespace-nowrap cursor-pointer",
+                    "text-white font-medium font-semibold cursor-pointer xt-xs py-1.5 px-2.5 rounded-md whitespace-nowrap cursor-pointer",
                   onClick: () => setDeleteTarget(row),
                   disabled: deletebranchMutation.isPending,
                 },
@@ -1072,7 +1183,6 @@ export default function BranchMaster() {
     [
       // Dependencies that affect column structure
       isSuperAdmin,
-      accessMutation.isPending,
       deletebranchMutation.isPending,
       // Don't include state setters - they're stable
     ]
@@ -1106,7 +1216,7 @@ export default function BranchMaster() {
               title="Search by Registration Date"
             />
           </div>
-          {(isSuperAdmin || isSchoolRole || isBranchGroup) && (
+          {/* {(isSuperAdmin || isSchoolRole || isBranchGroup) && (
             <CustomFilter
               data={filterResults as any[]}
               originalData={filterResults as any[]}
@@ -1121,7 +1231,7 @@ export default function BranchMaster() {
               trueValue={"Full Access"}
               falseValue={"Limited Access"}
             />
-          )}
+          )} */}
           <ColumnVisibilitySelector
             columns={table.getAllColumns()}
             buttonVariant="outline"
@@ -1261,7 +1371,7 @@ export default function BranchMaster() {
                       />
                     </div>
 
-                    {/* Full Access checkbox - only for superadmin, school, and branchGroup roles */}
+                    {/* Full Access checkbox - only for superadmin, school, and branchGroup roles
                     {(isSuperAdmin || isSchoolRole || isBranchGroup) && (
                       <div className="px-3 py-2 border-t border-gray-200 bg-blue-50 flex justify-between items-center text-xs text-gray-600">
                         <input
@@ -1271,6 +1381,68 @@ export default function BranchMaster() {
                           className="h-5 w-5"
                         />
                         <Label htmlFor="fullAccess">Full Access</Label>
+                      </div>
+                    )} */}
+
+                    {/* Permissions Section */}
+                    {(isSuperAdmin || isSchoolRole || isBranchGroup) && (
+                      <div className="col-span-full border rounded-lg p-4 mt-2">
+                        <div className="flex items-center justify-between mb-4">
+                          <Label className="text-base font-semibold">Access</Label>
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={() => {
+                              setSelectedMasterPermissions(masterOptions.map(o => o.value));
+                              setSelectedReportPermissions(reportOptions.map(o => o.value));
+                            }}
+                          >
+                            Select All
+                          </Button>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          {/* Master Permissions Dropdown */}
+                          <div>
+                            <p className="text-sm font-medium text-gray-700 mb-2">Master</p>
+                            <Combobox
+                              items={masterOptions}
+                              multiple={true}
+                              selectedValues={selectedMasterPermissions}
+                              onSelectedValuesChange={setSelectedMasterPermissions}
+                              className="cursor-pointer"
+                              placeholder="Select master permissions..."
+                              searchPlaceholder="Search permissions..."
+                              emptyMessage="No permissions found"
+                              width="w-full"
+                              showSelectAll={true}
+                              selectAllLabel="Select All"
+                              showBadges={true}
+                              maxBadges={2}
+                            />
+                          </div>
+
+                          {/* Reports Permissions Dropdown */}
+                          <div>
+                            <p className="text-sm font-medium text-gray-700 mb-2">Reports</p>
+                            <Combobox
+                              items={reportOptions}
+                              multiple={true}
+                              selectedValues={selectedReportPermissions}
+                              onSelectedValuesChange={setSelectedReportPermissions}
+                              className="cursor-pointer"
+                              placeholder="Select report permissions..."
+                              searchPlaceholder="Search reports..."
+                              emptyMessage="No reports found"
+                              width="w-full"
+                              showSelectAll={true}
+                              selectAllLabel="Select All"
+                              showBadges={true}
+                              maxBadges={2}
+                            />
+                          </div>
+                        </div>
                       </div>
                     )}
                   </div>
@@ -1315,26 +1487,7 @@ export default function BranchMaster() {
 
       <section>
         <div>
-          {(isSuperAdmin || isSchoolRole || isBranchGroup) && (
-            <Alert<branch>
-              title="Are you absolutely sure?"
-              description={`You are about to give ${accessTarget?.branchName} ${accessTarget?.fullAccess ? "limited" : "full"
-                } access.`}
-              actionButton={(target) => {
-                accessMutation.mutate({
-                  _id: target?._id,
-                  fullAccess: !target?.fullAccess,
-                });
-              }}
-              target={accessTarget}
-              setTarget={setAccessTarget}
-              butttonText="Confirm"
-              dialogClassName="max-w-sm" // Reduced width
-            />
-          )}
-        </div>
 
-        <div>
           {deleteTarget && (
             <Alert<branch>
               title="Are you absolutely sure?"
@@ -1374,6 +1527,7 @@ export default function BranchMaster() {
             }}
             isSuperAdmin={isSuperAdmin}
             isSchoolRole={isSchoolRole}
+            isBranchGroup={isBranchGroup}
             updatebranchMutation={updatebranchMutation}
           />
         )}

@@ -118,11 +118,19 @@ export const reportService = {
     uniqueIds: string[];
     from: string;
     to: string;
+    limit?: string | number;
+    page?: number;
   }): Promise<any> => {
     const res = await api.post(
-      "/report/stop-summary",
+      "/report/stoppage-summary",
       { uniqueIds },
-      { params },
+      {
+        params: {
+          ...params,
+          limit: params.limit || "all",
+          page: params.page || 1,
+        },
+      },
     );
     return res.data;
   },
