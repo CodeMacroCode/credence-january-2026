@@ -537,18 +537,18 @@ export const getLiveVehicleColumns = (): ColumnDef<LiveTrack>[] => [
       const imageUrl = useMemo(() => {
         const statusToImageUrl = {
           running: "/car/side-view/carGreen.svg",
-          idle: "/car/side-view/carBlue.svg",
+          idle: "/car/side-view/carYellow.svg",
           stopped: "/car/side-view/carRed.svg",
           inactive: "/car/side-view/carGrey.svg",
           overspeed: "/car/side-view/carOrange.svg",
-          noData: "/car/side-view/carBlue.svg",
+          new: "/car/side-view/carBlue.svg",
         };
         return (
           statusToImageUrl[
-          String(vehicleStatus) as keyof typeof statusToImageUrl
+          String(row.original.category) as keyof typeof statusToImageUrl
           ] || statusToImageUrl.inactive
         );
-      }, [vehicleStatus]);
+      }, [row.original.category]);
 
       return (
         <div className="flex items-center justify-center flex-shrink-0">
