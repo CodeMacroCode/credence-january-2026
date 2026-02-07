@@ -499,41 +499,6 @@ export const getLiveVehicleColumns = (): ColumnDef<LiveTrack>[] => [
     id: "status",
     header: "Status",
     cell: ({ row }: any) => {
-      const vehicle = row.original;
-      const vehicleStatus = useMemo(() => {
-        const lastUpdateTime = new Date(vehicle.lastUpdate).getTime();
-        const currentTime = new Date().getTime();
-        const timeDifference = currentTime - lastUpdateTime;
-        const thirtyFiveHoursInMs = 35 * 60 * 60 * 1000;
-
-        // Check for overspeeding
-        const speedLimit = parseFloat(vehicle.speedLimit) || 60;
-        if (vehicle.speed > speedLimit) return "overspeed";
-
-        // Check if vehicle is inactive
-        if (vehicle.latitude === 0 && vehicle.longitude === 0) return "noData";
-
-        if (timeDifference > thirtyFiveHoursInMs) return "inactive";
-
-        // Extract vehicle attributes
-        const { ignition } = vehicle.attributes;
-        const speed = vehicle.speed;
-        if (ignition === true) {
-          if (speed > 5 && speed < speedLimit) {
-            return "running";
-          } else {
-            return "idle";
-          }
-        } else if (ignition === false) {
-          return "stopped";
-        }
-      }, [
-        vehicle.speed,
-        vehicle.speedLimit,
-        vehicle.lastUpdate,
-        vehicle.attributes.ignition,
-      ]);
-
       const imageUrl = useMemo(() => {
         const statusToImageUrl = {
           running: "/car/side-view/carGreen.svg",
