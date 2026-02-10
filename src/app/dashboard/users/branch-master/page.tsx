@@ -45,6 +45,8 @@ import Cookies from "js-cookie";
 import { toast } from "sonner";
 import { BranchNotificationCell } from "@/components/branch-master/BranchNotificationCell";
 import authAxios from "@/lib/authAxios";
+import { BranchImportModal } from "@/components/branch-import/BranchImportModal";
+import { excelFileUploadForBranch } from "@/services/fileUploadService";
 
 type branchAccess = {
   _id: string;
@@ -447,6 +449,7 @@ export default function BranchMaster() {
   const [currentProtectedField, setCurrentProtectedField] = useState<
     string | null
   >(null);
+  const [isImporting, setIsImporting] = useState(false);
 
   // Permissions state for add user form
   const [selectedMasterPermissions, setSelectedMasterPermissions] = useState<string[]>([]);
@@ -799,11 +802,23 @@ export default function BranchMaster() {
 
   const handleExportExcel = () => {
     const dataToExport = filteredData.length > 0 ? filteredData : branches || [];
-    exportToExcel(dataToExport, columnsForExport, {
-      title: "Branch Master Report",
-      filename: "branch_master_report",
-    });
+    exportToExcel(dataToExport, columnsForExport, "Branch_Master_Report");
   };
+
+  const handleImport = async (file: File) => {
+    setIsImporting(true);
+    try {
+      await excelFileUploadForBranch(file);
+      toast.success("Branches imported successfully");
+      await queryClient.invalidateQueries({ queryKey: ["branches"] });
+    } catch (error) {
+      console.error("Import failed:", error);
+      toast.error("Failed to import branches");
+    } finally {
+      setIsImporting(false);
+    }
+  };
+
 
   // Mutation to add a new branch
   const addbranchMutation = useMutation({
@@ -1247,131 +1262,133 @@ export default function BranchMaster() {
             Export Excel
           </Button>
           {(isSuperAdmin || isSchoolRole || isBranchGroup) && (
-            <Dialog>
-              <DialogTrigger asChild>
-                <Button variant="default" className="text-white">Add User</Button>
-              </DialogTrigger>
-              <DialogContent className="sm:max-w-[600px]">
-                <form onSubmit={handleSubmit} className="space-y-4">
-                  <DialogHeader>
-                    <DialogTitle>Add User</DialogTitle>
-                  </DialogHeader>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="grid gap-2">
-                      <Label htmlFor="branchName">User Name *</Label>
-                      <Input
-                        id="branchName"
-                        name="branchName"
-                        placeholder="Enter user name"
-                        required
-                      />
-                    </div>
-
-                    {/* Show School field only for superadmin */}
-                    {isSuperAdmin && (
+            <>
+              <BranchImportModal onImport={handleImport} isLoading={isImporting} />
+              <Dialog>
+                <DialogTrigger asChild>
+                  <Button variant="default" className="text-white">Add User</Button>
+                </DialogTrigger>
+                <DialogContent className="sm:max-w-[600px]">
+                  <form onSubmit={handleSubmit} className="space-y-4">
+                    <DialogHeader>
+                      <DialogTitle>Add User</DialogTitle>
+                    </DialogHeader>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div className="grid gap-2">
-                        <Label htmlFor="schoolId">Admin *</Label>
-                        <Combobox
-                          items={schoolOptions}
-                          value={school}
-                          onValueChange={setSchool}
-                          placeholder="Search admin..."
-                          searchPlaceholder="Search admin..."
-                          emptyMessage="No admin found."
-                          width="w-full"
-                          onSearchChange={setSchoolSearch}
-                          searchValue={schoolSearch}
-                        />
-                      </div>
-                    )}
-
-                    {/* Show school info for non-superadmin roles */}
-                    {(isSchoolRole || isBranchGroup) && userSchoolName && (
-                      <div className="grid gap-2">
-                        <Label htmlFor="schoolInfo">Admin</Label>
+                        <Label htmlFor="branchName">User Name *</Label>
                         <Input
-                          id="schoolInfo"
-                          value={userSchoolName}
-                          disabled
-                          className="bg-gray-100"
-                          placeholder="Your assigned admin"
+                          id="branchName"
+                          name="branchName"
+                          placeholder="Enter user name"
+                          required
                         />
-                        <input
-                          type="hidden"
-                          name="schoolId"
-                          value={userSchoolId || ""}
-                        />
-                        <p className="text-xs text-gray-500">
-                          Admin is automatically assigned to your account
-                        </p>
                       </div>
-                    )}
 
-                    <div className="grid gap-2">
-                      <Label htmlFor="email">Email *</Label>
-                      <Input
-                        id="email"
-                        name="email"
-                        type="email"
-                        placeholder="Enter email address"
-                        required
-                      />
-                    </div>
+                      {/* Show School field only for superadmin */}
+                      {isSuperAdmin && (
+                        <div className="grid gap-2">
+                          <Label htmlFor="schoolId">Admin *</Label>
+                          <Combobox
+                            items={schoolOptions}
+                            value={school}
+                            onValueChange={setSchool}
+                            placeholder="Search admin..."
+                            searchPlaceholder="Search admin..."
+                            emptyMessage="No admin found."
+                            width="w-full"
+                            onSearchChange={setSchoolSearch}
+                            searchValue={schoolSearch}
+                          />
+                        </div>
+                      )}
 
-                    <div className="grid gap-2">
-                      <Label htmlFor="branchMobile">Mobile No *</Label>
-                      <Input
-                        id="branchMobile"
-                        name="branchMobile"
-                        type="tel"
-                        placeholder="Enter user mobile number"
-                        pattern="[0-9]{10}"
-                        maxLength={10}
-                        autoComplete="tel"
-                        required
-                      />
-                    </div>
+                      {/* Show school info for non-superadmin roles */}
+                      {(isSchoolRole || isBranchGroup) && userSchoolName && (
+                        <div className="grid gap-2">
+                          <Label htmlFor="schoolInfo">Admin</Label>
+                          <Input
+                            id="schoolInfo"
+                            value={userSchoolName}
+                            disabled
+                            className="bg-gray-100"
+                            placeholder="Your assigned admin"
+                          />
+                          <input
+                            type="hidden"
+                            name="schoolId"
+                            value={userSchoolId || ""}
+                          />
+                          <p className="text-xs text-gray-500">
+                            Admin is automatically assigned to your account
+                          </p>
+                        </div>
+                      )}
 
-                    <div className="grid gap-2">
-                      <Label htmlFor="username">Username *</Label>
-                      <Input
-                        id="username"
-                        name="username"
-                        type="text"
-                        placeholder="Enter username"
-                        required
-                      />
-                    </div>
+                      <div className="grid gap-2">
+                        <Label htmlFor="email">Email *</Label>
+                        <Input
+                          id="email"
+                          name="email"
+                          type="email"
+                          placeholder="Enter email address"
+                          required
+                        />
+                      </div>
 
-                    <div className="grid gap-2">
-                      <Label htmlFor="password">Password *</Label>
-                      <Input
-                        id="password"
-                        name="password"
-                        type="text"
-                        placeholder="Enter password"
-                        required
-                      />
-                    </div>
+                      <div className="grid gap-2">
+                        <Label htmlFor="branchMobile">Mobile No *</Label>
+                        <Input
+                          id="branchMobile"
+                          name="branchMobile"
+                          type="tel"
+                          placeholder="Enter user mobile number"
+                          pattern="[0-9]{10}"
+                          maxLength={10}
+                          autoComplete="tel"
+                          required
+                        />
+                      </div>
 
-                    {/* DatePicker for Expiration Date */}
-                    <div className="grid gap-2">
-                      {/* <Label htmlFor="expirationDate">Expiration Date</Label>
+                      <div className="grid gap-2">
+                        <Label htmlFor="username">Username *</Label>
+                        <Input
+                          id="username"
+                          name="username"
+                          type="text"
+                          placeholder="Enter username"
+                          required
+                        />
+                      </div>
+
+                      <div className="grid gap-2">
+                        <Label htmlFor="password">Password *</Label>
+                        <Input
+                          id="password"
+                          name="password"
+                          type="text"
+                          placeholder="Enter password"
+                          required
+                        />
+                      </div>
+
+                      {/* DatePicker for Expiration Date */}
+                      <div className="grid gap-2">
+                        {/* <Label htmlFor="expirationDate">Expiration Date</Label>
                       <DatePicker
                         selected={selectedDate}
                         onChange={setSelectedDate}
                         placeholderText="Select expiration date"
                         className="w-full"
                       /> */}
-                      <ExpirationDatePicker
-                        date={selectedDate}
-                        onDateChange={setSelectedDate}
-                        placeholder="Select expiration date"
-                        minDate={new Date()}
-                      />
-                    </div>
+                        <ExpirationDatePicker
+                          date={selectedDate}
+                          onDateChange={setSelectedDate}
+                          placeholder="Select expiration date"
+                          minDate={new Date()}
+                        />
+                      </div>
 
-                    {/* Full Access checkbox - only for superadmin, school, and branchGroup roles
+                      {/* Full Access checkbox - only for superadmin, school, and branchGroup roles
                     {(isSuperAdmin || isSchoolRole || isBranchGroup) && (
                       <div className="px-3 py-2 border-t border-gray-200 bg-blue-50 flex justify-between items-center text-xs text-gray-600">
                         <input
@@ -1384,88 +1401,89 @@ export default function BranchMaster() {
                       </div>
                     )} */}
 
-                    {/* Permissions Section */}
-                    {(isSuperAdmin || isSchoolRole || isBranchGroup) && (
-                      <div className="col-span-full border rounded-lg p-4 mt-2">
-                        <div className="flex items-center justify-between mb-4">
-                          <Label className="text-base font-semibold">Access</Label>
-                          <Button
-                            type="button"
-                            variant="outline"
-                            size="sm"
-                            onClick={() => {
-                              setSelectedMasterPermissions(masterOptions.map(o => o.value));
-                              setSelectedReportPermissions(reportOptions.map(o => o.value));
-                            }}
-                          >
-                            Select All
-                          </Button>
-                        </div>
-
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          {/* Master Permissions Dropdown */}
-                          <div>
-                            <p className="text-sm font-medium text-gray-700 mb-2">Master</p>
-                            <Combobox
-                              items={masterOptions}
-                              multiple={true}
-                              selectedValues={selectedMasterPermissions}
-                              onSelectedValuesChange={setSelectedMasterPermissions}
-                              className="cursor-pointer"
-                              placeholder="Select master permissions..."
-                              searchPlaceholder="Search permissions..."
-                              emptyMessage="No permissions found"
-                              width="w-full"
-                              showSelectAll={true}
-                              selectAllLabel="Select All"
-                              showBadges={true}
-                              maxBadges={2}
-                            />
+                      {/* Permissions Section */}
+                      {(isSuperAdmin || isSchoolRole || isBranchGroup) && (
+                        <div className="col-span-full border rounded-lg p-4 mt-2">
+                          <div className="flex items-center justify-between mb-4">
+                            <Label className="text-base font-semibold">Access</Label>
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              onClick={() => {
+                                setSelectedMasterPermissions(masterOptions.map(o => o.value));
+                                setSelectedReportPermissions(reportOptions.map(o => o.value));
+                              }}
+                            >
+                              Select All
+                            </Button>
                           </div>
 
-                          {/* Reports Permissions Dropdown */}
-                          <div>
-                            <p className="text-sm font-medium text-gray-700 mb-2">Reports</p>
-                            <Combobox
-                              items={reportOptions}
-                              multiple={true}
-                              selectedValues={selectedReportPermissions}
-                              onSelectedValuesChange={setSelectedReportPermissions}
-                              className="cursor-pointer"
-                              placeholder="Select report permissions..."
-                              searchPlaceholder="Search reports..."
-                              emptyMessage="No reports found"
-                              width="w-full"
-                              showSelectAll={true}
-                              selectAllLabel="Select All"
-                              showBadges={true}
-                              maxBadges={2}
-                            />
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            {/* Master Permissions Dropdown */}
+                            <div>
+                              <p className="text-sm font-medium text-gray-700 mb-2">Master</p>
+                              <Combobox
+                                items={masterOptions}
+                                multiple={true}
+                                selectedValues={selectedMasterPermissions}
+                                onSelectedValuesChange={setSelectedMasterPermissions}
+                                className="cursor-pointer"
+                                placeholder="Select master permissions..."
+                                searchPlaceholder="Search permissions..."
+                                emptyMessage="No permissions found"
+                                width="w-full"
+                                showSelectAll={true}
+                                selectAllLabel="Select All"
+                                showBadges={true}
+                                maxBadges={2}
+                              />
+                            </div>
+
+                            {/* Reports Permissions Dropdown */}
+                            <div>
+                              <p className="text-sm font-medium text-gray-700 mb-2">Reports</p>
+                              <Combobox
+                                items={reportOptions}
+                                multiple={true}
+                                selectedValues={selectedReportPermissions}
+                                onSelectedValuesChange={setSelectedReportPermissions}
+                                className="cursor-pointer"
+                                placeholder="Select report permissions..."
+                                searchPlaceholder="Search reports..."
+                                emptyMessage="No reports found"
+                                width="w-full"
+                                showSelectAll={true}
+                                selectAllLabel="Select All"
+                                showBadges={true}
+                                maxBadges={2}
+                              />
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    )}
-                  </div>
+                      )}
+                    </div>
 
-                  <DialogFooter>
-                    <DialogClose asChild>
-                      <Button ref={closeButtonRef} variant="outline">
-                        Cancel
+                    <DialogFooter>
+                      <DialogClose asChild>
+                        <Button ref={closeButtonRef} variant="outline">
+                          Cancel
+                        </Button>
+                      </DialogClose>
+                      <Button
+                        type="submit"
+                        className="text-white"
+                        disabled={addbranchMutation.isPending}
+                      >
+                        {addbranchMutation.isPending
+                          ? "Saving..."
+                          : "Save user"}
                       </Button>
-                    </DialogClose>
-                    <Button
-                      type="submit"
-                      className="text-white"
-                      disabled={addbranchMutation.isPending}
-                    >
-                      {addbranchMutation.isPending
-                        ? "Saving..."
-                        : "Save user"}
-                    </Button>
-                  </DialogFooter>
-                </form>
-              </DialogContent>
-            </Dialog>
+                    </DialogFooter>
+                  </form>
+                </DialogContent>
+              </Dialog>
+            </>
           )}
         </section>
       </header>

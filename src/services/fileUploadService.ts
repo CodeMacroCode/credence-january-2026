@@ -29,3 +29,40 @@ export const excelFileUploadForStudent = async (
 
   return response.data;
 };
+export const excelFileUploadForBranch = async (file: File) => {
+  const formData = new FormData();
+
+  // 🔑 MUST match upload.single("file")
+  formData.append("file", file);
+
+  const response = await fileUploadAxios.post(
+    "/add-multiple-branches",
+    formData,
+    {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    }
+  );
+
+  return response.data;
+};
+
+export const excelFileUploadForSchool = async (file: File) => {
+  const formData = new FormData();
+
+  // 🔑 MUST match upload.single("file")
+  formData.append("file", file);
+
+  const response = await fileUploadAxios.post(
+    "/add-multiple-schools",
+    formData,
+    {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    }
+  );
+
+  return response.data;
+};

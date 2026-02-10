@@ -11,14 +11,13 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { CustomTable, CellContent } from "@/components/ui/CustomTable";
-import { DynamicEditDialog, FieldConfig } from "@/components/ui/EditModal";
+import { FieldConfig } from "@/components/ui/EditModal";
 import SearchComponent from "@/components/ui/SearchOnlydata";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import DateRangeFilter from "@/components/ui/DateRangeFilter";
 import { Combobox } from "@/components/ui/combobox";
-import { FloatingMenu } from "@/components/floatingMenu";
 import {
   getCoreRowModel,
   useReactTable,
@@ -30,14 +29,14 @@ import { api } from "@/services/apiService";
 import { School } from "@/interface/modal";
 import { useExport } from "@/hooks/useExport";
 import { formatDate } from "@/util/formatDate";
-import { Alert } from "@/components/Alert";
 import ResponseLoader from "@/components/ResponseLoader";
-// import { CustomFilter } from "@/components/ui/CustomFilter";
 import { ColumnVisibilitySelector } from "@/components/column-visibility-selector";
 import { Eye, EyeOff } from "lucide-react";
 import authAxios from "@/lib/authAxios";
 import Cookies from "js-cookie";
 import { toast } from "sonner";
+import { AdminImportModal } from "@/components/school-import/SchoolImportModal";
+import { excelFileUploadForSchool } from "@/services/fileUploadService";
 
 declare module "@tanstack/react-table" {
   interface ColumnMeta<TData, TValue> {
@@ -528,6 +527,18 @@ export default function SchoolMaster() {
     getCoreRowModel: getCoreRowModel(),
   });
 
+  // Bulk Import Handler
+  const handleBulkImport = async (file: File) => {
+    try {
+      const result = await excelFileUploadForSchool(file);
+      toast.success(result.message || "Import successful");
+      queryClient.invalidateQueries({ queryKey: ["schools"] });
+    } catch (err: any) {
+      toast.error(err.response?.data?.message || "Import failed");
+      console.error("Import error:", err);
+    }
+  };
+
   return (
     <main>
       <ResponseLoader isLoading={isLoading} />
@@ -554,7 +565,11 @@ export default function SchoolMaster() {
           />
         </section>
 
-        <section>
+        <section className="flex gap-2">
+          <AdminImportModal
+            onImport={handleBulkImport}
+            isLoading={addSchoolMutation.isPending}
+          />
           <Dialog>
             <DialogTrigger asChild>
               <Button variant="default" className="text-white">Add Admin</Button>

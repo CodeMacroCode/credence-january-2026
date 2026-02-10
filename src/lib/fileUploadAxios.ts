@@ -3,7 +3,7 @@ import Cookies from "js-cookie";
 
 const fileUploadAxios = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_BASE_URL + "/api",
-  headers: { "Content-Type": "multipart/form-data" },
+  // headers: { "Content-Type": "multipart/form-data" }, // Let browser set boundary
 });
 
 fileUploadAxios.interceptors.request.use((config) => {
