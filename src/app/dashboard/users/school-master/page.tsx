@@ -913,7 +913,7 @@ export default function SchoolMaster() {
             console.log("Export PDF triggered");
             exportToPDF(filteredData, columnsForExport, {
               title: "School Master Report",
-              companyName: "Parents Eye",
+              companyName: "Credence Tracker",
               metadata: {
                 Total: `${filteredData.length} schools`,
               },
@@ -923,7 +923,7 @@ export default function SchoolMaster() {
             console.log("Export Excel triggered");
             exportToExcel(filteredData, columnsForExport, {
               title: "School Master Report",
-              companyName: "Parents Eye",
+              companyName: "Credence Tracker",
               metadata: {
                 Total: `${filteredData.length} schools`,
               },

@@ -5,6 +5,7 @@ export interface DeviceData {
   latitude: number;
   course: number;
   deviceId: number;
+  uniqueId: number;
   imei: string;
   attributes: {
     charge: boolean;
@@ -18,6 +19,7 @@ export interface DeviceData {
   batteryLevel: number;
   gsmSignal: number;
   deviceCategory: string;
+  category: string;
   status: string;
   lastUpdate: string;
   name: string;
@@ -34,13 +36,13 @@ export interface DeviceFilters {
   page: number;
   limit: number;
   filter:
-    | "all"
-    | "running"
-    | "idle"
-    | "stopped"
-    | "inactive"
-    | "new"
-    | "overspeed";
+  | "all"
+  | "running"
+  | "idle"
+  | "stopped"
+  | "inactive"
+  | "new"
+  | "overspeed";
   searchTerm: string;
   branchId?: string;
   schoolId?: string;

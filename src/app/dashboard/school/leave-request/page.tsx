@@ -365,7 +365,7 @@ export default function LeaveRequestMaster() {
           onExportPdf={() => {
             exportToPDF(filteredData, columns, {
               title: "Leave Request Report",
-              companyName: "Parents Eye",
+              companyName: "Credence Tracker",
               metadata: {
                 Total: `${filteredData.length} requests`,
               },
@@ -374,7 +374,7 @@ export default function LeaveRequestMaster() {
           onExportExcel={() => {
             exportToExcel(filteredData, columns, {
               title: "Leave Request Report",
-              companyName: "Parents Eye",
+              companyName: "Credence Tracker",
               metadata: {
                 Total: `${filteredData.length} requests`,
               },

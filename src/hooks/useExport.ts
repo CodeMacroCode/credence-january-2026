@@ -45,13 +45,13 @@ interface ExportConfig {
 export const useExport = () => {
   const CONFIG = {
     colors: {
-      primary: [240, 177, 0] as [number, number, number],
-      secondary: [255, 229, 138] as [number, number, number],
+      primary: [12, 35, 92] as [number, number, number],
+      secondary: [244, 244, 245] as [number, number, number],
       tertiary: [0, 0, 0] as [number, number, number],
       background: [249, 250, 251] as [number, number, number],
       border: [220, 220, 220] as [number, number, number],
     },
-    compunknown: { name: "Parents Eye" },
+    compunknown: { name: "Credence Tracker" },
     fonts: { primary: "helvetica" },
     layout: { margin: 15, lineHeight: 6 },
   };
@@ -84,8 +84,7 @@ export const useExport = () => {
       const title = config.title || "Data Report";
       const filename =
         config.filename ||
-        `${title.replace(/\s+/g, "_")}_${
-          new Date().toISOString().split("T")[0]
+        `${title.replace(/\s+/g, "_")}_${new Date().toISOString().split("T")[0]
         }.pdf`;
 
       // Header
@@ -214,8 +213,8 @@ export const useExport = () => {
             nestedColumns.map((col) => {
               const value = col.key.includes(".")
                 ? col.key
-                    .split(".")
-                    .reduce((obj: any, key: string) => obj?.[key], nestedItem)
+                  .split(".")
+                  .reduce((obj: any, key: string) => obj?.[key], nestedItem)
                 : nestedItem[col.key];
               return col.formatter
                 ? col.formatter(value, nestedItem)
@@ -303,8 +302,7 @@ export const useExport = () => {
       const title = config.title || "Data Report";
       const filename =
         config.filename ||
-        `${title.replace(/\s+/g, "_")}_${
-          new Date().toISOString().split("T")[0]
+        `${title.replace(/\s+/g, "_")}_${new Date().toISOString().split("T")[0]
         }.xlsx`;
 
       // Compunknown title
@@ -361,8 +359,8 @@ export const useExport = () => {
         const rowData = columns.map((col) => {
           const value = col.key.includes(".")
             ? col.key
-                .split(".")
-                .reduce((obj: any, key: string) => obj?.[key], item)
+              .split(".")
+              .reduce((obj: any, key: string) => obj?.[key], item)
             : item[col.key];
           return col.formatter
             ? col.formatter(value, item)
@@ -433,8 +431,8 @@ export const useExport = () => {
               const nestedRowData = nestedColumns.map((col) => {
                 const value = col.key.includes(".")
                   ? col.key
-                      .split(".")
-                      .reduce((obj: any, key: string) => obj?.[key], nestedItem)
+                    .split(".")
+                    .reduce((obj: any, key: string) => obj?.[key], nestedItem)
                   : nestedItem[col.key];
                 return col.formatter
                   ? col.formatter(value, nestedItem)
@@ -473,8 +471,7 @@ export const useExport = () => {
       ]);
       footerRow.font = { italic: true };
       worksheet.mergeCells(
-        `A${footerRow.number}:${String.fromCharCode(64 + columns.length)}${
-          footerRow.number
+        `A${footerRow.number}:${String.fromCharCode(64 + columns.length)}${footerRow.number
         }`,
       );
 

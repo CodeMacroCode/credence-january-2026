@@ -796,7 +796,7 @@ export default function AbsentMaster() {
           onExportPdf={() => {
             exportToPDF(exportData, columnsForExport, {
               title: "Absent Records Report",
-              companyName: "Parents Eye",
+              companyName: "Credence Tracker",
               metadata: {
                 Total: `${exportData.length} records`,
               },
@@ -805,7 +805,7 @@ export default function AbsentMaster() {
           onExportExcel={() => {
             exportToExcel(exportData, columnsForExport, {
               title: "Absent Records Report",
-              companyName: "Parents Eye",
+              companyName: "Credence Tracker",
               metadata: {
                 Total: `${exportData.length} records`,
               },

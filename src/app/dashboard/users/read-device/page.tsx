@@ -311,7 +311,7 @@ export default function ReadDevice() {
             console.log("Export PDF triggered"); // ✅ Add this for debugging
             exportToPDF(devicesData?.devices, columnsForExport, {
               title: "All Devices Data",
-              companyName: "Parents Eye",
+              companyName: "Credence Tracker",
               metadata: {
                 Total: `${devicesData?.devices?.length} devices`,
               },
@@ -321,7 +321,7 @@ export default function ReadDevice() {
             console.log("Export Excel triggered"); // ✅ Add this too
             exportToExcel(devicesData?.devices, columnsForExport, {
               title: "All Devices Data",
-              companyName: "Parents Eye",
+              companyName: "Credence Tracker",
               metadata: {
                 Total: `${devicesData?.devices.length} devices`,
               },

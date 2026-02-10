@@ -26,11 +26,20 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { ListFilter, X } from "lucide-react";
+import { ListFilter, X, FileSpreadsheet, FileText, Download } from "lucide-react";
 import { useAuthStore } from "@/store/authStore";
 import { Combobox } from "@/components/ui/combobox";
 import { FilterCard } from "@/components/dashboard/FilterCard";
+import { exportToExcel, exportToPdf } from "@/util/exportUtils";
 
 type ViewState = "split" | "tableExpanded" | "mapExpanded";
 type StatusFilter = "all" | "running" | "idle" | "stopped" | "inactive" | "new";
@@ -707,6 +716,36 @@ export default function DashboardClient() {
                 searchPlaceholder="Search type..."
                 className="hidden lg:flex cursor-pointer border-gray-200 hover:bg-gray-50 text-gray-700"
               />
+
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className="gap-2 cursor-pointer border-gray-200 hover:bg-gray-50 text-gray-700"
+                  >
+                    <Download className="h-4 w-4" />
+                    Export
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-40 cursor-pointer bg-white">
+                  <DropdownMenuLabel>Export As</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem
+                    onClick={() => exportToExcel(devices, "Vehicle_List")}
+                    className="cursor-pointer"
+                  >
+                    <FileSpreadsheet className="h-4 w-4 mr-2 text-green-600" />
+                    Excel
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={() => exportToPdf(devices, "Vehicle_List")}
+                    className="cursor-pointer"
+                  >
+                    <FileText className="h-4 w-4 mr-2 text-red-600" />
+                    PDF
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
           </div>
 

@@ -19,7 +19,7 @@ const geistMono = Geist_Mono({
 });
 
 // export const metadata: Metadata = {
-//   title: "Parents Eye",
+//   title: "Credence Tracker",
 //   description: "School Bus Tracking Solutions",
 // };
 
@@ -28,11 +28,11 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-   const hydrateAuth = useAuthStore((s) => s.hydrateAuth);
+  const hydrateAuth = useAuthStore((s) => s.hydrateAuth);
 
-   useEffect(() => {
-     hydrateAuth();
-   }, [hydrateAuth]);
+  useEffect(() => {
+    hydrateAuth();
+  }, [hydrateAuth]);
 
   return (
     <html lang="en">
