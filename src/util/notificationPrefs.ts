@@ -1,3 +1,5 @@
+"use client";
+
 export type NotificationType =
   | "ignition"
   | "overspeed"
@@ -18,7 +20,7 @@ export const NOTIFICATION_TYPES: { label: string; value: NotificationType }[] =
     // { label: "General", value: "general" },
   ];
 
-  // IndexedDB constants
+// IndexedDB constants
 const DB_NAME = "notification-prefs-db";
 const STORE_NAME = "prefs";
 const KEY = "blocked-types";
@@ -39,12 +41,21 @@ const getDB = (): Promise<IDBDatabase> => {
 };
 
 export const getStoredPreferences = (): NotificationType[] => {
-  if (typeof window === "undefined") return [];
+  if (
+    typeof window === "undefined" ||
+    !window.localStorage ||
+    typeof window.localStorage.getItem !== "function"
+  ) {
+    return [];
+  }
   try {
     const stored = localStorage.getItem("notification_preferences");
     return stored ? JSON.parse(stored) : [];
   } catch (e) {
-    console.warn("Failed to read notification preferences from localStorage", e);
+    console.warn(
+      "Failed to read notification preferences from localStorage",
+      e
+    );
     return [];
   }
 };
@@ -75,8 +86,18 @@ export const setStoredPreference = async (
       updated = current;
     }
   }
-  
-  localStorage.setItem("notification_preferences", JSON.stringify(updated));
+
+  if (
+    typeof window !== "undefined" &&
+    window.localStorage &&
+    typeof window.localStorage.setItem === "function"
+  ) {
+    try {
+      localStorage.setItem("notification_preferences", JSON.stringify(updated));
+    } catch (e) {
+      console.warn("Failed to save notification preferences to localStorage", e);
+    }
+  }
 
   // 2. Update IndexedDB for Service Worker
   try {
@@ -87,7 +108,7 @@ export const setStoredPreference = async (
   } catch (e) {
     console.warn("Failed to sync preferences to IndexedDB", e);
   }
-  
+
   return updated;
 };
 

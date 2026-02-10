@@ -1,5 +1,6 @@
 import { create } from "zustand";
-import { persist } from "zustand/middleware";
+import { persist, createJSONStorage } from "zustand/middleware";
+import safeLocalStorage from "@/util/storage";
 
 interface MasterAccess {
   route: boolean;
@@ -61,6 +62,7 @@ export const useAccessStore = create<AccessState>()(
     }),
     {
       name: "access-storage",
+      storage: createJSONStorage(() => safeLocalStorage),
     },
   ),
 );

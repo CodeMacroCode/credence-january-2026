@@ -1,7 +1,7 @@
-// store/useChatStore.ts - FULLY OPTIMIZED FOR REACTIVITY
 import { create } from "zustand";
-import { devtools, persist } from "zustand/middleware";
+import { devtools, persist, createJSONStorage } from "zustand/middleware";
 import { produce } from "immer";
+import safeLocalStorage from "@/util/storage";
 
 export interface ChatContact {
   _id: string;
@@ -429,6 +429,7 @@ export const useChatStore = create<ChatState>()(
       }),
       {
         name: "chat-storage",
+        storage: createJSONStorage(() => safeLocalStorage),
         partialize: (state) => ({
           currentUserId: state.currentUserId,
           // Don't persist messages or contacts - they're fetched on connect

@@ -94,31 +94,31 @@ export default function DashboardClient() {
   const statusConfig: Record<string, { color: string; icon: string }> = {
     Running: {
       color: "border-green-500",
-      icon: "/car/side-view/carGreen.svg",
+      icon: "/CAR/side-view/green.svg",
     },
     Overspeed: {
       color: "border-orange-500",
-      icon: "/car/side-view/carOrange.svg",
+      icon: "/CAR/side-view/orange.svg",
     },
     Idle: {
       color: "border-yellow-500",
-      icon: "/car/side-view/carYellow.svg",
+      icon: "/CAR/side-view/yellow.svg",
     },
     Stopped: {
       color: "border-red-500",
-      icon: "/car/side-view/carRed.svg",
+      icon: "/CAR/side-view/red.svg",
     },
     Inactive: {
       color: "border-gray-500",
-      icon: "/car/side-view/carGrey.svg",
+      icon: "/CAR/side-view/grey.svg",
     },
     New: {
       color: "border-blue-500",
-      icon: "/car/side-view/carBlue.svg",
+      icon: "/CAR/side-view/blue.svg",
     },
     Total: {
       color: "border-[#deb887]",
-      icon: "/car/side-view/carWhite.svg",
+      icon: "/CAR/side-view/white.svg",
     },
   };
 
@@ -148,7 +148,7 @@ export default function DashboardClient() {
     return rawRole;
   }, [rawRole]);
 
-  console.log("🚀 ~ DashboardClient ~ userRole:", userRole, "rawRole:", rawRole);
+  // console.log("🚀 ~ DashboardClient ~ userRole:", userRole, "rawRole:", rawRole);
 
   const userSchoolId = decodedToken?.schoolId || (userRole === "school" ? decodedToken?.id : undefined);
 
@@ -695,7 +695,7 @@ export default function DashboardClient() {
                   { label: "All Types", value: "all" },
                   ...(categoryData?.map((cat: any) => ({
                     label: cat.categoryName,
-                    value: cat._id,
+                    value: cat.categoryName,
                   })) || []),
                 ]}
                 value={filters.deviceCategory || "all"}

@@ -32,6 +32,7 @@ interface VehicleData {
     todayDistance: number;
   };
   gsmSignal: number;
+  category: string;
   deviceCategory: string;
   status: string;
   lastUpdate: string;
@@ -81,7 +82,7 @@ const createClusterCustomIcon = (cluster: any) => {
 };
 
 // Optimized marker component with proper memoization
-const VehicleBusMarker = React.memo(
+const VehicleMarker = React.memo(
   ({
     vehicle,
     onClick,
@@ -91,56 +92,22 @@ const VehicleBusMarker = React.memo(
     onClick?: (vehicle: VehicleData) => void;
     isSelected?: boolean;
   }) => {
-    // Memoize vehicle status calculation
-    const vehicleStatus = useMemo(() => {
-      const lastUpdateTime = new Date(vehicle.lastUpdate).getTime();
-      const currentTime = new Date().getTime();
-      const timeDifference = currentTime - lastUpdateTime;
-      const thirtyFiveHoursInMs = 35 * 60 * 60 * 1000;
-
-      // Check if vehicle is inactive
-      if (vehicle.latitude === 0 && vehicle.longitude === 0) return "noData";
-
-      if (timeDifference > thirtyFiveHoursInMs) return "inactive";
-
-      // Check for overspeeding
-      const speedLimit = parseFloat(vehicle.speedLimit) || 60;
-      if (vehicle.speed > speedLimit) return "overspeeding";
-
-      // Extract vehicle attributes
-      const { ignition, motion } = vehicle.attributes;
-      const speed = vehicle.speed;
-      if (ignition === true) {
-        if (speed > 5 && speed < speedLimit) {
-          return "running";
-        } else {
-          return "idle";
-        }
-      } else if (ignition === false) {
-        return "stopped";
-      }
-    }, [
-      vehicle.speed,
-      vehicle.speedLimit,
-      vehicle.lastUpdate,
-      vehicle.attributes.ignition,
-    ]);
-
     // Memoize image URL
     const imageUrl = useMemo(() => {
-      const statusToImageUrl = {
-        running: "/bus/top-view/green-top.svg",
-        idle: "/bus/top-view/blue-top.svg",
-        stopped: "/bus/top-view/red-top.svg",
-        inactive: "/bus/top-view/gray-top.svg",
-        overspeeding: "/bus/top-view/orange-top.svg",
-        noData: "/bus/top-view/blue-top.svg",
+      const statusToImageUrl: Record<string, string> = {
+        running: `/${vehicle.deviceCategory}/top-view/green.svg`,
+        idle: `/${vehicle.deviceCategory}/top-view/yellow.svg`,
+        stopped: `/${vehicle.deviceCategory}/top-view/red.svg`,
+        inactive: `/${vehicle.deviceCategory}/top-view/grey.svg`,
+        overspeed: `/${vehicle.deviceCategory}/top-view/orange.svg`,
+        noData: `/${vehicle.deviceCategory}/top-view/blue.svg`,
       };
-      return statusToImageUrl[vehicleStatus] || statusToImageUrl.inactive;
-    }, [vehicleStatus]);
+      return statusToImageUrl[vehicle.category];
+    }, [vehicle.category]);
+
 
     // Memoize icon with proper sizing
-    const busIcon = useMemo(() => {
+    const vehicleIcon = useMemo(() => {
       const rotationAngle = vehicle.course || 0;
 
       return L.divIcon({
@@ -189,21 +156,21 @@ const VehicleBusMarker = React.memo(
 
     // Memoize status info
     const statusInfo = useMemo(() => {
-      const statusMap = {
+      const statusMap: Record<string, { text: string; color: string }> = {
         running: { text: "Running", color: "#28a745" },
         idle: { text: "Idle", color: "#3b82f6" },
         stopped: { text: "Stopped", color: "#dc3545" },
         inactive: { text: "Inactive", color: "#666666" },
-        overspeeding: { text: "Overspeeding", color: "#fd7e14" },
+        overspeed: { text: "Overspeeding", color: "#fd7e14" },
         noData: { text: "No Data", color: "#007bff" },
       };
-      return statusMap[vehicleStatus] || statusMap.noData;
-    }, [vehicleStatus]);
+      return statusMap[vehicle.category] || statusMap.noData;
+    }, [vehicle.category]);
 
     return (
       <Marker
         position={[vehicle.latitude, vehicle.longitude]}
-        icon={busIcon}
+        icon={vehicleIcon}
         eventHandlers={{
           click: handleClick,
         }}
@@ -642,7 +609,7 @@ const VehicleMap: React.FC<VehicleMapProps> = ({
   // Render markers with or without clustering - optimized
   const renderMarkers = useMemo(() => {
     const markers = validVehicles.map((vehicle) => (
-      <VehicleBusMarker
+      <VehicleMarker
         key={`${vehicle.deviceId}-${vehicle?.uniqueId}`}
         vehicle={vehicle}
         onClick={handleVehicleClick}

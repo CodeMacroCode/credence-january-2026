@@ -37,7 +37,7 @@ export const getModelColumns = (
 ): ColumnDef<Model, CellContent>[] => [
     {
       header: "Model Name",
-      accessorFn: (row) => ({
+      accessorFn: (row: Model) => ({
         type: "text",
         value: row.modelName ?? "",
       }),
@@ -47,7 +47,7 @@ export const getModelColumns = (
 
     {
       header: "Action",
-      accessorFn: (row) => ({
+      accessorFn: (row: Model) => ({
         type: "group",
         items: [
           {
@@ -77,7 +77,7 @@ export const getCategoryColumns = (
 ): ColumnDef<Category, CellContent>[] => [
     {
       header: "Category Name",
-      accessorFn: (row) => ({
+      accessorFn: (row: Category) => ({
         type: "text",
         value: row.categoryName ?? "",
       }),
@@ -85,7 +85,7 @@ export const getCategoryColumns = (
     },
     {
       header: "Action",
-      accessorFn: (row) => ({
+      accessorFn: (row: Category) => ({
         type: "group",
         items: [
           {
@@ -501,12 +501,12 @@ export const getLiveVehicleColumns = (): ColumnDef<LiveTrack>[] => [
     cell: ({ row }: any) => {
       const imageUrl = useMemo(() => {
         const statusToImageUrl = {
-          running: "/car/side-view/carGreen.svg",
-          idle: "/car/side-view/carYellow.svg",
-          stopped: "/car/side-view/carRed.svg",
-          inactive: "/car/side-view/carGrey.svg",
-          overspeed: "/car/side-view/carOrange.svg",
-          new: "/car/side-view/carBlue.svg",
+          running: `/${row.original.deviceCategory}/side-view/green.svg`,
+          idle: `/${row.original.deviceCategory}/side-view/yellow.svg`,
+          stopped: `/${row.original.deviceCategory}/side-view/red.svg`,
+          inactive: `/${row.original.deviceCategory}/side-view/grey.svg`,
+          overspeed: `/${row.original.deviceCategory}/side-view/orange.svg`,
+          new: `/${row.original.deviceCategory}/side-view/blue.svg`,
         };
         return (
           statusToImageUrl[
