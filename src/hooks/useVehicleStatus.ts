@@ -18,6 +18,7 @@ interface UseVehicleStatusProps {
   longitude: number;
   attributes: VehicleAttributes;
   category: string;
+  deviceCategory: string;
 }
 
 export type VehicleStatus =

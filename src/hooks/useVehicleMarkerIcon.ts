@@ -4,28 +4,31 @@ import { VehicleStatus } from "./useVehicleStatus";
 
 interface UseVehicleMarkerIconProps {
   status: VehicleStatus;
-  category: string;
+  deviceCategory: string;
   markerSize?: number;
-  statusImageMap?: Record<VehicleStatus, string>;
+  // statusImageMap?: Record<VehicleStatus, string>;
 }
 
 
 
 export const useVehicleMarkerIcon = ({
   status,
-  markerSize = 100,
   deviceCategory,
+  markerSize = 100,
   // statusImageMap = defaultStatusImageMap,
 }: UseVehicleMarkerIconProps) => {
 
   const defaultStatusImageMap: Record<VehicleStatus, string> = {
-  running: "/bus/top-view/green-top.svg",
-  idle: "/bus/top-view/blue-top.svg",
-  stopped: "/bus/top-view/red-top.svg",
-  inactive: "/bus/top-view/gray-top.svg",
-  overspeeding: "/bus/top-view/orange-top.svg",
-  noData: "/bus/top-view/blue-top.svg",
-};
+    running: `/${deviceCategory}/top-view/green.svg`,
+    idle: `/${deviceCategory}/top-view/yellow.svg`,
+    stopped: `/${deviceCategory}/top-view/red.svg`,
+    inactive: `/${deviceCategory}/top-view/grey.svg`,
+    overspeeding: `/${deviceCategory}/top-view/orange.svg`,
+    noData: `/${deviceCategory}/top-view/blue.svg`,
+  };
+
+  console.log("default image: ", defaultStatusImageMap)
+
 
   const imageUrl = useMemo(() => {
     return defaultStatusImageMap[status] || defaultStatusImageMap.inactive;

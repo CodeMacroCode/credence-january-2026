@@ -23,7 +23,6 @@ export const VehicleMarker: React.FC<VehicleMarkerProps> = React.memo(
     markerSize = 100,
     popupMaxWidth = 290,
     popupMaxHeight = 300,
-    statusImageMap,
   }) => {
     const markerRef = useRef<L.Marker | null>(null);
 
@@ -36,13 +35,14 @@ export const VehicleMarker: React.FC<VehicleMarkerProps> = React.memo(
       longitude: vehicle.longitude,
       attributes: vehicle.attributes,
       category: vehicle.category,
+      deviceCategory: vehicle.deviceCategory,
     });
 
     // Get marker icon
     const { icon: busIcon, imageUrl } = useVehicleMarkerIcon({
       status: vehicleStatus,
+      deviceCategory: vehicle.category,
       markerSize,
-      statusImageMap,
     });
 
     // Handle marker rotation and position

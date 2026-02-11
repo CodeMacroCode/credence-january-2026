@@ -68,6 +68,7 @@ export interface VehicleData {
   gsmSignal: number;
   category: string;
   status: string;
+  deviceCategory: string;
   lastUpdate: string;
   name: string;
   TD: number;
@@ -760,9 +761,8 @@ const SingleDeviceLiveTrack: React.FC<SingleDeviceLiveTrackProps> = ({
         />
 
         <TileLayer
-          url={`https://{s}.google.com/vt/lyrs=${
-            isSatelliteView ? "s" : "m"
-          }&x={x}&y={y}&z={z}`}
+          url={`https://{s}.google.com/vt/lyrs=${isSatelliteView ? "s" : "m"
+            }&x={x}&y={y}&z={z}`}
           subdomains={["mt0", "mt1", "mt2", "mt3"]}
         />
 
@@ -770,9 +770,8 @@ const SingleDeviceLiveTrack: React.FC<SingleDeviceLiveTrackProps> = ({
 
         {showTraffic && (
           <TileLayer
-            url={`https://{s}.google.com/vt/lyrs=${
-              isSatelliteView ? "s" : "m"
-            }@221097413,traffic&x={x}&y={y}&z={z}`}
+            url={`https://{s}.google.com/vt/lyrs=${isSatelliteView ? "s" : "m"
+              }@221097413,traffic&x={x}&y={y}&z={z}`}
             subdomains={["mt0", "mt1", "mt2", "mt3"]}
           />
         )}
@@ -802,7 +801,6 @@ const SingleDeviceLiveTrack: React.FC<SingleDeviceLiveTrackProps> = ({
           <VehicleMarker
             vehicle={vehicle}
             onClick={handleVehicleClick}
-            status={vehicleStatus}
           />
         )}
 
@@ -854,9 +852,8 @@ const SingleDeviceLiveTrack: React.FC<SingleDeviceLiveTrackProps> = ({
         <div>
           Network Status:{" "}
           <span
-            className={`${
-              vehicle?.gsmSignal ? "text-green-600" : "text-red-600"
-            } px-1 py-0.5 rounded font-semibold`}
+            className={`${vehicle?.gsmSignal ? "text-green-600" : "text-red-600"
+              } px-1 py-0.5 rounded font-semibold`}
           >
             {vehicle?.gsmSignal ? "Online" : "Offline"}
           </span>
@@ -872,15 +869,15 @@ const SingleDeviceLiveTrack: React.FC<SingleDeviceLiveTrackProps> = ({
           Last Update:{" "}
           {vehicle?.lastUpdate
             ? new Date(vehicle.lastUpdate).toLocaleString("en-GB", {
-                day: "2-digit",
-                month: "2-digit",
-                year: "numeric",
-                hour: "2-digit",
-                minute: "2-digit",
-                second: "2-digit",
-                hour12: true,
-                timeZone: "UTC",
-              })
+              day: "2-digit",
+              month: "2-digit",
+              year: "numeric",
+              hour: "2-digit",
+              minute: "2-digit",
+              second: "2-digit",
+              hour12: true,
+              timeZone: "UTC",
+            })
             : "loading..."}
         </div>
         <div>
