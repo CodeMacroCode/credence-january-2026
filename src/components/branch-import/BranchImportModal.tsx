@@ -31,10 +31,10 @@ export const BranchImportModal = ({ onImport, isLoading }: BranchImportModalProp
     const [isDragging, setIsDragging] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
-    const requiredHeaders = ["branchName", "username", "password"];
+    const requiredHeaders = ["name", "username", "password"];
 
     // CSV Template Content
-    const csvContent = "branchName,username,password,email,mobileNo\nDemo Branch,branch_demo,password123,branch@demo.com,9876543210";
+    const csvContent = "name,username,password,email,mobileNo\nDemo Branch,branch_demo,password123,branch@demo.com,9876543210";
 
     const isExcelFile = (file: File): boolean => {
         const allowedTypes = [
