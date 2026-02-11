@@ -416,6 +416,7 @@ export default function DashboardClient() {
       setSelectedDevice(device);
       setIsDrawerOpen(true);
 
+      // Queue geocoding directly without dependency
       if (device.latitude && device.longitude) {
         queueForGeocoding(
           device.deviceId,
@@ -812,7 +813,7 @@ export default function DashboardClient() {
                     height="calc(100dvh - 280px)"
                     autoFitBounds={false}
                     showTrails={false}
-                    clusterMarkers={devices.length > 10}
+                    clusterMarkers={true} // Always enable clustering for better performance
                     zoom={6}
                     selectedVehicleId={selectedVehicleId}
                     onVehicleSelect={setSelectedVehicleId}

@@ -31,7 +31,7 @@ export const BranchImportModal = ({ onImport, isLoading }: BranchImportModalProp
     const [isDragging, setIsDragging] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
-    const requiredHeaders = ["branchName", "username", "password", "email", "mobileNo"];
+    const requiredHeaders = ["branchName", "username", "password"];
 
     // CSV Template Content
     const csvContent = "branchName,username,password,email,mobileNo\nDemo Branch,branch_demo,password123,branch@demo.com,9876543210";

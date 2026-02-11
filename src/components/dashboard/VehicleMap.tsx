@@ -577,6 +577,7 @@ const VehicleMap: React.FC<VehicleMapProps> = ({
     return [avgLat, avgLng] as [number, number];
   }, [validVehicles, center, isInitialLoad]);
 
+  // Memoize vehicle click handler with stable reference
   const handleVehicleClick = useCallback(
     (vehicle: VehicleData) => {
       onVehicleClick?.(vehicle);
@@ -606,7 +607,7 @@ const VehicleMap: React.FC<VehicleMapProps> = ({
     }
   }, [isInitialLoad]);
 
-  // Render markers with or without clustering - optimized
+  // Render markers with or without clustering - optimized for 1500+ vehicles
   const renderMarkers = useMemo(() => {
     const markers = validVehicles.map((vehicle) => (
       <VehicleMarker
@@ -617,15 +618,17 @@ const VehicleMap: React.FC<VehicleMapProps> = ({
       />
     ));
 
+    // Use clustering for better performance with large datasets
     if (clusterMarkers && validVehicles.length > 10) {
       return (
         <MarkerClusterGroup
           chunkedLoading
           iconCreateFunction={createClusterCustomIcon}
-          maxClusterRadius={50}
-          spiderfyOnMaxZoom={false}
+          maxClusterRadius={80} // Increased for better clustering with 1500+ markers
+          spiderfyOnMaxZoom={true}
           showCoverageOnHover={false}
-          disableClusteringAtZoom={16}
+          disableClusteringAtZoom={15} // Cluster until closer zoom
+          removeOutsideVisibleBounds={true} // Remove markers outside viewport for performance
         >
           {markers}
         </MarkerClusterGroup>
@@ -633,7 +636,7 @@ const VehicleMap: React.FC<VehicleMapProps> = ({
     }
 
     return markers;
-  }, [validVehicles, handleVehicleClick, selectedVehicleId]);
+  }, [validVehicles, handleVehicleClick, selectedVehicleId, clusterMarkers]);
 
   return (
     <div className="vehicle-map-container" style={{ height, width: "100%" }}>
@@ -657,7 +660,7 @@ const VehicleMap: React.FC<VehicleMapProps> = ({
 
         {/* Handle vehicle selection and zoom */}
         <VehicleZoomHandler
-          selectedVehicleId={selectedVehicleId}
+          selectedVehicleId={selectedVehicleId ?? null}
           vehicles={validVehicles}
         />
 

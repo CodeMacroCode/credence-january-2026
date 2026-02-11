@@ -4,11 +4,21 @@ import { VehicleStatus } from "./useVehicleStatus";
 
 interface UseVehicleMarkerIconProps {
   status: VehicleStatus;
+  category: string;
   markerSize?: number;
   statusImageMap?: Record<VehicleStatus, string>;
 }
 
-const defaultStatusImageMap: Record<VehicleStatus, string> = {
+
+
+export const useVehicleMarkerIcon = ({
+  status,
+  markerSize = 100,
+  deviceCategory,
+  // statusImageMap = defaultStatusImageMap,
+}: UseVehicleMarkerIconProps) => {
+
+  const defaultStatusImageMap: Record<VehicleStatus, string> = {
   running: "/bus/top-view/green-top.svg",
   idle: "/bus/top-view/blue-top.svg",
   stopped: "/bus/top-view/red-top.svg",
@@ -17,14 +27,9 @@ const defaultStatusImageMap: Record<VehicleStatus, string> = {
   noData: "/bus/top-view/blue-top.svg",
 };
 
-export const useVehicleMarkerIcon = ({
-  status,
-  markerSize = 100,
-  statusImageMap = defaultStatusImageMap,
-}: UseVehicleMarkerIconProps) => {
   const imageUrl = useMemo(() => {
-    return statusImageMap[status] || statusImageMap.inactive;
-  }, [status, statusImageMap]);
+    return defaultStatusImageMap[status] || defaultStatusImageMap.inactive;
+  }, [status, defaultStatusImageMap]);
 
   const icon = useMemo(() => {
     return L.divIcon({

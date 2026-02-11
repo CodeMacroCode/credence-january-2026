@@ -31,7 +31,7 @@ export const AdminImportModal = ({ onImport, isLoading }: AdminImportModalProps)
     const [isDragging, setIsDragging] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
-    const requiredHeaders = ["adminName", "username", "password", "email", "adminMobile"];
+    const requiredHeaders = ["adminName", "username", "password"];
 
     // CSV Template Content
     const csvContent = "adminName,username,password,email,adminMobile\nDemo Admin,admin_demo,password123,admin@demo.com,9876543210";
