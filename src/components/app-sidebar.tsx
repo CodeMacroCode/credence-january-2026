@@ -16,7 +16,6 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  SidebarRail,
   SidebarSeparator,
 } from "@/components/ui/sidebar";
 import { useRouter, usePathname } from "next/navigation";
@@ -88,6 +87,27 @@ const iconMap: Record<string, React.ElementType> = {
   "ePolice Stop Report": MdOutlineLocalPolice,
   Model: GiGps,
   Category: FileText,
+};
+
+// Access permission mapping for Master section
+const masterAccessMap: Record<string, string> = {
+  "Routes": "route",
+  "Geofence": "geofence",
+  "Driver Approve": "driver",
+};
+
+// Access permission mapping for Reports section
+const reportAccessMap: Record<string, string> = {
+  "Status Report": "status",
+  "History Report": "history",
+  "Stoppage Summary": "stoppageSummary",
+  "Stop Report": "stop",
+  "Travel Summary": "travel",
+  "Trip Report": "trip",
+  "Idle Report": "idle",
+  "Alerts/Events": "alert",
+  "Route Report": "routeReport",
+  "ePolice Stop Report": "ePoliceReport",
 };
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
@@ -253,25 +273,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     []
   );
 
-  // Access permission mapping for Master section
-  const masterAccessMap: Record<string, keyof NonNullable<typeof access>['master']> = {
-    "Routes": "route",
-    "Geofence": "geofence",
-    "Driver Approve": "driver",
-  };
 
-  // Access permission mapping for Reports section
-  const reportAccessMap: Record<string, keyof NonNullable<typeof access>['reports']> = {
-    "Status Report": "status",
-    "History Report": "history",
-    "Stoppage Summary": "stoppageSummary",
-    "Stop Report": "stop",
-    "Travel Summary": "travel",
-    "Trip Report": "trip",
-    "Idle Report": "idle",
-    "Alerts/Events": "alert",
-    "Route Report": "routeReport",
-  };
 
   const sidebarData = React.useMemo(() => {
     if (!activeSection || !userRole) return [];
@@ -285,14 +287,14 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           const accessKey = masterAccessMap[item.title];
           // If no mapping, always show (e.g., Device, User Master)
           if (!accessKey) return true;
-          return access.master?.[accessKey] === true;
+          return access.master?.[accessKey as keyof typeof access.master] === true;
         });
       } else if (activeSection === "Reports") {
         items = items.filter(item => {
           const accessKey = reportAccessMap[item.title];
           // If no mapping, always show (e.g., Distance Report)
           if (!accessKey) return true;
-          return access.reports?.[accessKey] === true;
+          return access.reports?.[accessKey as keyof typeof access.reports] === true;
         });
       }
     }

@@ -18,6 +18,7 @@ interface ReportsAccess {
   idle: boolean;
   alert: boolean;
   routeReport: boolean;
+  ePoliceReport: boolean;
 }
 
 interface Access {

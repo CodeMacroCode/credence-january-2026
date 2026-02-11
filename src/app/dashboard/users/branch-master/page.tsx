@@ -1494,8 +1494,8 @@ export default function BranchMaster() {
           columns={columns}
           columnVisibility={columnVisibility}
           onColumnVisibilityChange={setColumnVisibility}
-          pageSizeArray={[10, 20, 50, "All"]}
-          maxHeight={600}
+          pageSizeArray={[20, 50, "All"]}
+          maxHeight="calc(100vh - 240px)"
           minHeight={200}
           showSerialNumber={true}
           noDataMessage="No users found"

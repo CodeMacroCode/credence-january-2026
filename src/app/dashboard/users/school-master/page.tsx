@@ -540,7 +540,7 @@ export default function SchoolMaster() {
   };
 
   return (
-    <main>
+    <main className="h-full overflow-hidden flex flex-col">
       <ResponseLoader isLoading={isLoading} />
 
       <header className="flex items-center justify-between mb-4">
@@ -720,8 +720,8 @@ export default function SchoolMaster() {
           columns={columns}
           columnVisibility={columnVisibility}
           onColumnVisibilityChange={setColumnVisibility}
-          pageSizeArray={[10, 20, 50]}
-          maxHeight={600}
+          pageSizeArray={[20, 50, "All"]}
+          maxHeight="calc(100vh - 240px)"
           minHeight={200}
           showSerialNumber={true}
           noDataMessage="No admin found"

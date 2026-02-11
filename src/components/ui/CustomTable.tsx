@@ -28,8 +28,8 @@ interface CustomTableProps<TData extends RowData> {
   data: TData[];
   columns: ColumnDef<TData, unknown>[];
   pageSizeArray?: any[];
-  maxHeight?: number;
-  minHeight?: number;
+  maxHeight?: number | string;
+  minHeight?: number | string;
   rowHeight?: number;
   showSerialNumber?: boolean;
   noDataMessage?: string;
@@ -91,7 +91,7 @@ const renderCellContent = (content: unknown): React.ReactNode => {
 export function CustomTable<TData extends RowData>({
   data,
   columns,
-  pageSizeArray = [10, 20, 30, "All"],
+  pageSizeArray = [20, 50, "All"],
   maxHeight = 480,
   minHeight = 100,
   rowHeight = 48,
@@ -192,14 +192,19 @@ export function CustomTable<TData extends RowData>({
   const rows = table.getRowModel().rows;
 
   const adaptiveHeight = useMemo(() => {
-    if (finalData.length === 0) return Math.max(minHeight, 150);
+    if (typeof maxHeight === "string") return maxHeight;
+    const maxH = maxHeight;
+    const minH = typeof minHeight === "number" ? minHeight : 100;
+
+    if (finalData.length === 0) return Math.max(minH, 150);
+
     const actualRowHeight = isMobile
       ? Math.max(rowHeight, 80)
       : Math.max(rowHeight, 60);
     const calculatedHeight = rows.length * actualRowHeight;
     const headerHeight = 48;
     const totalContentHeight = calculatedHeight + headerHeight;
-    return Math.max(minHeight, Math.min(maxHeight, totalContentHeight));
+    return Math.max(minH, Math.min(maxH, totalContentHeight));
   }, [
     rows.length,
     rowHeight,
@@ -253,15 +258,15 @@ export function CustomTable<TData extends RowData>({
       <div className="rounded-md border bg-background w-full flex flex-col overflow-hidden">
         <div
           ref={tableScrollRef}
-          className="flex-1 overflow-auto"
+          className="overflow-y-auto relative"
           style={{
-            height: adaptiveHeight + "px",
+            maxHeight: typeof adaptiveHeight === "number" ? `${adaptiveHeight}px` : adaptiveHeight,
             WebkitOverflowScrolling: "touch",
           }}
         >
           <div style={{ width: tableWidth, minWidth: totalMinWidth + "px" }}>
             {/* Header */}
-            <div className="sticky top-0 z-10 bg-muted border-b">
+            <div className="sticky top-0 z-20 bg-muted border-b">
               {table.getHeaderGroups().map((hg) => (
                 <div key={hg.id} className={shouldExpand ? "flex" : "flex"}>
                   {hg.headers.map((header) => (

@@ -1254,8 +1254,8 @@ export default function UserAccessPage() {
             columns={columns}
             columnVisibility={columnVisibility}
             onColumnVisibilityChange={setColumnVisibility}
-            pageSizeArray={[10, 20, 30]}
-            maxHeight={600}
+            pageSizeArray={[20, 50, "All"]}
+            maxHeight="calc(100vh - 240px)"
             minHeight={200}
             showSerialNumber={true}
             noDataMessage={error || "No user groups found"}
