@@ -28,7 +28,6 @@ import {
   GraduationCap,
   Users,
   FileText,
-  Search,
   School,
   MapPin,
   UserCheck,
@@ -39,7 +38,6 @@ import {
   TrendingUp,
   Map,
   AlertCircle,
-  Settings,
   Smartphone,
   Bell,
   CheckCircle,
@@ -49,6 +47,7 @@ import {
 } from "lucide-react";
 import { GiGps } from "react-icons/gi";
 import Image from "next/image";
+import { MdOutlineLocalPolice } from "react-icons/md";
 
 type UserRole = "superAdmin" | "school" | "branchGroup" | "branch" | null;
 
@@ -86,6 +85,7 @@ const iconMap: Record<string, React.ElementType> = {
   "Geofence Report": Map,
   "Route Report": Route,
   "Chat Box": MessageCircle,
+  "ePolice Stop Report": MdOutlineLocalPolice,
   Model: GiGps,
   Category: FileText,
 };
@@ -220,8 +220,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               title: "History Report",
               url: "/dashboard/reports/history-report",
             },
-            { title: "Stoppage Summary", url: "/dashboard/reports/stop-summary-report" },
+            { title: "ePolice Stop Report", url: "/dashboard/reports/ePolice-stop-report" },
             { title: "Stop Report", url: "/dashboard/reports/stop-report" },
+            { title: "Stoppage Summary", url: "/dashboard/reports/stop-summary-report" },
             {
               title: "Travel Summary",
               url: "/dashboard/reports/travel-summary",

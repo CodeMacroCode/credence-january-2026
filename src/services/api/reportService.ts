@@ -134,4 +134,16 @@ export const reportService = {
     );
     return res.data;
   },
+  getEPoliceSummary: async ({
+    uniqueId,
+    selectedDate,
+  }: {
+    uniqueId: string;
+    selectedDate: string;
+  }): Promise<any> => {
+    const res = await api.get("/report/e-police-summary", {
+      params: { uniqueId, selectedDate },
+    });
+    return res.data;
+  },
 };

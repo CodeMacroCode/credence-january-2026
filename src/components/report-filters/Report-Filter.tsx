@@ -28,6 +28,7 @@ import {
   DropdownMenuItem,
 } from "@/components/ui/dropdown-menu";
 import { Download } from "lucide-react";
+import { DatePicker } from "../ui/datePicker";
 
 export interface FilterValues {
   schoolId: string | string[] | null;
@@ -36,6 +37,7 @@ export interface FilterValues {
   deviceName: string | string[] | null;
   from: string | null;
   to: string | null;
+  date?: string | null;
 }
 
 export interface DateRange {
@@ -58,6 +60,10 @@ export interface ReportFilterConfig {
   cardDescription?: string;
   table?: any;
   showColumnVisibility?: boolean;
+
+  // Single Date Option
+  showSingleDate?: boolean;
+  singleDateTitle?: string;
 
   // Multi-select options
   multiSelectSchool?: boolean;
@@ -106,6 +112,9 @@ interface ReportFilterProps {
   onDateRangeChange?: (dateRange: DateRange) => void;
 
   table?: any;
+
+  singleDate?: Date;
+  onSingleDateChange?: (date: Date | undefined) => void;
 }
 
 type DecodedToken = {
@@ -170,6 +179,9 @@ export const ReportFilter: React.FC<ReportFilterProps> = ({
 
   onExportClick,
 
+  singleDate: controlledSingleDate,
+  onSingleDateChange,
+
 }) => {
   const mergedConfig = { ...defaultConfig, ...config };
 
@@ -210,10 +222,14 @@ export const ReportFilter: React.FC<ReportFilterProps> = ({
     to: null,
   });
 
+  const [internalSingleDate, setInternalSingleDate] = useState<Date | undefined>(
+    undefined
+  );
+
   // ---------------- Refs to prevent infinite loops ----------------
-  const prevSchoolRef = useRef<string | undefined>();
+  const prevSchoolRef = useRef<string | undefined>(undefined);
   const prevSchoolsLengthRef = useRef<number>(0);
-  const prevBranchRef = useRef<string | undefined>();
+  const prevBranchRef = useRef<string | undefined>(undefined);
   const prevBranchesLengthRef = useRef<number>(0);
 
   // ⭐ Ref to store latest deviceItems without causing callback recreation
@@ -223,8 +239,8 @@ export const ReportFilter: React.FC<ReportFilterProps> = ({
   const selectedSchool = mergedConfig.multiSelectSchool
     ? undefined
     : controlledSchool !== undefined
-    ? controlledSchool
-    : internalSchool;
+      ? controlledSchool
+      : internalSchool;
 
   const selectedSchools = mergedConfig.multiSelectSchool
     ? controlledSchools !== undefined
@@ -235,8 +251,8 @@ export const ReportFilter: React.FC<ReportFilterProps> = ({
   const selectedBranch = mergedConfig.multiSelectBranch
     ? undefined
     : controlledBranch !== undefined
-    ? controlledBranch
-    : internalBranch;
+      ? controlledBranch
+      : internalBranch;
 
   const selectedBranches = mergedConfig.multiSelectBranch
     ? controlledBranches !== undefined
@@ -247,8 +263,8 @@ export const ReportFilter: React.FC<ReportFilterProps> = ({
   const selectedDevice = mergedConfig.multiSelectDevice
     ? undefined
     : controlledDevice !== undefined
-    ? controlledDevice
-    : internalDevice;
+      ? controlledDevice
+      : internalDevice;
 
   const selectedDevices = mergedConfig.multiSelectDevice
     ? controlledDevices !== undefined
@@ -257,6 +273,7 @@ export const ReportFilter: React.FC<ReportFilterProps> = ({
     : [];
 
   const dateRange = controlledDateRange || internalDateRange;
+  const singleDate = controlledSingleDate || internalSingleDate;
 
   // ---------------- Combobox Open States ----------------
   const [schoolOpen, setSchoolOpen] = useState(false);
@@ -423,7 +440,7 @@ export const ReportFilter: React.FC<ReportFilterProps> = ({
 
   const deviceItems = useMemo(
     () =>
-      devices.map((d) => ({
+      ((devices as any) || []).map((d: any) => ({
         label: d.name!,
         value: d.uniqueId,
       })),
@@ -618,6 +635,18 @@ export const ReportFilter: React.FC<ReportFilterProps> = ({
     [onDateRangeChange]
   );
 
+  const handleSingleDateChange = useCallback(
+    (date: Date | undefined) => {
+      if (onSingleDateChange) {
+        onSingleDateChange(date);
+      } else {
+        setInternalSingleDate(date);
+      }
+    },
+    [onSingleDateChange]
+  );
+
+
   // ---------------- Helper: Format Array Values ----------------
   const formatArrayValue = useCallback(
     (values: string[]): string | string[] => {
@@ -670,6 +699,10 @@ export const ReportFilter: React.FC<ReportFilterProps> = ({
       return false;
     }
 
+    if (mergedConfig.showSingleDate && !singleDate) {
+      return false;
+    }
+
     return true;
   }, [
     mergedConfig.showSchool,
@@ -688,6 +721,8 @@ export const ReportFilter: React.FC<ReportFilterProps> = ({
     selectedDevices.length,
     dateRange.from,
     dateRange.to,
+    singleDate,
+    mergedConfig.showSingleDate,
   ]);
 
   // ⭐ FIXED: Submit Handler - Uses deviceItemsRef (already correct in your code)
@@ -723,6 +758,7 @@ export const ReportFilter: React.FC<ReportFilterProps> = ({
       deviceName: deviceNameValue,
       from: dateRange.from ? formatDateToYYYYMMDD(dateRange.from) : null,
       to: dateRange.to ? formatDateToYYYYMMDD(dateRange.to) : null,
+      date: singleDate ? formatDateToYYYYMMDD(singleDate) : null,
     };
 
     // Validation alerts
@@ -773,6 +809,11 @@ export const ReportFilter: React.FC<ReportFilterProps> = ({
       return;
     }
 
+    if (mergedConfig.showSingleDate && !filters.date) {
+      alert("Please select a date");
+      return;
+    }
+
     if (mergedConfig.customValidation) {
       const validationError = mergedConfig.customValidation(filters);
       if (validationError) {
@@ -791,6 +832,7 @@ export const ReportFilter: React.FC<ReportFilterProps> = ({
     selectedDevices,
     dateRange.from,
     dateRange.to,
+    singleDate,
     role,
     mergedConfig.multiSelectSchool,
     mergedConfig.multiSelectBranch,
@@ -799,7 +841,7 @@ export const ReportFilter: React.FC<ReportFilterProps> = ({
     mergedConfig.showBranch,
     mergedConfig.showDevice,
     mergedConfig.showDateRange,
-    mergedConfig.customValidation,
+    mergedConfig,
     onSubmit,
     formatArrayValue,
   ]); // deviceItems removed from dependencies
@@ -878,7 +920,7 @@ export const ReportFilter: React.FC<ReportFilterProps> = ({
               <Combobox
                 items={schoolItems}
                 multiple={mergedConfig.multiSelectSchool}
-                value={selectedSchool}
+                value={selectedSchool || undefined}
                 onValueChange={handleSchoolChange}
                 selectedValues={selectedSchools}
                 onSelectedValuesChange={handleSchoolsChange}
@@ -918,18 +960,18 @@ export const ReportFilter: React.FC<ReportFilterProps> = ({
                 <Combobox
                   items={branchItems}
                   multiple={mergedConfig.multiSelectBranch}
-                  value={selectedBranch}
+                  value={selectedBranch || undefined}
                   onValueChange={handleBranchChange}
                   selectedValues={selectedBranches}
                   onSelectedValuesChange={handleBranchesChange}
                   placeholder={
                     role === "superAdmin" &&
-                    !selectedSchool &&
-                    selectedSchools.length === 0
+                      !selectedSchool &&
+                      selectedSchools.length === 0
                       ? "Select admin first"
                       : mergedConfig.multiSelectBranch
-                      ? "Select Users"
-                      : "Select user"
+                        ? "Select Users"
+                        : "Select user"
                   }
                   searchPlaceholder="Search Users..."
                   className="cursor-pointer w-full"
@@ -966,14 +1008,14 @@ export const ReportFilter: React.FC<ReportFilterProps> = ({
               <Combobox
                 items={deviceItems}
                 multiple={mergedConfig.multiSelectDevice}
-                value={selectedDevice}
+                value={selectedDevice || undefined}
                 onValueChange={handleDeviceChange}
                 selectedValues={selectedDevices}
                 onSelectedValuesChange={handleDevicesChange}
                 placeholder={
                   selectedBranch ||
-                  selectedBranches.length > 0 ||
-                  role === "branch"
+                    selectedBranches.length > 0 ||
+                    role === "branch"
                     ? mergedConfig.multiSelectDevice
                       ? "Select Vehicles"
                       : "Select Vehicle"
@@ -1017,6 +1059,22 @@ export const ReportFilter: React.FC<ReportFilterProps> = ({
               <DateRangeFilter
                 onDateRangeChange={handleDateChange}
                 maxDays={mergedConfig.dateRangeMaxDays}
+              />
+            </div>
+          )}
+
+          {/* Single Date Picker */}
+          {mergedConfig.showSingleDate && (
+            <div className="space-y-2 cursor-pointer">
+              <label className="text-sm font-medium flex items-center gap-2">
+                <Calendar className="h-4 w-4 text-muted-foreground cursor-pointer" />
+                {mergedConfig.singleDateTitle || "Date"}
+              </label>
+              <DatePicker
+                date={singleDate}
+                setDate={handleSingleDateChange}
+                placeholder="Pick a date"
+                className="w-full"
               />
             </div>
           )}
