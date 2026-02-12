@@ -88,6 +88,7 @@ const reportOptions = [
   { value: "idle", label: "Idle Report" },
   { value: "alert", label: "Alert Report" },
   { value: "routeReport", label: "Route Report" },
+  { value: "ePoliceReport", label: "ePolice Report" },
 ];
 
 // Helper function to decode JWT token
@@ -206,6 +207,7 @@ const BranchEditDialog = ({
           idle: selectedReportPermissions.includes("idle"),
           alert: selectedReportPermissions.includes("alert"),
           routeReport: selectedReportPermissions.includes("routeReport"),
+          ePoliceReport: selectedReportPermissions.includes("ePoliceReport"),
         },
       },
     };
@@ -1022,6 +1024,7 @@ export default function BranchMaster() {
           idle: selectedReportPermissions.includes("idle"),
           alert: selectedReportPermissions.includes("alert"),
           routeReport: selectedReportPermissions.includes("routeReport"),
+          ePoliceReport: selectedReportPermissions.includes("ePoliceReport"),
         },
       },
     };

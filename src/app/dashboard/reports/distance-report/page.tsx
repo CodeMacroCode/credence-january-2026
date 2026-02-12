@@ -74,7 +74,7 @@ const DistanceReportPage: React.FC = () => {
     }
 
     // Reset pagination when filters change
-    setPagination({ pageIndex: 0, pageSize: 10 });
+    setPagination({ pageIndex: 0, pageSize: 20 });
     setSorting([]);
 
     // Set API filters

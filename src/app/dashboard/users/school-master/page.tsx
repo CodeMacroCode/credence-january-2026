@@ -76,6 +76,7 @@ export default function SchoolMaster() {
     { value: "idle", label: "Idle Report" },
     { value: "alert", label: "Alert Report" },
     { value: "routeReport", label: "Route Report" },
+    { value: "ePoliceReport", label: "ePolice Report" },
   ];
 
   // Permissions state for add admin form - arrays for multi-select
@@ -485,6 +486,7 @@ export default function SchoolMaster() {
           idle: selectedReportPermissions.includes("idle"),
           alert: selectedReportPermissions.includes("alert"),
           routeReport: selectedReportPermissions.includes("routeReport"),
+          ePoliceReport: selectedReportPermissions.includes("ePoliceReport"),
         },
       },
     };
@@ -776,6 +778,7 @@ export default function SchoolMaster() {
                         idle: editReportPermissions.includes("idle"),
                         alert: editReportPermissions.includes("alert"),
                         routeReport: editReportPermissions.includes("routeReport"),
+                        ePoliceReport: editReportPermissions.includes("ePoliceReport"),
                       },
                     },
                   };

@@ -78,6 +78,7 @@ const reportOptions = [
   { value: "idle", label: "Idle Report" },
   { value: "alert", label: "Alert Report" },
   { value: "routeReport", label: "Route Report" },
+  { value: "ePoliceReport", label: "ePolice Report" },
 ];
 
 interface SelectOption {
@@ -719,6 +720,7 @@ export default function UserAccessPage() {
           idle: selectedReportPermissions.includes("idle"),
           alert: selectedReportPermissions.includes("alert"),
           routeReport: selectedReportPermissions.includes("routeReport"),
+          ePoliceReport: selectedReportPermissions.includes("ePoliceReport"),
         },
       },
     };
@@ -752,6 +754,7 @@ export default function UserAccessPage() {
           idle: selectedReportPermissions.includes("idle"),
           alert: selectedReportPermissions.includes("alert"),
           routeReport: selectedReportPermissions.includes("routeReport"),
+          ePoliceReport: selectedReportPermissions.includes("ePoliceReport"),
         },
       },
     };
