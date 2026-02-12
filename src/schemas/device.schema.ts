@@ -12,6 +12,7 @@ export const deviceSchema = z.object({
   driverObjId: z.string().optional(),
   speed: z.coerce.number().optional(),
   average: z.coerce.number().optional(),
+  odometer: z.coerce.number().min(0, "Odometer cannot be negative").optional(),
   keyFeature: z.boolean(),
   subscriptionEndDate: z.string().min(1, "Subscription Expiry is required"),
 });

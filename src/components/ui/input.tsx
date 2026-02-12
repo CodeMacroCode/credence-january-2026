@@ -32,6 +32,7 @@ function Input({
       <input
         type={type}
         data-slot="input"
+        onWheel={type === "number" ? (e) => (e.target as HTMLInputElement).blur() : undefined}
         className={cn(
           iconIsLeft && "pl-9",
           iconIsRight && "pr-9",

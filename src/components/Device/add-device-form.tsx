@@ -77,6 +77,7 @@ export function AddDeviceForm({
       driverObjId: "",
       speed: 0,
       average: 0,
+      odometer: 0,
       keyFeature: false,
       subscriptionEndDate: "",
     },
@@ -169,6 +170,7 @@ export function AddDeviceForm({
         driverObjId: editData.driverObjId?._id || "",
         speed: editData.speed || 0,
         average: editData.average || 0,
+        odometer: editData.odometer || 0,
         keyFeature: editData.keyFeature ?? false,
         subscriptionEndDate: editData.subscriptionEndDate || "",
       });
@@ -185,6 +187,7 @@ export function AddDeviceForm({
         driverObjId: "",
         speed: 0,
         average: 0,
+        odometer: 0,
         keyFeature: false,
         subscriptionEndDate: "",
       });
@@ -336,6 +339,7 @@ export function AddDeviceForm({
           driverObjId: data.driverObjId || undefined,
           speed: data.speed,
           average: data.average,
+          odometer: data.odometer,
           keyFeature: data.keyFeature,
           subscriptionEndDate: data.subscriptionEndDate,
         };
@@ -385,6 +389,7 @@ export function AddDeviceForm({
           driverObjId: data.driverObjId || undefined,
           speed: data.speed,
           average: data.average,
+          odometer: data.odometer,
           keyFeature: data.keyFeature,
           subscriptionEndDate: data.subscriptionEndDate,
         };
@@ -472,6 +477,7 @@ export function AddDeviceForm({
                     {...field}
                     id="sim"
                     type="number"
+                    min={0}
                     placeholder="Enter SIM number"
                     disabled={isLoading}
                   />
@@ -683,6 +689,7 @@ export function AddDeviceForm({
                     {...field}
                     id="overspeed"
                     type="number"
+                    min={0}
                     placeholder="Enter overspeed limit"
                     disabled={isLoading}
                   />
@@ -704,6 +711,7 @@ export function AddDeviceForm({
                     {...field}
                     id="average"
                     type="number"
+                    min={0}
                     placeholder="Enter average speed"
                     disabled={isLoading}
                   />
@@ -711,6 +719,28 @@ export function AddDeviceForm({
               />
               {errors.average && (
                 <p className="text-sm text-red-500">{errors.average.message}</p>
+              )}
+            </div>
+
+            {/* Odometer */}
+            <div className="space-y-2">
+              <Label htmlFor="odometer">Odometer (km)</Label>
+              <Controller
+                name="odometer"
+                control={control}
+                render={({ field }) => (
+                  <Input
+                    {...field}
+                    id="odometer"
+                    type="number"
+                    min={0}
+                    placeholder="Enter odometer reading"
+                    disabled={isLoading}
+                  />
+                )}
+              />
+              {errors.odometer && (
+                <p className="text-sm text-red-500">{errors.odometer.message}</p>
               )}
             </div>
 
@@ -823,6 +853,6 @@ export function AddDeviceForm({
           </DialogFooter>
         </form>
       </DialogContent>
-    </Dialog>
+    </Dialog >
   );
 }
