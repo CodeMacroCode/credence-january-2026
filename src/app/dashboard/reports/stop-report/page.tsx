@@ -30,7 +30,7 @@ const StopReportPage: React.FC = () => {
 
   const [pagination, setPagination] = useState({
     pageIndex: 0,
-    pageSize: 10,
+    pageSize: 20,
   });
 
   const [sorting, setSorting] = useState<any[]>([]);
@@ -261,7 +261,7 @@ const StopReportPage: React.FC = () => {
     enableVirtualization: true,
     estimatedRowHeight: 50,
     overscan: 10,
-    maxHeight: "600px",
+    maxHeight: "calc(100dvh - 250px)",
   });
 
   return (

@@ -30,7 +30,7 @@ const IdleReportPage: React.FC = () => {
   const [cashedDeviceId, setCashedDeviceId] = useState<{ uniqueId: string; name: string }[] | null>(null);
   const [pagination, setPagination] = useState({
     pageIndex: 0,
-    pageSize: 10,
+    pageSize: 20,
   });
 
   const [sorting, setSorting] = useState<any[]>([]);
@@ -285,7 +285,7 @@ const IdleReportPage: React.FC = () => {
     enableVirtualization: true,
     estimatedRowHeight: 50,
     overscan: 10,
-    maxHeight: "600px",
+    maxHeight: "calc(100dvh - 250px)",
   });
 
   return (

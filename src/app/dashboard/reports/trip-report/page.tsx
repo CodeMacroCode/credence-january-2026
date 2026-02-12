@@ -67,7 +67,7 @@ const TripReportPage: React.FC = () => {
   const [hasGenerated, setHasGenerated] = useState(false);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [showTable, setShowTable] = useState(false);
-  const [pagination, setPagination] = useState({ pageIndex: 0, pageSize: 10 });
+  const [pagination, setPagination] = useState({ pageIndex: 0, pageSize: 20 });
   const [sorting, setSorting] = useState<any[]>([]);
   const lastProcessedRef = React.useRef<string>("");
 
@@ -371,7 +371,7 @@ const TripReportPage: React.FC = () => {
     enableVirtualization: true,
     estimatedRowHeight: 50,
     overscan: 5,
-    maxHeight: "600px",
+    maxHeight: "calc(100dvh - 250px)",
   });
 
   return (

@@ -86,7 +86,7 @@ const AlertsAndEventsReportPage: React.FC = () => {
   const [showTable, setShowTable] = useState(false);
   const [pagination, setPagination] = useState<PaginationState>({
     pageIndex: 0,
-    pageSize: 10,
+    pageSize: 20,
   });
   const [sorting, setSorting] = useState<SortingState>([]);
 
@@ -775,7 +775,7 @@ const AlertsAndEventsReportPage: React.FC = () => {
     enableVirtualization: true,
     estimatedRowHeight: 50,
     overscan: 5,
-    maxHeight: "600px",
+    maxHeight: "calc(100dvh - 250px)",
   });
 
   return (

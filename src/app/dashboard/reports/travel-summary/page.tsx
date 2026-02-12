@@ -91,7 +91,7 @@ const TravelSummaryReportPage: React.FC = () => {
   const [showTable, setShowTable] = useState(false);
   const [pagination, setPagination] = useState<PaginationState>({
     pageIndex: 0,
-    pageSize: 10,
+    pageSize: 20,
   });
   const [sorting, setSorting] = useState<SortingState>([]);
 
@@ -123,7 +123,7 @@ const TravelSummaryReportPage: React.FC = () => {
   const [cashedDeviceId, setCashedDeviceId] = useState<
     { _id: string; name: string; uniqueId: string }[] | null
   >(null);
-  
+
   // Table data with enriched addresses
   const [tableData, setTableData] = useState<TravelSummaryReport[]>([]);
   const lastProcessedRef = React.useRef<string>("");
@@ -166,7 +166,7 @@ const TravelSummaryReportPage: React.FC = () => {
         // Enrich main row addresses
         let startAddress = "-";
         let endAddress = "-";
-        
+
         if (row.startLat && row.startLong && row.endLat && row.endLong) {
           const [start, end] = await Promise.all([
             reverseGeocodeMapTiler(row.startLat, row.startLong),
@@ -271,15 +271,15 @@ const TravelSummaryReportPage: React.FC = () => {
             reportDate: new Date(trip.date).toLocaleDateString(),
             ignitionStart: trip.startTime
               ? new Date(trip.startTime).toLocaleString("en-GB", {
-                  day: "2-digit",
-                  month: "2-digit",
-                  year: "numeric",
-                  hour: "2-digit",
-                  minute: "2-digit",
-                  second: "2-digit",
-                  hour12: true,
-                  timeZone: "UTC",
-                })
+                day: "2-digit",
+                month: "2-digit",
+                year: "numeric",
+                hour: "2-digit",
+                minute: "2-digit",
+                second: "2-digit",
+                hour12: true,
+                timeZone: "UTC",
+              })
               : "-",
             startLocation: startLocation,
             startCoordinates:
@@ -301,15 +301,15 @@ const TravelSummaryReportPage: React.FC = () => {
                 : "-",
             ignitionStop: trip.endTime
               ? new Date(trip.endTime).toLocaleString("en-GB", {
-                  day: "2-digit",
-                  month: "2-digit",
-                  year: "numeric",
-                  hour: "2-digit",
-                  minute: "2-digit",
-                  second: "2-digit",
-                  hour12: true,
-                  timeZone: "UTC",
-                })
+                day: "2-digit",
+                month: "2-digit",
+                year: "numeric",
+                hour: "2-digit",
+                minute: "2-digit",
+                second: "2-digit",
+                hour12: true,
+                timeZone: "UTC",
+              })
               : "-",
             play: "▶",
           };
@@ -410,13 +410,13 @@ const TravelSummaryReportPage: React.FC = () => {
       (item: TravelSummaryReport, index: number) => {
         // Resolve uniqueId: prioritize item's own uniqueId, fallback to first dayWiseTrip's uniqueId
         const resolvedUniqueId = item.uniqueId || item.dayWiseTrips?.[0]?.uniqueId;
-        
+
         // Match uniqueId with cachedDeviceId to get the correct vehicle name
         const matchedDevice = cashedDeviceId?.find(
           (device) => String(device.uniqueId) === String(resolvedUniqueId)
         );
         const vehicleName = matchedDevice?.name || item.name || '-';
-        
+
         return {
           ...item,
           uniqueId: resolvedUniqueId,
@@ -475,9 +475,11 @@ const TravelSummaryReportPage: React.FC = () => {
       },
       { accessorKey: "reportDate", header: "Report Date", size: 120 },
       { accessorKey: "ignitionStart", header: "Ignition Start", size: 180 },
-      { accessorKey: "startLocation", header: "Start Location", meta: {
-      wrapConfig: { wrap: "wrap", maxWidth: "260px" },
-    }, },
+      {
+        accessorKey: "startLocation", header: "Start Location", meta: {
+          wrapConfig: { wrap: "wrap", maxWidth: "260px" },
+        },
+      },
       {
         header: "Start Coordinates",
         accessorKey: "startCoordinates",
@@ -514,7 +516,7 @@ const TravelSummaryReportPage: React.FC = () => {
       { accessorKey: "idle", header: "Idle", size: 120 },
       { accessorKey: "stopped", header: "Stopped", size: 120 },
       // { accessorKey: "overspeed", header: "Overspeed", size: 120 },
-      {accessorKey: "workingHours", header: "Working Hours", size: 120},
+      { accessorKey: "workingHours", header: "Working Hours", size: 120 },
 
       {
         accessorKey: "maxSpeed",
@@ -546,9 +548,11 @@ const TravelSummaryReportPage: React.FC = () => {
         header: "Avg Speed",
         size: 120,
       },
-      { accessorKey: "endLocation", header: "End Location", meta: {
-      wrapConfig: { wrap: "wrap", maxWidth: "260px" },
-    }, },
+      {
+        accessorKey: "endLocation", header: "End Location", meta: {
+          wrapConfig: { wrap: "wrap", maxWidth: "260px" },
+        },
+      },
       {
         accessorKey: "endCoordinates",
         header: "End Co-ordinate",
@@ -747,8 +751,8 @@ const TravelSummaryReportPage: React.FC = () => {
         accessorKey: "startAddress",
         header: "Start Address",
         meta: {
-      wrapConfig: { wrap: "wrap", maxWidth: "260px" },
-    },
+          wrapConfig: { wrap: "wrap", maxWidth: "260px" },
+        },
         cell: ({ row }) => {
           if (
             row.original.isLoading ||
@@ -763,8 +767,8 @@ const TravelSummaryReportPage: React.FC = () => {
         accessorKey: "startCoordinates",
         header: "Start Coordinate",
         meta: {
-      wrapConfig: { wrap: "wrap", maxWidth: "260px" },
-    },
+          wrapConfig: { wrap: "wrap", maxWidth: "260px" },
+        },
         cell: ({ row }) => {
           if (
             row.original.isLoading ||
@@ -926,8 +930,8 @@ const TravelSummaryReportPage: React.FC = () => {
         accessorKey: "endAddress",
         header: "End Address",
         meta: {
-      wrapConfig: { wrap: "wrap", maxWidth: "260px" },
-    },
+          wrapConfig: { wrap: "wrap", maxWidth: "260px" },
+        },
         cell: ({ row }) => {
           if (
             row.original.isLoading ||
@@ -941,9 +945,9 @@ const TravelSummaryReportPage: React.FC = () => {
       {
         accessorKey: "endCoordinates",
         header: "End Coordinate",
-       meta: {
-      wrapConfig: { wrap: "wrap", maxWidth: "260px" },
-    },
+        meta: {
+          wrapConfig: { wrap: "wrap", maxWidth: "260px" },
+        },
         cell: ({ row }) => {
           if (
             row.original.isLoading ||
@@ -1064,7 +1068,7 @@ const TravelSummaryReportPage: React.FC = () => {
     } else if (apiFilters.uniqueId) {
       uniqueIdArray = [Number(apiFilters.uniqueId)];
     }
-    
+
     // Build query params
     const queryParams = new URLSearchParams({
       from: apiFilters.from,
@@ -1075,7 +1079,7 @@ const TravelSummaryReportPage: React.FC = () => {
       ...(sorting?.[0]?.id && { sortBy: sorting[0].id }),
       ...(sorting?.[0]?.id && { sortOrder: sorting[0].desc ? "desc" : "asc" }),
     }).toString();
-    
+
     const res = await api.post(`/report/travel-summary-report?${queryParams}`, {
       uniqueIds: uniqueIdArray,
     });
@@ -1201,7 +1205,7 @@ const TravelSummaryReportPage: React.FC = () => {
 
       updateProgress(30, "Resolving locations");
       exportData = await enrichTravelSummaryWithAddress(exportData);
-      
+
       console.log("✅ Export data:", exportData);
       updateProgress(60, "Preparing report");
       const preparedData = await prepareExportData(exportData);
@@ -1278,13 +1282,13 @@ const TravelSummaryReportPage: React.FC = () => {
     onColumnVisibilityChange: setColumnVisibility,
     emptyMessage: isFetchingTravelSummaryReport
       ? "Loading report data..." : totalTravelSummaryReport === 0 ? "No data available for the selected filters"
-      : "Wait for it....🫣",
+        : "Wait for it....🫣",
     pageSizeOptions: [5, 10, 20, 30, 50, 100, "All"],
     enableSorting: false,
     showSerialNumber: false,
     // Virtualization disabled - nested expandable rows have variable heights
     enableVirtualization: false,
-    maxHeight: "600px",
+    maxHeight: "calc(100dvh - 250px)",
   });
 
   return (

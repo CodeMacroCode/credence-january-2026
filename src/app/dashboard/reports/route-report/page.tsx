@@ -27,7 +27,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import {RouteReport} from "@/interface/modal";
+import { RouteReport } from "@/interface/modal";
 import { useQueryClient } from "@tanstack/react-query";
 import { PlaybackHistoryDrawer } from "@/components/travel-summary/playback-history-drawer";
 
@@ -85,7 +85,7 @@ const RouteReportPage: React.FC = () => {
   const [showTable, setShowTable] = useState(false);
   const [pagination, setPagination] = useState<PaginationState>({
     pageIndex: 0,
-    pageSize: 10,
+    pageSize: 20,
   });
   const [sorting, setSorting] = useState<SortingState>([]);
 
@@ -153,28 +153,28 @@ const RouteReportPage: React.FC = () => {
           routeCompletionTime: route.routeCompletionTime,
           startEnterTime: shift.startEnterTime
             ? new Date(shift.startEnterTime).toLocaleString("en-GB", {
-                day: "2-digit",
-                month: "2-digit",
-                year: "numeric",
-                hour: "2-digit",
-                minute: "2-digit",
-                second: "2-digit",
-                hour12: true,
-                timeZone: "UTC",
-              })
+              day: "2-digit",
+              month: "2-digit",
+              year: "numeric",
+              hour: "2-digit",
+              minute: "2-digit",
+              second: "2-digit",
+              hour12: true,
+              timeZone: "UTC",
+            })
             : "-",
           rawStartEnterTime: shift.startEnterTime,
           endEnterTime: shift.endEnterTime
             ? new Date(shift.endEnterTime).toLocaleString("en-GB", {
-                day: "2-digit",
-                month: "2-digit",
-                year: "numeric",
-                hour: "2-digit",
-                minute: "2-digit",
-                second: "2-digit",
-                hour12: true,
-                timeZone: "UTC",
-              })
+              day: "2-digit",
+              month: "2-digit",
+              year: "numeric",
+              hour: "2-digit",
+              minute: "2-digit",
+              second: "2-digit",
+              hour12: true,
+              timeZone: "UTC",
+            })
             : "-",
           rawEndEnterTime: shift.endEnterTime,
           durationMinutes: shift.durationMinutes,
@@ -337,9 +337,8 @@ const RouteReportPage: React.FC = () => {
           const value = getValue<string>();
           return (
             <span
-              className={`font-semibold capitalize ${
-                value === "pickup" ? "text-blue-600" : "text-purple-600"
-              }`}
+              className={`font-semibold capitalize ${value === "pickup" ? "text-blue-600" : "text-purple-600"
+                }`}
             >
               {value}
             </span>
@@ -814,7 +813,7 @@ const RouteReportPage: React.FC = () => {
     } else if (apiFilters.uniqueId) {
       uniqueIdArray = [Number(apiFilters.uniqueId)];
     }
-    
+
     // Build query params
     const queryParams = new URLSearchParams({
       from: apiFilters.from,
@@ -825,7 +824,7 @@ const RouteReportPage: React.FC = () => {
       ...(sorting?.[0]?.id && { sortBy: sorting[0].id }),
       ...(sorting?.[0]?.id && { sortOrder: sorting[0].desc ? "desc" : "asc" }),
     }).toString();
-    
+
     const res = await api.post(`/report/routeCompletion?${queryParams}`, {
       uniqueIds: uniqueIdArray,
     });
@@ -1001,7 +1000,7 @@ const RouteReportPage: React.FC = () => {
     enableVirtualization: true,
     estimatedRowHeight: 50,
     overscan: 5,
-    maxHeight: "600px",
+    maxHeight: "calc(100dvh - 250px)",
   });
 
   return (
