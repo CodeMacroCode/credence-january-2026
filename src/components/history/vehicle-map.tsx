@@ -51,11 +51,8 @@ const VehicleMap: React.FC<VehicleMapProps> = ({
   onStopClick,
   stopAddressMap,
 }) => {
-  const MIN_BASE_SECONDS = 100000;
-  const BASE_PLAYBACK_SECONDS = Math.max(
-    MIN_BASE_SECONDS,
-    Math.ceil(data.length / 100)
-  );
+  // Minimum segment duration in ms (one animation frame)
+  const MIN_SEGMENT_MS = 16;
 
   const DEFAULT_CENTER: [number, number] = [30.73448, 79.067696];
   const mapContainerRef = useRef<HTMLDivElement>(null);
@@ -92,22 +89,24 @@ const VehicleMap: React.FC<VehicleMapProps> = ({
 
   // Vehicle icon
   const createVehicleIcon = useCallback(() => {
+    const size = 100;
     return L.divIcon({
-      className: "vehicle-marker",
+      className: "",
       html: `
       <div class="vehicle-rotator" style="
-        width: 32px;
-        height: 32px;
+        width: ${size}px;
+        height: ${size}px;
         display: flex;
         align-items: center;
         justify-content: center;
         transform-origin: center center;
+        overflow: hidden;
       ">
-        <img src="/Top Y.svg" width="32" height="32" />
+        <img src="/CAR/top-view/green.svg" style="width:${size}px; height:${size}px; max-width:${size}px; max-height:${size}px; object-fit:contain; display:block; filter:drop-shadow(0 2px 4px rgba(0,0,0,0.3));" />
       </div>
     `,
-      iconSize: [32, 32],
-      iconAnchor: [16, 16],
+      iconSize: [size, size],
+      iconAnchor: [size / 2, size / 2],
     });
   }, []);
 
@@ -716,27 +715,21 @@ const VehicleMap: React.FC<VehicleMapProps> = ({
     }));
 
 
-    const totalDuration = BASE_PLAYBACK_SECONDS / playbackSpeed;
-    const segmentCount = points.length - 1;
+    // Fixed visual speed: marker moves at constant meters/sec regardless of route length
+    const PLAYBACK_METERS_PER_SEC = 150; // meters per second at 1x
+    const distances: number[] = [];
 
-    // Calculate real durations based on timestamps
-    const realDurations: number[] = [];
-    let calculatedTotalDuration = 0;
-
-    for (let i = 0; i < data.length - 1; i++) {
-      const t1 = new Date(data[i].createdAt).getTime();
-      const t2 = new Date(data[i + 1].createdAt).getTime();
-      let diffSeconds = (t2 - t1) / 1000;
-
-      // Fallback for bad data or zero time difference
-      if (diffSeconds < 0.1) diffSeconds = 0.1;
-
-      realDurations.push(diffSeconds);
-      calculatedTotalDuration += diffSeconds;
+    for (let i = 0; i < points.length - 1; i++) {
+      const d = L.latLng(points[i].latlng).distanceTo(
+        L.latLng(points[i + 1].latlng)
+      );
+      distances.push(d);
     }
 
-    // Apply playback speed
-    const adjustedDurations = realDurations.map(d => d / playbackSpeed);
+    // duration(ms) = distance(m) / speed(m/s) * 1000, scaled by playback speed
+    const adjustedDurations = distances.map(d =>
+      Math.max((d / PLAYBACK_METERS_PER_SEC * 1000) / playbackSpeed, MIN_SEGMENT_MS)
+    );
 
     const player = new MarkerPlayer(
       mapRef.current!,
@@ -896,33 +889,25 @@ const VehicleMap: React.FC<VehicleMapProps> = ({
     });
   }, [activeStopId]);
 
-  // Handle speed changes
+  // Handle speed changes — recompute distance-based durations
   useEffect(() => {
     if (!markerPlayerRef.current || data.length < 2) return;
 
-    // Shorter total time => faster movement
-    const scaledTotalDuration = BASE_PLAYBACK_SECONDS / playbackSpeed;
-
-    // Recreate distance-based durations for this shorter/longer total time
-    const points: Point[] = data.map((d) => ({
-      latlng: { lat: d.latitude, lng: d.longitude },
-      course: d.course,
-    }));
-
-    // Use the same logic as createDurations(distance-based)
-    let totalDistance = 0;
+    const PLAYBACK_METERS_PER_SEC = 150;
     const distances: number[] = [];
 
-    for (let i = 0; i < points.length - 1; i++) {
-      const d = L.latLng(points[i].latlng).distanceTo(points[i + 1].latlng);
+    for (let i = 0; i < data.length - 1; i++) {
+      const d = L.latLng(data[i].latitude, data[i].longitude).distanceTo(
+        L.latLng(data[i + 1].latitude, data[i + 1].longitude)
+      );
       distances.push(d);
-      totalDistance += d;
     }
 
-    if (totalDistance === 0 || distances.length === 0) return;
+    if (distances.length === 0) return;
 
-    const ratio = scaledTotalDuration / totalDistance;
-    const durations = distances.map((d) => Math.max(d * ratio, 0.1));
+    const durations = distances.map(d =>
+      Math.max((d / PLAYBACK_METERS_PER_SEC * 1000) / playbackSpeed, MIN_SEGMENT_MS)
+    );
 
     markerPlayerRef.current.setDuration(durations);
   }, [playbackSpeed, data]);
