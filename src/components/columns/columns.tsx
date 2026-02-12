@@ -588,6 +588,7 @@ export const getLiveVehicleColumns = (): ColumnDef<LiveTrack>[] => [
     enableHiding: true,
     enableSorting: true,
   },
+  { id: "todaysKms", header: "Today's Kms", accessorFn: (row: any) => row.todayKm ?? "N/A", meta: { flex: 1, minWidth: 100, maxWidth: 200 }, enableHiding: true, enableSorting: true },
   {
     id: "vehicleLoad",
     header: "Vehicle Load",

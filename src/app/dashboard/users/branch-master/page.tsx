@@ -478,7 +478,7 @@ export default function BranchMaster() {
           setAccess(data.access);
         }
         toast.success(`Logged in as ${username}`);
-        window.location.href = "/dashboard";
+        window.location.replace("/dashboard");
       } else {
         toast.error("Login failed: Invalid server response");
       }

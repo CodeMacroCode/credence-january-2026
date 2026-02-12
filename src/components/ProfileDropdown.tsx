@@ -1,5 +1,6 @@
 "use client";
 import * as React from "react";
+import { useRouter } from "next/navigation";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -29,6 +30,7 @@ import {
 } from "@/util/notificationPrefs";
 
 export function ProfileDropdown() {
+  const router = useRouter();
   const token = Cookies.get("token");
   const decodedToken = token ? getDecodedToken(token) : null;
   const username = decodedToken?.username || "User"; // Default username if not defined
@@ -55,7 +57,7 @@ export function ProfileDropdown() {
   };
 
   const handleRenewalClick = () => {
-    
+    router.push("/dashboard/renewal");
   };
   return (
     <DropdownMenu>
@@ -131,7 +133,7 @@ export function ProfileDropdown() {
           </DropdownMenuPortal>
         </DropdownMenuSub>
         <DropdownMenuSeparator />
-        <DropdownMenuItem className="cursor-pointer" onClick={() => {handleRenewalClick()}}>
+        <DropdownMenuItem className="cursor-pointer" onClick={() => { handleRenewalClick() }}>
           <Repeat1Icon className="mr-2 h-4 w-4" />
           <span>Renewal</span>
         </DropdownMenuItem>
