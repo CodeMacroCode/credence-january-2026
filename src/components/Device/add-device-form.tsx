@@ -762,6 +762,8 @@ export function AddDeviceForm({
                               date < new Date(new Date().setHours(0, 0, 0, 0))
                             }
                             captionLayout="dropdown"
+                            startMonth={new Date()}
+                            endMonth={new Date(new Date().getFullYear() + 10, 11)}
                           />
                         </PopoverContent>
                       </Popover>

@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { LogOut, Bell, CreditCard, User } from "lucide-react";
+import { LogOut, Bell, CreditCard, User, SubscriptIcon, Repeat1Icon } from "lucide-react";
 import { LogoutButton } from "./logout-button";
 import Link from "next/link";
 import Cookies from "js-cookie";
@@ -52,6 +52,10 @@ export function ProfileDropdown() {
     // Let's check the util implementation... 
     // Yes, setStoredPreference returns the updated list.
     setBlockedTypes(newBlockedList);
+  };
+
+  const handleRenewalClick = () => {
+    
   };
   return (
     <DropdownMenu>
@@ -127,8 +131,12 @@ export function ProfileDropdown() {
           </DropdownMenuPortal>
         </DropdownMenuSub>
         <DropdownMenuSeparator />
+        <DropdownMenuItem className="cursor-pointer" onClick={() => {handleRenewalClick()}}>
+          <Repeat1Icon className="mr-2 h-4 w-4" />
+          <span>Renewal</span>
+        </DropdownMenuItem>
+        <DropdownMenuSeparator />
         <DropdownMenuItem>
-          {/* <LogOut /> */}
           <LogoutButton />
         </DropdownMenuItem>
       </DropdownMenuContent>
