@@ -392,6 +392,10 @@ export const getDeviceColumns = (
       accessorKey: "sim",
     },
     {
+      header: "Odometer",
+      accessorKey: "odometer",
+    },
+    {
       header: "OverSpeed km/h",
       accessorKey: "speed",
     },
