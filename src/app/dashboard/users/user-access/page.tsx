@@ -36,13 +36,18 @@ import {
   useReactTable,
   getCoreRowModel,
 } from "@tanstack/react-table";
-import { ChevronDown, X, Edit, Trash2, EyeOff, Eye } from "lucide-react";
+import { ChevronDown, X, Edit, Trash2, EyeOff, Eye, LogIn } from "lucide-react";
+import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
 import SearchComponent from "@/components/ui/SearchOnlydata";
 import { Combobox } from "@/components/ui/combobox";
 import { createPortal } from "react-dom";
 import authAxios from "@/lib/authAxios";
 import Cookies from "js-cookie";
 import { toast } from "sonner";
+import { loginUser } from "@/services/userService";
+import { useAuthStore } from "@/store/authStore";
+import { useAccessStore } from "@/store/accessStore";
+import { useRouter } from "next/navigation";
 
 interface BranchGroupAccess {
   _id: string;
@@ -435,6 +440,9 @@ const BranchDropdown: React.FC<{
 
 export default function UserAccessPage() {
   const queryClient = useQueryClient();
+  const router = useRouter();
+  const { login: authLogin } = useAuthStore();
+  const { setAccess } = useAccessStore();
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [branchGroupsData, setBranchGroupsData] = useState<BranchGroupAccess[]>(
     []
@@ -474,6 +482,33 @@ export default function UserAccessPage() {
   const resetPermissions = () => {
     setSelectedMasterPermissions([]);
     setSelectedReportPermissions([]);
+  };
+
+  const [loginAsLoading, setLoginAsLoading] = useState<string | null>(null);
+
+  // Handle "Login" - superAdmin logs in as a group user
+  const handleLoginAs = async (username: string, password: string, id: string) => {
+    setLoginAsLoading(id);
+    try {
+      Cookies.remove("token");
+      localStorage.clear();
+
+      const data = await loginUser(username, password);
+      if (data?.token) {
+        authLogin(data.token);
+        if (data.access) {
+          setAccess(data.access);
+        }
+        toast.success(`Logged in as ${username}`);
+        window.location.href = "/dashboard";
+      } else {
+        toast.error("Login failed: Invalid server response");
+      }
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || "Login failed");
+    } finally {
+      setLoginAsLoading(null);
+    }
   };
 
   const schoolOptions: SelectOption[] =
@@ -837,9 +872,34 @@ export default function UserAccessPage() {
       {
         header: "Group Name",
         accessorFn: (row: BranchGroupAccess) => ({
-          type: "text",
-          value: row.branchGroupName || "N/A",
-          render: () => row.branchGroupName || "N/A",
+          type: "custom",
+          render: () => (
+            <div className="flex items-center gap-2 w-full">
+              <span className="truncate flex-1">{row.branchGroupName || "N/A"}</span>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleLoginAs(row.username, row.password, row._id);
+                    }}
+                    disabled={loginAsLoading === row._id}
+                    className="flex-shrink-0 w-7 h-7 rounded-full bg-gray-200/80 hover:bg-gray-300 dark:bg-gray-600/60 dark:hover:bg-gray-500 flex items-center justify-center transition-all duration-200 cursor-pointer shadow-sm hover:shadow-md"
+                  >
+                    {loginAsLoading === row._id ? (
+                      <div className="w-3.5 h-3.5 border-2 border-gray-400 border-t-transparent rounded-full animate-spin" />
+                    ) : (
+                      <LogIn className="w-4 h-4 text-gray-600 dark:text-gray-300" />
+                    )}
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent side="right">
+                  Login as {row.branchGroupName}
+                </TooltipContent>
+              </Tooltip>
+            </div>
+          ),
         }),
         meta: { flex: 1, minWidth: 180, maxWidth: 250 },
       },

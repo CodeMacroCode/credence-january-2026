@@ -47,6 +47,12 @@ import { BranchNotificationCell } from "@/components/branch-master/BranchNotific
 import authAxios from "@/lib/authAxios";
 import { BranchImportModal } from "@/components/branch-import/BranchImportModal";
 import { excelFileUploadForBranch } from "@/services/fileUploadService";
+import { loginUser } from "@/services/userService";
+import { useAuthStore } from "@/store/authStore";
+import { useAccessStore } from "@/store/accessStore";
+import { useRouter } from "next/navigation";
+import { LogIn } from "lucide-react";
+import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
 
 type branchAccess = {
   _id: string;
@@ -432,6 +438,9 @@ const BranchEditDialog = ({
 
 export default function BranchMaster() {
   const queryClient = useQueryClient();
+  const router = useRouter();
+  const { login: authLogin } = useAuthStore();
+  const { setAccess } = useAccessStore();
   const closeButtonRef = useRef<HTMLButtonElement>(null);
   const [filteredData, setFilteredData] = useState<branch[]>([]);
   const [filterResults, setFilterResults] = useState<branch[]>([]);
@@ -452,6 +461,33 @@ export default function BranchMaster() {
     string | null
   >(null);
   const [isImporting, setIsImporting] = useState(false);
+  const [loginAsLoading, setLoginAsLoading] = useState<string | null>(null);
+
+  // Handle "Login As" - superAdmin logs in as a branch user
+  const handleLoginAs = async (username: string, password: string, id: string) => {
+    setLoginAsLoading(id);
+    try {
+      // Clear existing session
+      Cookies.remove("token");
+      localStorage.clear();
+
+      const data = await loginUser(username, password);
+      if (data?.token) {
+        authLogin(data.token);
+        if (data.access) {
+          setAccess(data.access);
+        }
+        toast.success(`Logged in as ${username}`);
+        window.location.href = "/dashboard";
+      } else {
+        toast.error("Login failed: Invalid server response");
+      }
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || "Login failed");
+    } finally {
+      setLoginAsLoading(null);
+    }
+  };
 
   // Permissions state for add user form
   const [selectedMasterPermissions, setSelectedMasterPermissions] = useState<string[]>([]);
@@ -1066,8 +1102,36 @@ export default function BranchMaster() {
       {
         header: "User Name",
         accessorFn: (row) => ({
-          type: "text",
-          value: row.branchName ?? "",
+          type: "custom",
+          render: () => (
+            <div className="flex items-center gap-2 w-full">
+              <span className="truncate flex-1">{row.branchName ?? ""}</span>
+              {isSuperAdmin && (
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleLoginAs(row.username, row.password, row._id);
+                      }}
+                      disabled={loginAsLoading === row._id}
+                      className="flex-shrink-0 w-7 h-7 rounded-full bg-gray-200/80 hover:bg-gray-300 dark:bg-gray-600/60 dark:hover:bg-gray-500 flex items-center justify-center transition-all duration-200 cursor-pointer shadow-sm hover:shadow-md"
+                    >
+                      {loginAsLoading === row._id ? (
+                        <div className="w-3.5 h-3.5 border-2 border-gray-400 border-t-transparent rounded-full animate-spin" />
+                      ) : (
+                        <LogIn className="w-4 h-4 text-gray-600 dark:text-gray-300" />
+                      )}
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent side="right">
+                    Login as {row.branchName}
+                  </TooltipContent>
+                </Tooltip>
+              )}
+            </div>
+          ),
         }),
         meta: { flex: 1, minWidth: 200, maxWidth: 320 },
         enableHiding: true,
