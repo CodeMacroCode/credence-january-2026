@@ -745,6 +745,8 @@ const VehicleMap: React.FC<VehicleMapProps> = ({
     markerPlayerRef.current = player;
     currentAngleRef.current = data[0]?.course ?? 0;
 
+    let lastProgressUpdate = 0;
+
     player.setOnUpdate((latlng, index) => {
       const bounds = mapRef.current!.getBounds();
       if (!bounds.pad(-0.5).contains(latlng)) {
@@ -761,14 +763,19 @@ const VehicleMap: React.FC<VehicleMapProps> = ({
         smoothRotateVehicle((player as any).marker, bearing);
       }
 
-      const percent = (index / (data.length - 1)) * 100;
-      setProgress(percent);
-      onProgressChange?.(percent);
+      // Only update slider, NOT the chart (chart is too expensive)
+      const now = performance.now();
+      if (now - lastProgressUpdate > 200) {
+        lastProgressUpdate = now;
+        const percent = (index / (data.length - 1)) * 100;
+        setProgress(percent);
+      }
     });
 
     player.setOnComplete(() => {
       setIsPlaying(false);
-      setProgress(0);
+      setProgress(100);
+      onProgressChange?.(100);
       currentAngleRef.current = data[0]?.course ?? 0;
     });
 
@@ -937,11 +944,14 @@ const VehicleMap: React.FC<VehicleMapProps> = ({
     if (isPlaying) {
       markerPlayerRef.current.pause();
       setIsPlaying(false);
+      // Sync chart on pause
+      const progress = markerPlayerRef.current.getProgress();
+      onProgressChange?.(progress);
     } else {
       markerPlayerRef.current.start();
       setIsPlaying(true);
     }
-  }, [isPlaying]);
+  }, [isPlaying, onProgressChange]);
 
   const handleStop = useCallback(() => {
     if (!markerPlayerRef.current) {
@@ -951,8 +961,9 @@ const VehicleMap: React.FC<VehicleMapProps> = ({
     markerPlayerRef.current.stop();
     setIsPlaying(false);
     setProgress(0);
+    onProgressChange?.(0);
     currentAngleRef.current = data[0]?.course ?? 0;
-  }, [data]);
+  }, [data, onProgressChange]);
 
   const handleSpeedChange = useCallback((speed: number) => {
     if (!markerPlayerRef.current) return;

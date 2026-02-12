@@ -636,8 +636,8 @@ function HistoryReportContent() {
             {isFetching ? (
               <div
                 className={`w-full mt-3 transition-all duration-300 ease-in-out ${isMapExpanded
-                    ? "h-[100vh] md:h-[80vh] lg:h-[90vh]"
-                    : "h-[50vh] md:h-[25vh] lg:h-[40vh]"
+                  ? "h-[100vh] md:h-[80vh] lg:h-[90vh]"
+                  : "h-[50vh] md:h-[25vh] lg:h-[40vh]"
                   }`}
                 style={{ zIndex: 0 }}
               >
@@ -701,8 +701,8 @@ function HistoryReportContent() {
             ) : (
               <div
                 className={`w-full mt-3 transition-all duration-300 ease-in-out ${isMapExpanded
-                    ? "h-[80vh] md:h-[60vh] lg:h-[70vh]"
-                    : "h-[50vh] md:h-[25vh] lg:h-[40vh]"
+                  ? "h-[80vh] md:h-[60vh] lg:h-[70vh]"
+                  : "h-[60vh] md:h-[45vh] lg:h-[55vh]"
                   }`}
                 style={{ zIndex: 0 }}
               >
