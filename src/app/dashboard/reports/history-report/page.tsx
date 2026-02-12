@@ -95,6 +95,7 @@ function HistoryReportContent() {
   // ✅ Track raw progress and throttled progress separately
   const [playbackProgress, setPlaybackProgress] = useState(0);
   const [throttledProgress, setThrottledProgress] = useState(0);
+  const [isPlaybackActive, setIsPlaybackActive] = useState(false);
   const progressUpdateRef = useRef<number>();
 
   const [defaultDateRange, setDefaultDateRange] = useState<{
@@ -235,19 +236,29 @@ function HistoryReportContent() {
     };
   }, [activePlayback]);
 
-  const chartData = useMemo(
+  // Stable chart data — no position marker, never changes during playback
+  const chartDataStable = useMemo(
+    () => ({
+      labels: baseChartData.labels,
+      datasets: [baseChartData.baseDataset],
+    }),
+    [baseChartData]
+  );
+
+  // Chart data with position marker — only used when NOT playing
+  const chartDataWithMarker = useMemo(
     () => ({
       labels: baseChartData.labels,
       datasets: [
         baseChartData.baseDataset,
         {
           label: "Current Position",
-          data: baseChartData.speeds.map((speed, index) =>
+          data: baseChartData.speeds.map((speed: number, index: number) =>
             index === currentIndex ? speed : null
           ),
           borderColor: "rgb(239, 68, 68)",
           backgroundColor: "rgb(239, 68, 68)",
-          pointRadius: baseChartData.speeds.map((_, index) =>
+          pointRadius: baseChartData.speeds.map((_: number, index: number) =>
             index === currentIndex ? 8 : 0
           ),
           pointHoverRadius: 10,
@@ -714,6 +725,7 @@ function HistoryReportContent() {
                   currentIndex={displayIndex}
                   isExpanded={isMapExpanded}
                   onProgressChange={setPlaybackProgress}
+                  onPlayStateChange={setIsPlaybackActive}
                   stopAddressMap={stopAddressMap}
                 />
 
@@ -833,7 +845,7 @@ function HistoryReportContent() {
                   activePlayback.length > 1 && (
                     <div style={{ height: "150px" }}>
                       <SpeedTimelineGraph
-                        data={chartData}
+                        data={chartDataStable}
                         options={chartOptions}
                         onHoverSeek={() => { }}
                         isExpanded={isMapExpanded}
