@@ -6,10 +6,10 @@ import { useAccessStore } from "@/store/accessStore";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
 import { loginUser } from "@/services/userService";
 import Image from "next/image";
-import { Eye, EyeOff, Loader2 } from "lucide-react";
+import { Eye, EyeOff, Lock, User, ShieldCheck, Moon } from "lucide-react";
 import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -22,9 +22,10 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { cn } from "@/lib/utils";
 
 const loginSchema = z.object({
-  username: z.string().min(1, "Username is required"),
+  username: z.string().min(1, "Username or Email is required"),
   password: z.string().min(1, "Password is required"),
   rememberMe: z.boolean().default(false),
 });
@@ -99,216 +100,190 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="relative flex h-screen overflow-hidden">
-      <Image
-        src="/background.svg"
-        alt="Background"
-        fill
-        className="object-cover -z-10 filter brightness-50"
-        priority
-      />
+    <div className="flex min-h-screen w-full items-center justify-center bg-[#f1f5f9] p-4 font-sans">
 
-      {/* Left side - Welcome message (hidden on mobile) */}
-      <div className="hidden lg:flex lg:w-1/2 items-center justify-center px-12 xl:px-20">
-        <div className="text-white text-center max-w-2xl w-full">
-          <h1 className="text-4xl xl:text-5xl 2xl:text-6xl font-bold mb-6 leading-tight">
-            Welcome Back
-          </h1>
-          <p className="text-xl xl:text-xl 2xl:text-2xl opacity-90 leading-relaxed">
-            "Your child's safety, our peace of mind."
-          </p>
-        </div>
+      {/* Background Overlay */}
+      <div className="absolute inset-0 z-0">
+        <Image
+          src="/background.jpeg"
+          alt="Background Pattern"
+          fill
+          className="object-cover"
+          priority
+        />
+        <div className="absolute inset-0 bg-blue-600/20 mix-blend-multiply" />
       </div>
+      <div className="flex w-full max-w-6xl h-[800px] overflow-hidden rounded-3xl shadow-2xl bg-transparent border border-white/10 backdrop-blur-sm">
+        {/* Left Panel - Branding & Info */}
+        <div className="hidden lg:flex w-1/2 bg-[#0F2557]/90 relative flex-col justify-between p-16 overflow-hidden text-white border-r border-white/10">
 
-      {/* Right side - Login Card */}
-      <div className="w-full lg:w-1/2 flex items-center justify-center p-6">
-        <div className="w-full max-w-xl px-4 sm:px-8 lg:px-12">
-          <Card className="w-full shadow-2xl rounded-3xl bg-white/95 backdrop-blur">
-            <CardHeader className="px-4 py-2">
-              <CardTitle className="text-center">
-                <div className="flex justify-center my-3">
-                  <Image
-                    src="/logo.png"
-                    alt="ParentsEye Logo"
-                    width={200}
-                    height={200}
-                    priority
-                    unoptimized={true}
-                  />
-                </div>
-                <div className="space-y-1">
-                  <p className="text-3xl font-bold text-gray-900">
-                    Secure Login
-                  </p>
-                  <p className="text-lg text-gray-600">
-                    <span className="text-[#0c235c] font-semibold">Login</span>{" "}
-                    to your account
-                  </p>
-                </div>
-              </CardTitle>
-            </CardHeader>
+          {/* Background Overlay */}
+          <div className="absolute inset-0 z-0">
+            <Image
+              src="/login-bg.png"
+              alt="Background Pattern"
+              fill
+              className="object-cover opacity-30 mix-blend-overlay"
+              priority
+            />
+            <div className="absolute inset-0 bg-gradient-to-br from-[#0a1a3f]/90 to-[#1e3a8a]/80" />
+          </div>
 
-            <CardContent className="px-[50px] pb-8 pt-4">
-              <Form {...form}>
-                <form
-                  onSubmit={form.handleSubmit(onSubmit)}
-                  className="space-y-5"
+          {/* Top: Logo */}
+          <div className="relative bottom-16 right-6 z-10 flex items-center gap-3">
+            <Image
+              src="/logo.png"
+              alt="Credence Tracker"
+              width={128}
+              height={128}
+              className="w-40 h-40 object-contain"
+              unoptimized
+            />
+          </div>
+
+          {/* Center: Hero Text */}
+          <div className="relative z-10 max-w-xl mt-auto mb-auto">
+            <h1 className="text-5xl font-bold leading-tight mb-36 tracking-tight">
+              Real-time visibility for <br /> every mile.
+            </h1>
+            {/* <div className="space-y-4 text-blue-100/90 text-lg leading-relaxed font-light">
+              <p className="italic font-medium">"Your child&apos;s safety, our peace of mind."</p>
+              <p>Manage your fleet with precision and confidence.</p>
+            </div> */}
+          </div>
+        </div>
+
+        {/* Right Panel - Login Form */}
+        <div className="flex-1 flex flex-col justify-center items-center bg-black/55 backdrop-blur-[100px] p-6 sm:p-12 xl:p-24 relative border-l border-white/20 shadow-[-10px_0_30px_-10px_rgba(255,255,255,0.1)]">
+          <div className="w-full max-w-[440px] space-y-8">
+
+            <div className="space-y-2">
+              <h2 className="text-3xl font-bold text-white tracking-tight">Secure Login</h2>
+              <p className="text-white text-base font-medium">Welcome back! Please enter your details to access the dashboard.</p>
+            </div>
+
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                {form.formState.errors.root && (
+                  <div className="p-4 rounded-lg bg-red-50/80 backdrop-blur-sm border border-red-200 text-sm text-red-600 font-medium flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5 flex-shrink-0">
+                      <path fillRule="evenodd" d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25zm-1.72 6.97a.75.75 0 10-1.06 1.06L10.94 12l-1.72 1.72a.75.75 0 101.06 1.06L12 13.06l1.72 1.72a.75.75 0 101.06-1.06L13.06 12l1.72-1.72a.75.75 0 10-1.06-1.06L12 10.94l-1.72-1.72z" clipRule="evenodd" />
+                    </svg>
+                    {form.formState.errors.root.message}
+                  </div>
+                )}
+
+                <FormField
+                  control={form.control}
+                  name="username"
+                  render={({ field }) => (
+                    <FormItem className="space-y-2">
+                      <FormLabel className="text-white font-semibold text-[16px]">Username</FormLabel>
+                      <FormControl>
+                        <div className="relative group">
+                          <Input
+                            placeholder="Enter your username"
+                            {...field}
+                            className="pl-11 h-12 bg-white backdrop-blur-sm border-white/40 focus:bg-white/80 focus:border-[#0F2557] focus:ring-1 focus:ring-[#0F2557] transition-all rounded-lg text-base shadow-sm placeholder:text-gray-500"
+                            disabled={isLoading}
+                          />
+                          <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500 pointer-events-none group-focus-within:text-[#0F2557] transition-colors" />
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="password"
+                  render={({ field }) => (
+                    <FormItem className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <FormLabel className="text-white font-semibold text-[16px]">Password</FormLabel>
+                      </div>
+                      <FormControl>
+                        <div className="relative group">
+                          <Input
+                            type={showPassword ? "text" : "password"}
+                            placeholder="••••••••"
+                            {...field}
+                            className="pl-11 pr-11 h-12 bg-white backdrop-blur-sm border-white/40 focus:bg-white/80 focus:border-[#0F2557] focus:ring-1 focus:ring-[#0F2557] transition-all rounded-lg text-base shadow-sm placeholder:text-gray-500"
+                            disabled={isLoading}
+                          />
+                          <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500 pointer-events-none group-focus-within:text-[#0F2557] transition-colors" />
+                          <button
+                            type="button"
+                            onClick={() => setShowPassword(!showPassword)}
+                            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 focus:outline-none p-2 rounded-md hover:bg-gray-100/50 transition-colors"
+                          >
+                            {showPassword ? (
+                              <EyeOff className="w-5 h-5" />
+                            ) : (
+                              <Eye className="w-5 h-5" />
+                            )}
+                          </button>
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="rememberMe"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-row items-center space-x-3 space-y-0 text-gray-700 pt-2">
+                      <FormControl>
+                        <Checkbox
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                          className="w-5 h-5 rounded-full border-gray-400/80 data-[state=checked]:bg-[#0F2557] data-[state=checked]:border-[#0F2557] bg-white/50"
+                        />
+                      </FormControl>
+                      <FormLabel className="font-normal cursor-pointer text-sm select-none text-white">
+                        Remember for 30 days
+                      </FormLabel>
+                    </FormItem>
+                  )}
+                />
+
+                <Button
+                  type="submit"
+                  className="w-full h-12 hover:backdrop-blur-2xl cursor-pointer text-base font-bold bg-[#0F2557] hover:bg-[#f56e28] text-white shadow-lg shadow-[#0F2557]/20 transition-all hover:shadow-[#0F2557]/30 rounded-lg mt-2 group backdrop-blur-md bg-opacity-90"
+                  disabled={isLoading}
                 >
-                  {form.formState.errors.root && (
-                    <div className="p-3 rounded-md bg-red-50 border border-red-200 text-sm text-red-600 font-medium text-center animate-in fade-in slide-in-from-top-1">
-                      {form.formState.errors.root.message}
+                  {isLoading ? (
+                    <div className="flex items-center gap-2">
+                      <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                      <span>Logging in...</span>
+                    </div>
+                  ) : (
+                    <div className="flex items-center justify-center gap-2">
+                      Login
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5 group-hover:translate-x-1 transition-transform">
+                        <path fillRule="evenodd" d="M16.72 7.72a.75.75 0 011.06 0l3.75 3.75a.75.75 0 010 1.06l-3.75 3.75a.75.75 0 11-1.06-1.06l2.47-2.47H3a.75.75 0 010-1.5h16.19l-2.47-2.47a.75.75 0 010-1.06z" clipRule="evenodd" />
+                      </svg>
                     </div>
                   )}
+                </Button>
+              </form>
+            </Form>
 
-                  <FormField
-                    control={form.control}
-                    name="username"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="block text-sm font-semibold text-gray-700 mb-2">
-                          Username
-                        </FormLabel>
-                        <FormControl>
-                          <div className="relative">
-                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
-                              <svg
-                                className="w-5 h-5"
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
-                              >
-                                <path
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  strokeWidth={2}
-                                  d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
-                                />
-                              </svg>
-                            </span>
-                            <Input
-                              type="text"
-                              placeholder="Enter your username"
-                              disabled={isLoading}
-                              className="h-12 pl-10 text-base border-gray-300 focus:border-blue-500 focus:ring-blue-500"
-                              {...field}
-                            />
-                          </div>
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+            <div className="text-center text-sm text-white pt-6 font-medium">
+              By continuing, you agree to our{" "}
+              <Link href="https://www.parentseye.in/terms" className="text-[#f56e28] font-semibold hover:underline">
+                Terms of Service
+              </Link>{" "}
+              and{" "}
+              <Link href="https://www.parentseye.in/privacy" className="text-[#f56e28] font-semibold hover:underline">
+                Privacy Policy
+              </Link>.
+            </div>
 
-                  <FormField
-                    control={form.control}
-                    name="password"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="block text-sm font-semibold text-gray-700 mb-2">
-                          Password
-                        </FormLabel>
-                        <FormControl>
-                          <div className="relative">
-                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
-                              <svg
-                                className="w-5 h-5"
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
-                              >
-                                <path
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  strokeWidth={2}
-                                  d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
-                                />
-                              </svg>
-                            </span>
-                            <Input
-                              type={showPassword ? "text" : "password"}
-                              placeholder="••••••••"
-                              disabled={isLoading}
-                              className="h-12 pl-10 pr-10 text-base border-gray-300 focus:border-blue-500 focus:ring-blue-500"
-                              {...field}
-                            />
-                            <button
-                              type="button"
-                              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 cursor-pointer"
-                              onClick={() => setShowPassword((prev) => !prev)}
-                              tabIndex={-1}
-                              disabled={isLoading}
-                            >
-                              {showPassword ? (
-                                <EyeOff size={20} />
-                              ) : (
-                                <Eye size={20} />
-                              )}
-                            </button>
-                          </div>
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="rememberMe"
-                    render={({ field }) => (
-                      <FormItem className="flex flex-row items-center space-x-2 space-y-0">
-                        <FormControl>
-                          <input
-                            type="checkbox"
-                            disabled={isLoading}
-                            checked={field.value}
-                            onChange={field.onChange}
-                            className="w-4 h-4 text-blue-500 border-gray-300 rounded focus:ring-blue-500"
-                          />
-                        </FormControl>
-                        <FormLabel className="text-sm font-normal text-gray-700">
-                          Remember for 30 days
-                        </FormLabel>
-                      </FormItem>
-                    )}
-                  />
-
-                  <Button
-                    type="submit"
-                    disabled={isLoading}
-                    className="w-full h-12 text-base font-semibold bg-gradient-to-r from-[#0c235c] to-[#0c235c] hover:from-[#0c235c] hover:to-[#0c235c] text-white shadow-lg mt-6 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
-                  >
-                    {isLoading ? (
-                      <>
-                        <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                        Logging in...
-                      </>
-                    ) : (
-                      "Login"
-                    )}
-                  </Button>
-                  <div className="text-center pt-2">
-                    <div className="text-center">
-                      <span className="text-xs text-muted-foreground">
-                        By continuing, you agree to our{" "}
-                        <u>
-                          <Link href="https://www.parentseye.in/terms">
-                            Terms
-                          </Link>
-                        </u>{" "}
-                        and{" "}
-                        <u>
-                          <Link href="https://www.parentseye.in/privacy">
-                            Privacy Policy
-                          </Link>
-                        </u>
-                        .
-                      </span>
-                    </div>
-                  </div>
-                </form>
-              </Form>
-            </CardContent>
-          </Card>
+          </div>
         </div>
       </div>
     </div>

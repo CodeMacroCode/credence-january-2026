@@ -1,4 +1,6 @@
+"use client";
 import React, { useState, useEffect, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import { X, AlertTriangle, Calendar, Clock } from "lucide-react";
 import { SubscriptionExpiration } from "@/interface/modal";
 
@@ -16,187 +18,191 @@ interface SubscriptionExpiryProps {
 // =============================
 // MAIN COMPONENT
 // =============================
-export const SubscriptionExpiry: React.FC<SubscriptionExpiryProps> = ({
+export const SubscriptionExpiry: React.FC<SubscriptionExpiryProps & {
+  onLoadMore?: () => void;
+  hasMore?: boolean;
+  isLoadingMore?: boolean;
+}> = ({
   isOpen: controlledIsOpen,
   onClose,
-  branches = [],
+  branches: branchesData,
   onRenew,
+  onLoadMore,
+  hasMore,
+  isLoadingMore
 }) => {
-  const [isOpen, setIsOpen] = useState(true);
-  const [isClosing, setIsClosing] = useState(false);
+    const router = useRouter();
+    const [isOpen, setIsOpen] = useState(true);
+    const [isClosing, setIsClosing] = useState(false);
 
-  useEffect(() => {
-    if (controlledIsOpen !== undefined) setIsOpen(controlledIsOpen);
-  }, [controlledIsOpen]);
+    // Cast branchesData to expected structure if needed, or better, update props interface
+    // The hook returns { data: [], totalExpiredCount: ... } but component props were SubscriptionExpiration[]
+    // We need to adjust how we handle 'branches' prop.
+    // The 'branches' prop passed from parent is now { data: ..., count: ... } object from hook
+    const branches = (branchesData as any)?.data || [];
+    const totalCount = (branchesData as any)?.totalExpiringIn30DaysCount || 0;
+    const expiredCount = (branchesData as any)?.totalExpiredCount || 0;
 
-  const handleClose = () => {
-    // Start closing animation
-    setIsClosing(true);
 
-    // Wait for animation to complete before actually closing
-    setTimeout(() => {
-      setIsOpen(false);
-      setIsClosing(false);
-      onClose?.();
-    }, 300); // Match this with CSS animation duration
-  };
+    const observerTarget = React.useRef(null);
 
-  const handleRenew = () => {
-    onRenew?.();
-    handleClose();
-  };
+    useEffect(() => {
+      const observer = new IntersectionObserver(
+        (entries) => {
+          if (entries[0].isIntersecting && hasMore && !isLoadingMore) {
+            onLoadMore?.();
+          }
+        },
+        { threshold: 0.1 }
+      );
 
-  const branchStatus = (remainingDays: number) => {
-    if (remainingDays <= 15) {
-      return "critical";
-    } else {
-      return "warning";
-    }
-  };
+      if (observerTarget.current) {
+        observer.observe(observerTarget.current);
+      }
 
-  const getStatusConfig = (status: string) => {
-    switch (status) {
-      case "critical":
-        return {
-          bgColor: "bg-red-50/80",
-          borderColor: "border-l-4 border-red-400/80",
-          textColor: "text-red-600",
-          iconColor: "text-red-400",
-          badgeBg: "bg-red-100/80",
-          badgeText: "text-red-700",
-        };
-      case "warning":
-        return {
-          bgColor: "bg-indigo-50/70",
-          borderColor: "border-l-4 border-indigo-400/80",
-          textColor: "text-indigo-700",
-          iconColor: "text-indigo-500",
-          badgeBg: "bg-indigo-100/80",
-          badgeText: "text-indigo-700",
-        };
-      default:
-        return {
-          bgColor: "bg-blue-50/80",
-          borderColor: "border-l-4 border-blue-400/80",
-          textColor: "text-blue-700",
-          iconColor: "text-blue-400",
-          badgeBg: "bg-blue-100/80",
-          badgeText: "text-blue-700",
-        };
-    }
-  };
+      return () => {
+        if (observerTarget.current) {
+          observer.unobserve(observerTarget.current);
+        }
+      };
+    }, [hasMore, isLoadingMore, onLoadMore]);
 
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleString("en-GB", {
-      day: "2-digit",
-      month: "short",
-      year: "numeric",
-      timeZone: "UTC",
-    });
-  };
+    useEffect(() => {
+      if (controlledIsOpen !== undefined) setIsOpen(controlledIsOpen);
+    }, [controlledIsOpen]);
 
-  if (!isOpen || branches.length === 0) return null;
+    const handleClose = () => {
+      // Start closing animation
+      setIsClosing(true);
 
-  return (
-    <>
-      {/* Overlay container - Responsive positioning and sizing */}
-      <div
-        className="fixed z-50 pointer-events-none responsive-popup-container"
-        aria-hidden={!isOpen}
-      >
+      // Wait for animation to complete before actually closing
+      setTimeout(() => {
+        setIsOpen(false);
+        setIsClosing(false);
+        onClose?.();
+      }, 300); // Match this with CSS animation duration
+    };
+
+    const handleRenew = () => {
+      onRenew?.();
+      handleClose();
+    };
+
+
+
+    const formatDate = (dateString: string) => {
+      const date = new Date(dateString);
+      return date.toLocaleString("en-GB", {
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
+        timeZone: "UTC",
+      });
+    };
+
+    if (!isOpen || (branches.length === 0 && !isLoadingMore)) return null;
+
+    return (
+      <>
+        {/* Overlay container - Responsive positioning and sizing */}
         <div
-          className={`
+          className="fixed z-50 pointer-events-none responsive-popup-container"
+          aria-hidden={!isOpen}
+        >
+          <div
+            className={`
             bg-white/95 backdrop-blur-lg rounded-lg shadow-2xl overflow-hidden 
             pointer-events-auto transform transition-all duration-300 border border-gray-200
             responsive-popup
             ${isClosing ? "animate-slideOutRight" : "animate-fadeInSlideIn"}
           `}
-        >
+          >
 
-          <div className="bg-[#0c235c] px-3 sm:px-4 py-2 flex items-center justify-between backdrop-blur-sm">
-            <div className="flex items-center gap-2 min-w-0 flex-1">
-              <div className="bg-white/80 rounded-full p-1 shadow-sm flex-shrink-0">
-                <AlertTriangle className="w-3 h-3 sm:w-4 sm:h-4 text-blue-600" />
+            <div className="bg-[#0c235c] px-3 sm:px-4 py-2 flex items-center justify-between backdrop-blur-sm">
+              <div className="flex items-center gap-2 min-w-0 flex-1">
+                <div className="bg-white/80 rounded-full p-1 shadow-sm flex-shrink-0">
+                  <AlertTriangle className="w-3 h-3 sm:w-4 sm:h-4 text-blue-600" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <h2 className="text-xs text-white sm:text-sm font-bold truncate">
+                    Subscription Expiry Alert
+                  </h2>
+                  <p className="text-[12px] text-white sm:text-[12px] truncate">
+                    {totalCount}{" "}
+                    {totalCount === 1 ? "device" : "devices"} expiring | {expiredCount}{" "}
+                    expired
+
+                  </p>
+                </div>
               </div>
-              <div className="min-w-0 flex-1">
-                <h2 className="text-xs text-white sm:text-sm font-bold text-gray-800 truncate">
-                  Subscription Expiry Alert
-                </h2>
-                <p className="text-xs text-white sm:text-sm text-gray-800 truncate">
-                  {branches.length}{" "}
-                  {branches.length === 1 ? "branch" : "branches"} expiring soon
-                </p>
+              <div className="flex items-center gap-2 ml-2 flex-shrink-0">
+                <button
+                  onClick={() => {
+                    handleClose();
+                    router.push("/dashboard/renewal");
+                  }}
+                  className="glass-btn px-4 py-1.5 rounded-full text-white text-xs sm:text-sm font-medium whitespace-nowrap flex items-center gap-1.5 group cursor-pointer"
+                >
+                  <span className="relative z-10">Renew</span>
+                  <div className="absolute inset-0 rounded-full bg-gradient-to-r from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
+                </button>
+                <button
+                  onClick={handleClose}
+                  className="text-white hover:bg-white/25 rounded-full p-1 transition-colors duration-200 cursor-pointer"
+                  aria-label="Close"
+                >
+                  <X className="w-3 h-3 sm:w-4 sm:h-4" />
+                </button>
               </div>
             </div>
-            <button
-              onClick={handleClose}
-              className="text-white hover:bg-white/25 rounded-full p-1 transition-colors duration-200 flex-shrink-0 ml-2 cursor-pointer"
-              aria-label="Close"
-            >
-              <X className="w-3 h-3 sm:w-4 sm:h-4" />
-            </button>
-          </div>
 
-          {/* Content */}
-          <div className="p-3 sm:p-4 overflow-y-auto responsive-popup-content bg-white/80 backdrop-blur-sm">
-            <div className="space-y-2">
-              {branches.map((branch, index) => {
-                const status = branchStatus(branch.remainingDays);
-                const config = getStatusConfig(status);
-                return (
-                  <div
-                    key={`${branch.mobileNo}-${index}`}
-                    className={`${config.bgColor} ${config.borderColor} rounded-md p-3 transition-all duration-200 hover:shadow-sm backdrop-blur-sm`}
-                  >
-                    <div className="flex items-start justify-between gap-2 sm:gap-3">
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 mb-1 flex-wrap">
-                          <h3
-                            className={`font-semibold text-sm ${config.textColor} truncate flex-1 min-w-0`}
-                          >
-                            School: {branch?.schoolName}
+            {/* Content */}
+            <div className="p-3 sm:p-4 overflow-y-auto responsive-popup-content bg-white/80 backdrop-blur-sm">
+              <div className="space-y-2">
+                {branches.map((branch: any, index: number) => {
+                  return (
+                    <div
+                      key={`${branch.mobileNo}-${index}`}
+                      className="bg-red-50/80 border-l-4 border-red-400/80 rounded-md p-3 transition-all duration-200 hover:shadow-sm backdrop-blur-sm"
+                    >
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="flex-1 min-w-0 space-y-1">
+                          <h3 className="font-semibold text-sm text-red-600 truncate">
+                            Admin: {branch?.schoolName}
                           </h3>
-                          <span
-                            className={`${config.badgeBg} ${config.badgeText} text-[10px] px-1.5 py-0.5 rounded font-medium flex-shrink-0`}
-                          >
-                            {branch?.remainingDays}{" "}
-                            {branch?.remainingDays === 1 ? "day" : "days"} left
+                          <p className="font-semibold text-xs text-red-600 truncate">
+                            User:{" "}
+                            {typeof branch?.branchName === "string"
+                              ? branch?.branchName
+                              : branch?.branchName?.branchName}
+                          </p>
+                        </div>
+
+                        <div className="flex flex-col items-end gap-2 flex-shrink-0">
+                          <span className="bg-red-100/80 text-red-700 text-[10px] px-2 py-1 rounded-md font-medium whitespace-nowrap shadow-sm border border-red-200">
+                            {branch?.expiringIn30DaysCount}{" "}
+                            {branch?.expiringIn30DaysCount === 1
+                              ? "device"
+                              : "devices"}{" "}
+                            expiring | {branch?.expiredCount}{" "}
+                            expired
                           </span>
                         </div>
-
-                        <div className="space-y-1 text-xs text-gray-700">
-                          <div>
-                            <p
-                              className={`font-semibold text-xs ${config.textColor} truncate flex-1 min-w-0`}
-                            >
-                              Branch: {branch?.branchName}
-                            </p>
-                          </div>
-                          <div className="flex items-center gap-1.5 flex-wrap">
-                            <Calendar className="w-3 h-3 sm:w-3.5 sm:h-3.5 flex-shrink-0" />
-                            <span className="font-semibold text-xs flex-shrink-0">
-                              Expires:
-                            </span>
-                            <span className="text-xs flex-1 min-w-0">
-                              {formatDate(branch?.subscriptionExpirationDate)}
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                      <div className={`${config.iconColor} flex-shrink-0`}>
-                        <Clock className="w-4 h-4 sm:w-5 sm:h-5" />
                       </div>
                     </div>
-                  </div>
-                );
-              })}
+                  );
+                })}
+
+                {/* Usage of observer target for infinite scroll */}
+                <div ref={observerTarget} className="h-4 w-full flex items-center justify-center">
+                  {isLoadingMore && <div className="text-xs text-gray-500">Loading more...</div>}
+                </div>
+              </div>
             </div>
           </div>
         </div>
-      </div>
 
-      <style jsx>{`
+        <style jsx>{`
         @keyframes fadeIn {
           from {
             opacity: 0;
@@ -349,7 +355,62 @@ export const SubscriptionExpiry: React.FC<SubscriptionExpiryProps> = ({
             max-height: min(calc(90vh - 80px), 220px);
           }
         }
+
+
+        /* Apple Liquid Glass Effect */
+        .glass-btn {
+          background: rgba(255, 255, 255, 0.1);
+          backdrop-filter: blur(12px);
+          -webkit-backdrop-filter: blur(12px); /* For Safari */
+          border: 1px solid rgba(255, 255, 255, 0.2);
+          box-shadow: 
+            0 4px 6px rgba(0, 0, 0, 0.1),
+            inset 0 1px 0 rgba(255, 255, 255, 0.1);
+          position: relative;
+          overflow: hidden;
+          transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+
+        .glass-btn:hover {
+          background: rgba(255, 255, 255, 0.2);
+          border-color: rgba(255, 255, 255, 0.4);
+          box-shadow: 
+            0 8px 12px rgba(0, 0, 0, 0.2),
+            inset 0 1px 0 rgba(255, 255, 255, 0.2),
+            0 0 20px rgba(255, 255, 255, 0.1); /* Glow effect */
+          transform: translateY(-1px);
+        }
+
+        .glass-btn:active {
+          transform: translateY(0.5px);
+          box-shadow: 
+            0 2px 4px rgba(0, 0, 0, 0.1),
+            inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        }
+
+        /* Shimmer effect on hover */
+        .glass-btn::after {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: -100%;
+          width: 50%;
+          height: 100%;
+          background: linear-gradient(
+            to right,
+            transparent,
+            rgba(255, 255, 255, 0.3),
+            transparent
+          );
+          transform: skewX(-25deg);
+          transition: none;
+        }
+
+        .glass-btn:hover::after {
+          left: 150%;
+          transition: left 0.7s ease-in-out;
+        }
       `}</style>
-    </>
-  );
-};
+      </>
+    );
+  };

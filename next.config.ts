@@ -11,6 +11,7 @@ const nextConfig: NextConfig = {
         hostname: "dummyjson.com",
       },
     ],
+    unoptimized: true,
   },
   /** ⚠️⚠️⚠️⚠️⚠️⚠️⚠️ Comment this before uploading to production */
   eslint: {

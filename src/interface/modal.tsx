@@ -548,11 +548,23 @@ export interface SubscriptionExpiration {
   branchName: Branch;
   mobileNo: number;
   schoolName: string;
+  expiringIn30DaysCount: number;
+  totalExpiringIn30DaysCount: number;
+  expiredCount: number;
+  totalDevices: number;
   remainingDays: number;
   subscriptionExpirationDate: string;
 }
 
 export interface GetSubscriptionExpirationResponse {
+  success: boolean;
+  totalExpiredCount: number;
+  totalExpiringIn30DaysCount: number;
+  totalDevicesCount: number;
+  page: number;
+  limit: number;
+  totalBranches: number;
+  totalPages: number;
   count: number;
   data: SubscriptionExpiration[];
 }

