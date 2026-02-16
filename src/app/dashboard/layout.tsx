@@ -53,7 +53,7 @@ export default function DashboardLayout({
   }, [isDashboard, store.isConnected]);
 
   useEffect(() => {
-    const token = Cookies.get("token");
+    const token = localStorage.getItem("token");
     if (!token) {
       redirect("/login");
     }

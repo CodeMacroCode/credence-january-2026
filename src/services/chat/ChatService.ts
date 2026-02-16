@@ -173,7 +173,7 @@ class ChatService {
   }
 
   private authenticateIfTokenExists(): void {
-    const token = Cookies.get("token");
+    const token = localStorage.getItem("token");
     if (token && this.isConnected && !this.isAuthenticated) {
       this.authenticate(token);
     }

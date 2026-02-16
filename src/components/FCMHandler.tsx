@@ -71,7 +71,7 @@ export default function FCMHandler(): null {
               console.log("FCM token Generated: ", newToken);
               localStorage.setItem("fcm_token", newToken);
 
-              const token = Cookies.get("token");
+              const token = localStorage.getItem("token");
               if (token) {
                 console.log("FCM token Generating for user: ", token);
                 await authAxios.post(

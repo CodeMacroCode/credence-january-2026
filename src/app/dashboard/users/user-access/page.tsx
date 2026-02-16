@@ -649,7 +649,7 @@ export default function UserAccessPage() {
 
   const deactivateMutation = useMutation({
     mutationFn: async (branchGroup: any) => {
-      const token = Cookies.get("token");
+      const token = localStorage.getItem("token");
       return await authAxios.put(
         `/user/deactivate/${branchGroup._id}`,
         {

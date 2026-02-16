@@ -11,13 +11,13 @@ export interface DeviceFilters {
   page: number;
   limit: number;
   filter:
-    | "all"
-    | "running"
-    | "overspeed"
-    | "idle"
-    | "stopped"
-    | "inactive"
-    | "new";
+  | "all"
+  | "running"
+  | "overspeed"
+  | "idle"
+  | "stopped"
+  | "inactive"
+  | "new";
   searchTerm: string;
   branchId?: string;
   schoolId?: string;
@@ -188,7 +188,7 @@ export const useDeviceStore = create<DeviceState>()(
                 // );
               } else {
                 // Fallback: Decode JWT token to extract userId
-                const token = Cookies.get("token");
+                const token = localStorage.getItem("token");
                 if (token) {
                   try {
                     const base64Url = token.split(".")[1];

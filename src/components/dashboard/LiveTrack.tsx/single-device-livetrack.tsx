@@ -491,7 +491,7 @@ const SingleDeviceLiveTrack: React.FC<SingleDeviceLiveTrackProps> = ({
   // ]);
 
   React.useEffect(() => {
-    const token = Cookies.get("token");
+    const token = localStorage.getItem("token");
     const decoded = token ? getDecodedToken(token) : null;
     const role = decoded?.role;
 

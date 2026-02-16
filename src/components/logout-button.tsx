@@ -43,10 +43,11 @@ export function LogoutButton() {
       localStorage.removeItem("ct-notifications");
       localStorage.removeItem("device-store");
       localStorage.removeItem("userId");
+      localStorage.removeItem("token");
 
       /** delete fmc token */
       logout(); // clear state + token
-      console.log("TOKEN: ", Cookies.get("token"))
+      // console.log("TOKEN: ", localStorage.getItem("token"))
       window.location.href = "/login";
 
     } catch (error) {

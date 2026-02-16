@@ -30,7 +30,7 @@ export const useAuthStore = create<AuthState>((set) => ({
 
   // 🔥 HYDRATE FROM COOKIE ON APP LOAD
   hydrateAuth: () => {
-    const token = Cookies.get("token");
+    const token = localStorage.getItem("token");
 
     if (!token) return;
 
@@ -57,8 +57,9 @@ export const useAuthStore = create<AuthState>((set) => ({
   login: (token: string, expiryDays?: number) => {
     if (expiryDays) {
       Cookies.set("token", token, { expires: expiryDays });
+      localStorage.setItem("token", token);
     } else {
-      Cookies.set("token", token);
+      localStorage.setItem("token", token);
     }
 
     const decoded = jwtDecode<DecodedToken>(token);

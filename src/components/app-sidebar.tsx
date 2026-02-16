@@ -123,7 +123,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { setOpenMobile, isMobile, state } = useSidebar();
 
   React.useEffect(() => {
-    const token = Cookies.get("token");
+    const token = localStorage.getItem("token");
     const decoded = token ? getDecodedToken(token) : null;
     const role = decoded?.role;
 

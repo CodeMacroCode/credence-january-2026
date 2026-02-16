@@ -58,7 +58,7 @@ export default function RoutePage() {
   const role = decodedToken.role || "";
 
   useEffect(() => {
-    const token = Cookies.get("token");
+    const token = localStorage.getItem("token");
     if (!token) return;
 
     try {
@@ -381,17 +381,17 @@ export default function RoutePage() {
             {(role === "superAdmin" ||
               role === "school" ||
               role === "branchGroup") && (
-              <Combobox
-                items={branchItems}
-                value={filterBranchId}
-                onValueChange={(val) => setFilterBranchId(val || undefined)}
-                placeholder="Filter User"
-                searchPlaceholder="Search User..."
-                width="w-[220px]"
-                emptyMessage="No users found"
-                disabled={role === "superAdmin" && !filterSchoolId}
-              />
-            )}
+                <Combobox
+                  items={branchItems}
+                  value={filterBranchId}
+                  onValueChange={(val) => setFilterBranchId(val || undefined)}
+                  placeholder="Filter User"
+                  searchPlaceholder="Search User..."
+                  width="w-[220px]"
+                  emptyMessage="No users found"
+                  disabled={role === "superAdmin" && !filterSchoolId}
+                />
+              )}
           </div>
         </div>
 

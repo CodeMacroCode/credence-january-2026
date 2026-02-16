@@ -66,7 +66,7 @@ export default function Driver() {
 
     // ---------------- Decode Token ----------------
     useEffect(() => {
-        const token = Cookies.get("token");
+        const token = localStorage.getItem("token");
         if (!token) return;
         try {
             const decoded = jwtDecode<DecodedToken>(token);

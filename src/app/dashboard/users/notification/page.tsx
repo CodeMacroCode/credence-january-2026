@@ -90,7 +90,7 @@ export default function NotificationMaster() {
 
   // Decode role
   useEffect(() => {
-    const token = Cookies.get("token");
+    const token = localStorage.getItem("token");
     if (token) {
       const decoded = getDecodedToken(token);
       setRole((decoded?.role || "").toLowerCase());

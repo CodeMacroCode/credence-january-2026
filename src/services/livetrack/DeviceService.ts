@@ -142,7 +142,7 @@ class DeviceService {
 
   // Connection properties
   private socket: Socket | null = null;
-  private token = Cookies.get("token");
+  private token = localStorage.getItem("token");
   private baseUrl: string;
   private isConnected = false;
   private isAuthenticated = false;
@@ -424,7 +424,7 @@ class DeviceService {
     if (this.streamingMode === "single") {
       this.stopAllSingleDeviceStreams();
     }
-      this.socket?.emit("request-all-device-data", filters);
+    this.socket?.emit("request-all-device-data", filters);
   }
 
   /**

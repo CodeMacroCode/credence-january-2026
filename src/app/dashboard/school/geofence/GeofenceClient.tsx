@@ -72,7 +72,7 @@ export default function GeofenceClient() {
   const role = decodedToken.role || "";
 
   useEffect(() => {
-    const token = Cookies.get("token");
+    const token = localStorage.getItem("token");
     if (!token) return;
 
     try {
@@ -298,11 +298,10 @@ export default function GeofenceClient() {
             {/* Bulk Delete Button */}
             <Button
               variant="destructive"
-              className={`cursor-pointer flex items-center gap-2 ${
-                selectedRows.length > 0
+              className={`cursor-pointer flex items-center gap-2 ${selectedRows.length > 0
                   ? "bg-red-500 hover:bg-red-600 text-white"
                   : "cursor-not-allowed opacity-50"
-              }`}
+                }`}
               onClick={() => handleBulkDelete(selectedRows)}
               disabled={isDeleteLoading || selectedRows.length === 0}
             >
@@ -382,26 +381,25 @@ export default function GeofenceClient() {
             {(role === "superAdmin" ||
               role === "school" ||
               role === "branchGroup") && (
-              <Combobox
-                items={branchItems}
-                value={filterBranchId}
-                onValueChange={(val) => setFilterBranchId(val || undefined)}
-                placeholder="Filter Users"
-                searchPlaceholder="Search Users..."
-                width="w-[150px]"
-                className="cursor-pointer"
-                emptyMessage="No Users found"
-                disabled={role === "superAdmin" && !filterSchoolId}
-              />
-            )}
+                <Combobox
+                  items={branchItems}
+                  value={filterBranchId}
+                  onValueChange={(val) => setFilterBranchId(val || undefined)}
+                  placeholder="Filter Users"
+                  searchPlaceholder="Search Users..."
+                  width="w-[150px]"
+                  className="cursor-pointer"
+                  emptyMessage="No Users found"
+                  disabled={role === "superAdmin" && !filterSchoolId}
+                />
+              )}
 
             {/* CLEAR FILTERS BUTTON */}
             <Button
               variant="outline"
               size="default"
-              className={`cursor-pointer flex items-center gap-2 ${
-                !hasActiveFilters ? "opacity-50 cursor-not-allowed" : ""
-              }`}
+              className={`cursor-pointer flex items-center gap-2 ${!hasActiveFilters ? "opacity-50 cursor-not-allowed" : ""
+                }`}
               onClick={handleClearFilters}
               disabled={!hasActiveFilters}
             >

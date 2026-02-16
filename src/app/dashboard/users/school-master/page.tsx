@@ -439,7 +439,7 @@ export default function SchoolMaster() {
 
   const deactivateMutation = useMutation({
     mutationFn: async (school: any) => {
-      const token = Cookies.get("token");
+      const token = localStorage.getItem("token");
       return await authAxios.put(
         `/user/deactivate/${school._id}`,
         {

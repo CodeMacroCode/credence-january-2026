@@ -7,7 +7,7 @@ const fileUploadAxios = axios.create({
 });
 
 fileUploadAxios.interceptors.request.use((config) => {
-  const token = Cookies.get("token");
+  const token = localStorage.getItem("token");
 
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;

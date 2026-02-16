@@ -118,7 +118,7 @@ const getDecodedToken = (token: string): DecodedToken | null => {
 // Helper function to get token from storage
 const getAuthToken = (): string | null => {
   if (typeof window !== "undefined") {
-    return Cookies.get("token") || null;
+    return localStorage.getItem("token") || null;
   }
   return null;
 };
@@ -945,7 +945,7 @@ export default function BranchMaster() {
 
   const deactivateMutation = useMutation({
     mutationFn: async (branch: any) => {
-      const token = Cookies.get("token");
+      const token = localStorage.getItem("token");
       return await authAxios.put(
         `/user/deactivate/${branch._id}`,
         {

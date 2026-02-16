@@ -118,7 +118,7 @@ const GeofenceManager: React.FC<GeofenceManagerProps> = ({
 
   // Decode token on mount
   useEffect(() => {
-    const token = Cookies.get("token");
+    const token = localStorage.getItem("token");
     if (!token) return;
 
     try {
@@ -281,8 +281,8 @@ const GeofenceManager: React.FC<GeofenceManagerProps> = ({
           const pickupDate =
             typeof initialData.pickupTime === "string"
               ? parseTimeString(initialData.pickupTime, {
-                  fallbackTime: new Date(),
-                })
+                fallbackTime: new Date(),
+              })
               : new Date(initialData.pickupTime);
           setPickupTime(pickupDate);
         } catch (error) {
@@ -295,8 +295,8 @@ const GeofenceManager: React.FC<GeofenceManagerProps> = ({
           const dropDate =
             typeof initialData.dropTime === "string"
               ? parseTimeString(initialData.dropTime, {
-                  fallbackTime: new Date(),
-                })
+                fallbackTime: new Date(),
+              })
               : new Date(initialData.dropTime);
           setDropTime(dropDate);
         } catch (error) {
@@ -657,88 +657,88 @@ const GeofenceManager: React.FC<GeofenceManagerProps> = ({
     });
   };
 
-const saveGeofences = async () => {
-  if (!tempGeofence) {
-    toast.error("Please create a geofence first");
-    return;
-  }
-
-  setIsLoading(true);
-
-  try {
-    const lat = tempGeofence.coordinates?.[0]?.[1] || currentCoords.lat;
-    const lng = tempGeofence.coordinates?.[0]?.[0] || currentCoords.lng;
-
-   const payloadForValidation = {
-     geofenceName: tempGeofence.geofenceName || tempGeofence.name || "",
-     latitude: lat,
-     longitude: lng,
-     radius: tempGeofence.radius || currentRadius,
-     schoolId: selectedSchool?._id,
-     branchId: selectedBranch?._id,
-     routeObjId: selectedRoute?._id,
-     pickupTime: pickupTime ? formatTime(pickupTime) : "",
-     dropTime: dropTime ? formatTime(dropTime) : undefined,
-   };
-
-
-    // ✅ ZOD VALIDATION
-    const parsed = geofenceSchema.safeParse(payloadForValidation);
-
-    if (!parsed.success) {
-      parsed.error.errors.forEach((err) => {
-        toast.error(err.message);
-      });
-      setIsLoading(false);
+  const saveGeofences = async () => {
+    if (!tempGeofence) {
+      toast.error("Please create a geofence first");
       return;
     }
 
-    // ✅ Reverse geocode only after validation
-    const address = await reverseGeocodeMapTiler(lat, lng);
+    setIsLoading(true);
 
-    const savedGeofence = {
-      geofenceName: parsed.data.geofenceName,
-      area: {
-        center: [lat, lng],
-        radius: parsed.data.radius,
-      },
-      schoolId: parsed.data.schoolId,
-      branchId: parsed.data.branchId,
-      routeObjId: parsed.data.routeObjId,
-      address,
-      ...(parsed.data.pickupTime && {
-        pickupTime: parsed.data.pickupTime,
-      }),
-      ...(parsed.data.dropTime && {
-        dropTime: parsed.data.dropTime,
-      }),
-    };
+    try {
+      const lat = tempGeofence.coordinates?.[0]?.[1] || currentCoords.lat;
+      const lng = tempGeofence.coordinates?.[0]?.[0] || currentCoords.lng;
 
-    if (mode === "add") {
-      createGeofence(savedGeofence, {
-        onSuccess: () => {
-          setTempGeofence(null);
-          onSuccess?.();
+      const payloadForValidation = {
+        geofenceName: tempGeofence.geofenceName || tempGeofence.name || "",
+        latitude: lat,
+        longitude: lng,
+        radius: tempGeofence.radius || currentRadius,
+        schoolId: selectedSchool?._id,
+        branchId: selectedBranch?._id,
+        routeObjId: selectedRoute?._id,
+        pickupTime: pickupTime ? formatTime(pickupTime) : "",
+        dropTime: dropTime ? formatTime(dropTime) : undefined,
+      };
+
+
+      // ✅ ZOD VALIDATION
+      const parsed = geofenceSchema.safeParse(payloadForValidation);
+
+      if (!parsed.success) {
+        parsed.error.errors.forEach((err) => {
+          toast.error(err.message);
+        });
+        setIsLoading(false);
+        return;
+      }
+
+      // ✅ Reverse geocode only after validation
+      const address = await reverseGeocodeMapTiler(lat, lng);
+
+      const savedGeofence = {
+        geofenceName: parsed.data.geofenceName,
+        area: {
+          center: [lat, lng],
+          radius: parsed.data.radius,
         },
-      });
-    } else if (mode === "edit" && geofenceId) {
-      updateGeofence(
-        { id: geofenceId, payload: savedGeofence },
-        {
+        schoolId: parsed.data.schoolId,
+        branchId: parsed.data.branchId,
+        routeObjId: parsed.data.routeObjId,
+        address,
+        ...(parsed.data.pickupTime && {
+          pickupTime: parsed.data.pickupTime,
+        }),
+        ...(parsed.data.dropTime && {
+          dropTime: parsed.data.dropTime,
+        }),
+      };
+
+      if (mode === "add") {
+        createGeofence(savedGeofence, {
           onSuccess: () => {
             setTempGeofence(null);
             onSuccess?.();
           },
-        }
-      );
+        });
+      } else if (mode === "edit" && geofenceId) {
+        updateGeofence(
+          { id: geofenceId, payload: savedGeofence },
+          {
+            onSuccess: () => {
+              setTempGeofence(null);
+              onSuccess?.();
+            },
+          }
+        );
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to save geofence");
+    } finally {
+      setIsLoading(false);
     }
-  } catch (error) {
-    console.error(error);
-    toast.error("Failed to save geofence");
-  } finally {
-    setIsLoading(false);
-  }
-};
+  };
 
 
   return (
