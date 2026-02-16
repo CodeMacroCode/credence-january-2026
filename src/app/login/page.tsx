@@ -159,6 +159,19 @@ export default function LoginPage() {
                     />
                   </div>
                 </div>
+                <div className="flex flex-col items-center gap-2">
+                  <div className="rounded-lg shadow-lg/20 hover:scale-105 transition-transform duration-300">
+                    <Link href="https://shop.credencetracker.com/">
+                      <Image
+                        src="/qr-code/shop.png"
+                        alt="SHOP"
+                        width={200}
+                        height={200}
+                        className="w-[150px] h-[150px] object-contain"
+                      />
+                    </Link>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
