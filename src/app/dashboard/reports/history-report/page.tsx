@@ -70,6 +70,7 @@ function HistoryReportContent() {
   );
   const searchParams = useSearchParams();
   const uniqueIdFromUrl = searchParams.get("uniqueId");
+  const deviceCategoryFromUrl = searchParams.get("deviceCategory");
   const [stopAddressMap, setStopAddressMap] = useState<StopAddressMap>({});
 
   const { data: vehicleData, isLoading: vehiclesLoading } =
@@ -647,6 +648,7 @@ function HistoryReportContent() {
                   currentIndex={displayIndex}
                   isExpanded={isMapExpanded}
                   onProgressChange={setPlaybackProgress}
+                  deviceCategory={deviceCategoryFromUrl || "CAR"}
                 />
                 <div>
                   <div
@@ -715,6 +717,7 @@ function HistoryReportContent() {
                   isExpanded={isMapExpanded}
                   onProgressChange={setPlaybackProgress}
                   stopAddressMap={stopAddressMap}
+                  deviceCategory={deviceCategoryFromUrl || "CAR"}
                 />
 
                 <div>

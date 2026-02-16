@@ -35,6 +35,7 @@ interface VehicleMapProps {
   stops?: any[];
   onStopClick?: (stop: any) => void;
   stopAddressMap: Record<number, string>;
+  deviceCategory?: string;
 }
 
 type RoutePoint = {
@@ -50,6 +51,7 @@ const VehicleMap: React.FC<VehicleMapProps> = ({
   stops,
   onStopClick,
   stopAddressMap,
+  deviceCategory = "CAR",
 }) => {
   // Minimum segment duration in ms (one animation frame)
   const MIN_SEGMENT_MS = 16;
@@ -102,13 +104,13 @@ const VehicleMap: React.FC<VehicleMapProps> = ({
         transform-origin: center center;
         overflow: hidden;
       ">
-        <img src="/CAR/top-view/green.svg" style="width:${size}px; height:${size}px; max-width:${size}px; max-height:${size}px; object-fit:contain; display:block; filter:drop-shadow(0 2px 4px rgba(0,0,0,0.3));" />
+        <img src="/${deviceCategory}/top-view/green.svg" style="width:${size}px; height:${size}px; max-width:${size}px; max-height:${size}px; object-fit:contain; display:block; filter:drop-shadow(0 2px 4px rgba(0,0,0,0.3));" />
       </div>
     `,
       iconSize: [size, size],
       iconAnchor: [size / 2, size / 2],
     });
-  }, []);
+  }, [deviceCategory]);
 
   const createFlagIcon = useCallback(
     (color: "green" | "red", size: number = 24) => {

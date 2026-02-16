@@ -36,8 +36,12 @@ export const BottomDrawer = ({
   onOpenRouteTimeline,
 }: BottomDrawerProps) => {
   const router = useRouter();
-  const handleHistoryClick = (uniqueId: number) => {
-    router.push("/dashboard/reports/history-report?uniqueId=" + uniqueId);
+  const handleHistoryClick = (uniqueId: number, deviceCategory?: string) => {
+    let url = "/dashboard/reports/history-report?uniqueId=" + uniqueId;
+    if (deviceCategory) {
+      url += "&deviceCategory=" + deviceCategory;
+    }
+    router.push(url);
   };
 
   const { distance, isLoading } = useDistance(selectedDevice?.uniqueId);
@@ -110,7 +114,7 @@ export const BottomDrawer = ({
                   className="rounded-sm mr-1 text-black border border-black px-2 py-1 hover:bg-black hover:text-white transition-colors duration-200 cursor-pointer"
                   onClick={() => {
                     if (!selectedDevice?.uniqueId) return;
-                    handleHistoryClick(selectedDevice.uniqueId);
+                    handleHistoryClick(selectedDevice.uniqueId, selectedDevice.deviceCategory || selectedDevice.category);
                   }}
                 >
                   History
@@ -167,11 +171,10 @@ export const BottomDrawer = ({
                     <p className="ml-8">
                       {isLoading
                         ? "Loading..."
-                        : `${
-                            distance?.totalDistance
-                              ? distance?.totalDistance
-                              : 0
-                          }` + " km"}
+                        : `${distance?.totalDistance
+                          ? distance?.totalDistance
+                          : 0
+                        }` + " km"}
                     </p>
                   </div>
                   <div>
@@ -187,7 +190,7 @@ export const BottomDrawer = ({
                       {isLoading
                         ? "Loading..."
                         : `${distance?.distance ? distance?.distance : 0}` +
-                          " km"}
+                        " km"}
                     </p>
                   </div>
                   <div>
