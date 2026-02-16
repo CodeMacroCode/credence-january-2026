@@ -2,7 +2,7 @@
 
 import { useState, useMemo, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { deviceApiService, GetExpiredDevicesResponse } from "@/services/api/deviceApiService";
+import { deviceApiService } from "@/services/api/deviceApiService";
 import { CustomTableServerSidePagination } from "@/components/ui/customTable(serverSidePagination)";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -10,7 +10,6 @@ import { Combobox } from "@/components/ui/combobox";
 import { useBranchDropdown, useSchoolDropdown } from "@/hooks/useDropdown";
 import { useAuthStore } from "@/store/authStore";
 import { ColumnVisibilitySelector } from "@/components/column-visibility-selector";
-import { FilterCard } from "@/components/dashboard/FilterCard";
 import { AlertCircle, CalendarClock, RefreshCcw, Search } from "lucide-react";
 import { PaginationState } from "@tanstack/react-table";
 import ResponseLoader from "@/components/ResponseLoader";
@@ -29,7 +28,6 @@ export default function RenewalClient() {
         schoolId: undefined as string | undefined,
         branchId: undefined as string | undefined,
     });
-    const [columnVisibility, setColumnVisibility] = useState({});
     const [sorting, setSorting] = useState([]);
 
     // Hooks
@@ -90,27 +88,6 @@ export default function RenewalClient() {
         refetch();
     };
 
-    // const { table, tableElement } = CustomTableServerSidePagination({
-    //     data: tableData,
-    //     columns,
-    //     pagination,
-    //     totalCount,
-    //     loading: isLoading,
-    //     onPaginationChange: handlePaginationChange,
-    //     onSortingChange: setSorting,
-    //     sorting,
-    //     columnVisibility,
-    //     onColumnVisibilityChange: setColumnVisibility,
-    //     emptyMessage: "No devices found",
-    //     pageSizeOptions: [10, 20, 50, 100],
-    //     enableSorting: true,
-    //     showSerialNumber: true,
-    //     enableVirtualization: true,
-    //     estimatedRowHeight: 50,
-    //     overscan: 5,
-    //     maxHeight: "calc(100vh - 380px)",
-    // });
-
     const { table, tableElement } = CustomTableServerSidePagination({
         data: tableData,
         columns,
@@ -149,18 +126,6 @@ export default function RenewalClient() {
                     </Button>
                 </div>
             </div>
-
-            {/* Summary Cards */}
-            {/* <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                <Button className="flex items-center gap-2" onClick={() => {
-                    setActiveTab("expired");
-                    setPagination(p => ({ ...p, pageIndex: 0 }));
-                }}>Expired {data?.expiredTotal || 0}</Button>
-                <Button className="flex items-center gap-2" onClick={() => {
-                    setActiveTab("expiringSoon");
-                    setPagination(p => ({ ...p, pageIndex: 0 }));
-                }}>Expiring Soon {data?.expiringSoonTotal || 0}</Button>
-            </div> */}
 
             {/* Filters & Controls */}
             <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-100 space-y-4">
