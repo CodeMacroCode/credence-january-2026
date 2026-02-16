@@ -33,6 +33,8 @@ export const VALID_VEHICLE_CATEGORIES = [
   "JCB",
   "TRACTOR",
   "TRUCK",
+  "SCOOTY",
+  "TEMPO",
 ];
 
 export const getValidDeviceCategory = (category?: string): string => {

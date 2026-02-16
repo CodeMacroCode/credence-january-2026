@@ -562,6 +562,8 @@ export const getLiveVehicleColumns = (userRole?: string): ColumnDef<LiveTrack>[]
 
       const imageUrl = useMemo(() => {
         const validCategory = getValidDeviceCategory(row.original.deviceCategory);
+        console.log(row.original.deviceCategory, "deviceCategory")
+        console.log(validCategory, "validCategory")
         const statusToImageUrl = {
           running: `/${validCategory}/side-view/green.svg`,
           idle: `/${validCategory}/side-view/yellow.svg`,
@@ -570,6 +572,7 @@ export const getLiveVehicleColumns = (userRole?: string): ColumnDef<LiveTrack>[]
           overspeed: `/${validCategory}/side-view/orange.svg`,
           new: `/${validCategory}/side-view/blue.svg`,
         };
+        console.log(statusToImageUrl, "statusToImageUrl")
         return (
           statusToImageUrl[
           String(row.original.category) as keyof typeof statusToImageUrl

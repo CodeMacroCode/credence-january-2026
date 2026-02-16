@@ -291,6 +291,7 @@ const DevicesPage = () => {
       routeObjId: filters.routeObjId,
       sortBy: sorting[0]?.id,
       sortOrder: sorting[0]?.desc ? "desc" : "asc",
+      limit: 1000000,
     });
   };
 
@@ -302,6 +303,7 @@ const DevicesPage = () => {
       schoolId: filters.schoolId,
       sortBy: sorting[0]?.id,
       sortOrder: sorting[0]?.desc ? "desc" : "asc",
+      limit: 1000000,
     });
   };
 
