@@ -31,7 +31,6 @@ interface VehicleMapProps {
   currentIndex?: number;
   isExpanded?: boolean;
   onProgressChange?: (progress: number) => void;
-  onPlayStateChange?: (isPlaying: boolean) => void;
   activeStopId?: number | null;
   stops?: any[];
   onStopClick?: (stop: any) => void;
@@ -47,7 +46,6 @@ const VehicleMap: React.FC<VehicleMapProps> = ({
   data,
   isExpanded,
   onProgressChange,
-  onPlayStateChange,
   activeStopId,
   stops,
   onStopClick,
@@ -765,18 +763,17 @@ const VehicleMap: React.FC<VehicleMapProps> = ({
         smoothRotateVehicle((player as any).marker, bearing);
       }
 
+      // Only update slider, NOT the chart (chart is too expensive)
       const now = performance.now();
       if (now - lastProgressUpdate > 200) {
         lastProgressUpdate = now;
         const percent = (index / (data.length - 1)) * 100;
         setProgress(percent);
-        onProgressChange?.(percent);
       }
     });
 
     player.setOnComplete(() => {
       setIsPlaying(false);
-      onPlayStateChange?.(false);
       setProgress(100);
       onProgressChange?.(100);
       currentAngleRef.current = data[0]?.course ?? 0;
@@ -947,16 +944,14 @@ const VehicleMap: React.FC<VehicleMapProps> = ({
     if (isPlaying) {
       markerPlayerRef.current.pause();
       setIsPlaying(false);
-      onPlayStateChange?.(false);
       // Sync chart on pause
       const progress = markerPlayerRef.current.getProgress();
       onProgressChange?.(progress);
     } else {
       markerPlayerRef.current.start();
       setIsPlaying(true);
-      onPlayStateChange?.(true);
     }
-  }, [isPlaying, onProgressChange, onPlayStateChange]);
+  }, [isPlaying, onProgressChange]);
 
   const handleStop = useCallback(() => {
     if (!markerPlayerRef.current) {
@@ -965,11 +960,10 @@ const VehicleMap: React.FC<VehicleMapProps> = ({
     }
     markerPlayerRef.current.stop();
     setIsPlaying(false);
-    onPlayStateChange?.(false);
     setProgress(0);
     onProgressChange?.(0);
     currentAngleRef.current = data[0]?.course ?? 0;
-  }, [data, onProgressChange, onPlayStateChange]);
+  }, [data, onProgressChange]);
 
   const handleSpeedChange = useCallback((speed: number) => {
     if (!markerPlayerRef.current) return;
