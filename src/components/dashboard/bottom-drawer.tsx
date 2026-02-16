@@ -24,6 +24,7 @@ interface BottomDrawerProps {
     deviceName: string,
     routeObjId?: string
   ) => void;
+  userRole?: string;
 }
 
 export const BottomDrawer = ({
@@ -34,6 +35,7 @@ export const BottomDrawer = ({
   loadingAddresses,
   handleOpenLiveTrack,
   onOpenRouteTimeline,
+  userRole,
 }: BottomDrawerProps) => {
   const router = useRouter();
   const handleHistoryClick = (uniqueId: number, deviceCategory?: string) => {
@@ -45,6 +47,13 @@ export const BottomDrawer = ({
   };
 
   const { distance, isLoading } = useDistance(selectedDevice?.uniqueId);
+
+
+  const isExpired = selectedDevice?.expired;
+  const isSuperAdmin = userRole === "superadmin";
+  const canTrack = !isExpired || isSuperAdmin;
+
+
   return (
     <Drawer open={isDrawerOpen} onOpenChange={setIsDrawerOpen}>
       <DrawerPortal>
@@ -98,9 +107,13 @@ export const BottomDrawer = ({
 
               <div className="min-w-max flex gap-1 items-center">
                 <button
-                  className="rounded-sm text-black border border-black px-2 py-1 hover:bg-black hover:text-white transition-colors duration-200 cursor-pointer"
+                  className={`rounded-sm text-black border border-black px-2 py-1 transition-colors duration-200 cursor-pointer ${!canTrack
+                      ? "opacity-50 cursor-not-allowed bg-gray-100 hover:bg-gray-100 hover:text-black"
+                      : "hover:bg-black hover:text-white"
+                    }`}
+                  disabled={!canTrack}
                   onClick={() => {
-                    if (selectedDevice?.uniqueId) {
+                    if (canTrack && selectedDevice?.uniqueId) {
                       handleOpenLiveTrack(
                         selectedDevice?.uniqueId,
                         selectedDevice?.name
@@ -108,7 +121,7 @@ export const BottomDrawer = ({
                     }
                   }}
                 >
-                  Track
+                  {isExpired && !isSuperAdmin ? "Expired" : "Track"}
                 </button>
                 <button
                   className="rounded-sm mr-1 text-black border border-black px-2 py-1 hover:bg-black hover:text-white transition-colors duration-200 cursor-pointer"

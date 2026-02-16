@@ -374,7 +374,7 @@ export default function DashboardClient() {
   }, [selectedDevice, queueForGeocoding]);
 
   // Keep your existing columns array here
-  const columns = getLiveVehicleColumns();
+  const columns = useMemo(() => getLiveVehicleColumns(userRole), [userRole]);
 
   useEffect(() => {
     if (isDrawerOpen) {
@@ -413,6 +413,14 @@ export default function DashboardClient() {
 
   const handleDeviceSelection = useCallback(
     (device: DeviceData) => {
+      // Check if device is expired
+      const isExpired = device.expired;
+      const isSuperAdmin = userRole === "superadmin";
+
+      if (isExpired && !isSuperAdmin) {
+        return;
+      }
+
       setSelectedVehicleId(device.deviceId);
       setSelectedDevice(device);
       setIsDrawerOpen(true);
@@ -427,10 +435,22 @@ export default function DashboardClient() {
         );
       }
     },
-    [queueForGeocoding]
+    [queueForGeocoding, userRole]
   );
 
   const handleOpenLiveTrack = (uniqueId: number, name: string) => {
+    // Check if device is expired
+    const device = devices?.find((d) => d.uniqueId === uniqueId) || selectedDevice;
+    const isExpired = device?.expired;
+
+    // Superadmin bypass
+    const isSuperAdmin = userRole === "superadmin";
+
+    if (isExpired && !isSuperAdmin) {
+      alert("Subscription Expired. Using live tracking is restricted.");
+      return;
+    }
+
     setOpen(true);
     setSelectedImei({ uniqueId, name });
   };
@@ -453,6 +473,12 @@ export default function DashboardClient() {
         return "flex-1 transition-all duration-300 ease-in-out";
     }
   }, [viewState]);
+
+  // Filter map devices for non-superadmin users
+  const mapDevices = useMemo(() => {
+    if (userRole === "superadmin") return devices;
+    return devices?.filter((d) => !d.expired) || [];
+  }, [devices, userRole]);
 
   const getMapClass = useMemo(() => {
     switch (viewState) {
@@ -512,6 +538,7 @@ export default function DashboardClient() {
       handleOpenLiveTrack,
 
       onOpenRouteTimeline: handleOpenRouteTimeline,
+      userRole,
     };
   }, [
     isDrawerOpen,
@@ -522,6 +549,7 @@ export default function DashboardClient() {
     handleOpenLiveTrack,
 
     handleOpenRouteTimeline,
+    userRole,
   ]);
 
   const handleCloseSubscriptionPopup = () => {
@@ -810,7 +838,7 @@ export default function DashboardClient() {
               <section className={`${getMapClass} rounded-lg overflow-hidden min-h-[300px] lg:min-h-0`}>
                 {viewState !== "tableExpanded" && (
                   <VehicleMap
-                    vehicles={devices}
+                    vehicles={mapDevices}
                     height="calc(100dvh - 280px)"
                     autoFitBounds={false}
                     showTrails={false}

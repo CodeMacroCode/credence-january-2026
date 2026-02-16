@@ -29,6 +29,7 @@ export interface DeviceData {
   fuelConsumption: string;
   matchesSearch: boolean;
   total: number;
+  expired?: boolean;
 }
 
 // Filter options for device queries

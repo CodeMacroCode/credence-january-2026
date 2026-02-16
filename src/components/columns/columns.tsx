@@ -498,11 +498,22 @@ export const getDeviceColumns = (
   ];
 // DEVICE COLUMNS END
 
-export const getLiveVehicleColumns = (): ColumnDef<LiveTrack>[] => [
+export const getLiveVehicleColumns = (userRole?: string): ColumnDef<LiveTrack>[] => [
   {
     id: "status",
     header: "Status",
     cell: ({ row }: any) => {
+      const isExpired = row.original.expired;
+      const isSuperAdmin = userRole === "superadmin";
+
+      if (isExpired && !isSuperAdmin) {
+        return (
+          <div className="flex items-center justify-center flex-shrink-0">
+            <span className="text-red-500 font-bold text-xs text-center px-1">Subscription Expired</span>
+          </div>
+        )
+      }
+
       const imageUrl = useMemo(() => {
         const validCategory = getValidDeviceCategory(row.original.deviceCategory);
         const statusToImageUrl = {
@@ -547,6 +558,7 @@ export const getLiveVehicleColumns = (): ColumnDef<LiveTrack>[] => [
     id: "lastUpdate",
     header: "Last Update",
     cell: ({ row }: any) => {
+      if (row.original.expired && userRole !== "superadmin") return "-";
       const value = row.original.lastUpdate;
 
       if (!value) return "-";
@@ -582,6 +594,7 @@ export const getLiveVehicleColumns = (): ColumnDef<LiveTrack>[] => [
     id: "since",
     header: "Since",
     cell: ({ row }: any) => {
+      if (row.original.expired && userRole !== "superadmin") return "-";
       // const timeSince = calculateTimeSince(row.original.lastUpdate);
       return <div>{row.original.stateDuration}</div>;
     },
@@ -589,11 +602,22 @@ export const getLiveVehicleColumns = (): ColumnDef<LiveTrack>[] => [
     enableHiding: true,
     enableSorting: true,
   },
-  { id: "todaysKms", header: "Today's Kms", accessorFn: (row: any) => row.todayKm ?? "N/A", meta: { flex: 1, minWidth: 100, maxWidth: 200 }, enableHiding: true, enableSorting: true },
+  {
+    id: "todaysKms",
+    header: "Today's Kms",
+    accessorFn: (row: any) => {
+      if (row.expired && userRole !== "superadmin") return "-";
+      return row.todayKm ?? "N/A"
+    },
+    meta: { flex: 1, minWidth: 100, maxWidth: 200 },
+    enableHiding: true,
+    enableSorting: true
+  },
   {
     id: "vehicleLoad",
     header: "Vehicle Load",
     cell: ({ row }: any) => {
+      if (row.original.expired && userRole !== "superadmin") return "-";
       const vehicleLoad = row.original?.vehicleLoad ?? 0;
       return <div>{vehicleLoad}</div>;
     },
