@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import L from "leaflet";
 import { VehicleStatus } from "./useVehicleStatus";
+import { getValidDeviceCategory } from "@/components/statusIconMap";
 
 interface UseVehicleMarkerIconProps {
   status: VehicleStatus;
@@ -19,12 +20,12 @@ export const useVehicleMarkerIcon = ({
 }: UseVehicleMarkerIconProps) => {
 
   const defaultStatusImageMap: Record<VehicleStatus, string> = {
-    running: `/${deviceCategory}/top-view/green.svg`,
-    idle: `/${deviceCategory}/top-view/yellow.svg`,
-    stopped: `/${deviceCategory}/top-view/red.svg`,
-    inactive: `/${deviceCategory}/top-view/grey.svg`,
-    overspeeding: `/${deviceCategory}/top-view/orange.svg`,
-    noData: `/${deviceCategory}/top-view/blue.svg`,
+    running: `/${getValidDeviceCategory(deviceCategory)}/top-view/green.svg`,
+    idle: `/${getValidDeviceCategory(deviceCategory)}/top-view/yellow.svg`,
+    stopped: `/${getValidDeviceCategory(deviceCategory)}/top-view/red.svg`,
+    inactive: `/${getValidDeviceCategory(deviceCategory)}/top-view/grey.svg`,
+    overspeeding: `/${getValidDeviceCategory(deviceCategory)}/top-view/orange.svg`,
+    noData: `/${getValidDeviceCategory(deviceCategory)}/top-view/blue.svg`,
   };
 
   console.log("default image: ", defaultStatusImageMap)

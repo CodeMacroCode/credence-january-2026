@@ -14,6 +14,7 @@ import type { Point } from "@/types/marker-player.types";
 import { PlaybackControls } from "./playback-controls";
 import { LiaTrafficLightSolid } from "react-icons/lia";
 import { Satellite } from "lucide-react";
+import { getValidDeviceCategory } from "@/components/statusIconMap";
 
 // Fix for default markers
 delete (L.Icon.Default.prototype as any)._getIconUrl;
@@ -92,6 +93,7 @@ const VehicleMap: React.FC<VehicleMapProps> = ({
   // Vehicle icon
   const createVehicleIcon = useCallback(() => {
     const size = 100;
+    const category = getValidDeviceCategory(deviceCategory);
     return L.divIcon({
       className: "",
       html: `
@@ -104,7 +106,7 @@ const VehicleMap: React.FC<VehicleMapProps> = ({
         transform-origin: center center;
         overflow: hidden;
       ">
-        <img src="/${deviceCategory}/top-view/green.svg" style="width:${size}px; height:${size}px; max-width:${size}px; max-height:${size}px; object-fit:contain; display:block; filter:drop-shadow(0 2px 4px rgba(0,0,0,0.3));" />
+        <img src="/${category}/top-view/green.svg" style="width:${size}px; height:${size}px; max-width:${size}px; max-height:${size}px; object-fit:contain; display:block; filter:drop-shadow(0 2px 4px rgba(0,0,0,0.3));" />
       </div>
     `,
       iconSize: [size, size],

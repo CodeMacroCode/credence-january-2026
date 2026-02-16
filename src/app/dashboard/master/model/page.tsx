@@ -45,20 +45,26 @@ export default function ModelPage() {
   // Inject handlers into columns
   const columnWithHandlers = getModelColumns(handleEdit, handleDelete);
 
-  // Save (Create/Update)
+  const formatModelName = (name: string) => {
+    return name.toUpperCase();
+  };
+
   const handleSave = () => {
     if (!modelName.trim()) return;
 
+    const formattedName = formatModelName(modelName);
+
     if (editTarget) {
-      updateModel({ id: editTarget._id, payload: { modelName } });
+      updateModel({ id: editTarget._id, payload: { modelName: formattedName } });
     } else {
-      createModel({ modelName });
+      createModel({ modelName: formattedName });
     }
 
     setIsModalOpen(false);
     setModelName("");
     setEditTarget(null);
   };
+
 
   const confirmDelete = () => {
     if (!deleteTarget) return;
@@ -116,8 +122,8 @@ export default function ModelPage() {
                     ? "Updating..."
                     : "Update"
                   : isCreating
-                  ? "Adding..."
-                  : "Add"}
+                    ? "Adding..."
+                    : "Add"}
               </Button>
             </div>
           </div>

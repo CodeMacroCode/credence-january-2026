@@ -45,11 +45,13 @@ export default function CategoryPage() {
   const handleSave = () => {
     if (!categoryName.trim()) return;
 
+    const formattedName = categoryName.toUpperCase();
+
     if (editTarget) {
       console.log("updating category");
-      updateCategory({ id: editTarget._id, payload: { categoryName } });
+      updateCategory({ id: editTarget._id, payload: { categoryName: formattedName } });
     } else {
-      createCategory({ categoryName });
+      createCategory({ categoryName: formattedName });
     }
 
     setIsModalOpen(false);
@@ -110,8 +112,8 @@ export default function CategoryPage() {
                     ? "Updating..."
                     : "Update"
                   : isCreating
-                  ? "Adding..."
-                  : "Add"}
+                    ? "Adding..."
+                    : "Add"}
               </Button>
             </div>
           </div>

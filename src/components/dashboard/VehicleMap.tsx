@@ -9,6 +9,7 @@ import React, {
 import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
 import MarkerClusterGroup from "react-leaflet-cluster";
 import L from "leaflet";
+import { getValidDeviceCategory } from "@/components/statusIconMap";
 import "leaflet/dist/leaflet.css";
 import "./VehicleMap.css";
 import { calculateTimeSince } from "@/util/calculateTimeSince";
@@ -94,13 +95,14 @@ const VehicleMarker = React.memo(
   }) => {
     // Memoize image URL
     const imageUrl = useMemo(() => {
+      const validCategory = getValidDeviceCategory(vehicle.deviceCategory);
       const statusToImageUrl: Record<string, string> = {
-        running: `/${vehicle.deviceCategory}/top-view/green.svg`,
-        idle: `/${vehicle.deviceCategory}/top-view/yellow.svg`,
-        stopped: `/${vehicle.deviceCategory}/top-view/red.svg`,
-        inactive: `/${vehicle.deviceCategory}/top-view/grey.svg`,
-        overspeed: `/${vehicle.deviceCategory}/top-view/orange.svg`,
-        noData: `/${vehicle.deviceCategory}/top-view/blue.svg`,
+        running: `/${validCategory}/top-view/green.svg`,
+        idle: `/${validCategory}/top-view/yellow.svg`,
+        stopped: `/${validCategory}/top-view/red.svg`,
+        inactive: `/${validCategory}/top-view/grey.svg`,
+        overspeed: `/${validCategory}/top-view/orange.svg`,
+        noData: `/${validCategory}/top-view/blue.svg`,
       };
       return statusToImageUrl[vehicle.category];
     }, [vehicle.category]);

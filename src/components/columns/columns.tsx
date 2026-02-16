@@ -23,7 +23,7 @@ import { calculateTimeSince } from "@/util/calculateTimeSince";
 import React, { useMemo } from "react";
 import { Button } from "../ui/button";
 import Image from "next/image";
-import { statusIconMap } from "@/components/statusIconMap";
+import { statusIconMap, getValidDeviceCategory } from "@/components/statusIconMap";
 import {
   Tooltip,
   TooltipContent,
@@ -504,13 +504,14 @@ export const getLiveVehicleColumns = (): ColumnDef<LiveTrack>[] => [
     header: "Status",
     cell: ({ row }: any) => {
       const imageUrl = useMemo(() => {
+        const validCategory = getValidDeviceCategory(row.original.deviceCategory);
         const statusToImageUrl = {
-          running: `/${row.original.deviceCategory}/side-view/green.svg`,
-          idle: `/${row.original.deviceCategory}/side-view/yellow.svg`,
-          stopped: `/${row.original.deviceCategory}/side-view/red.svg`,
-          inactive: `/${row.original.deviceCategory}/side-view/grey.svg`,
-          overspeed: `/${row.original.deviceCategory}/side-view/orange.svg`,
-          new: `/${row.original.deviceCategory}/side-view/blue.svg`,
+          running: `/${validCategory}/side-view/green.svg`,
+          idle: `/${validCategory}/side-view/yellow.svg`,
+          stopped: `/${validCategory}/side-view/red.svg`,
+          inactive: `/${validCategory}/side-view/grey.svg`,
+          overspeed: `/${validCategory}/side-view/orange.svg`,
+          new: `/${validCategory}/side-view/blue.svg`,
         };
         return (
           statusToImageUrl[
