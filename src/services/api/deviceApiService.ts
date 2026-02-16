@@ -58,4 +58,35 @@ export const deviceApiService = {
     );
     return res.data;
   },
+
+  getExpiredDevices: async (params: {
+    page?: number;
+    limit?: number;
+    search?: string;
+    schoolId?: string;
+    branchId?: string;
+  }): Promise<GetExpiredDevicesResponse> => {
+    const res = await api.get("/deivce/expired", { params });
+    return res.data;
+  },
 };
+
+export interface ExpiredDeviceData {
+  name: string;
+  uniqueId: string;
+  expirationdate: string;
+}
+
+export interface GetExpiredDevicesResponse {
+  success: boolean;
+  days: number;
+  search: string;
+  page: number;
+  limit: number;
+  expiredTotal: number;
+  expiringSoonTotal: number;
+  expiredTotalPages: number;
+  expiringSoonTotalPages: number;
+  expired: ExpiredDeviceData[];
+  expiringSoon: ExpiredDeviceData[];
+}

@@ -329,6 +329,52 @@ export const getStudentColumns = (
     },
   ];
 
+export const getRenewalColumns = (
+  activeTab: string
+): ColumnDef<Device>[] => [
+    {
+      accessorKey: "name",
+      header: "Vehicle Name",
+      cell: ({ row }) => <span className="font-medium">{row.original.name || "N/A"}</span>,
+    },
+    {
+      accessorKey: "uniqueId",
+      header: "IMEI / Unique ID",
+      cell: ({ row }) => <span className="text-gray-600">{row.original.uniqueId}</span>,
+    },
+    { accessorKey: "schoolName", header: "Admin Name", cell: ({ row }) => <span className="text-gray-600">{row.original.schoolName}</span> },
+    { accessorKey: "branchName", header: "User Name", cell: ({ row }) => <span className="text-gray-600">{row.original.branchName}</span> },
+    {
+      accessorKey: "expirationdate",
+      header: "Expiration Date",
+      cell: ({ row }) => {
+        const date = row.original.expirationdate;
+        if (!date) return "N/A";
+        return (
+          <span className={`${activeTab === "expired" ? "text-red-600 font-semibold" : "text-amber-600 font-semibold"}`}>
+            {new Date(date).toLocaleDateString("en-GB", {
+              day: "2-digit",
+              month: "short",
+              year: "numeric",
+            })}
+          </span>
+        );
+      },
+    },
+    {
+      id: "status",
+      header: "Status",
+      cell: () => (
+        <span className={`px-2 py-1 rounded-full text-xs font-semibold ${activeTab === "expired"
+          ? "bg-red-100 text-red-700 border border-red-200"
+          : "bg-amber-100 text-amber-700 border border-amber-200"
+          }`}>
+          {activeTab === "expired" ? "Expired" : "Expiring Soon"}
+        </span>
+      ),
+    }
+  ];
+
 // DEVICE COLUMNS START
 const getDaysRemaining = (dateStr: string) => {
   const today = new Date();
