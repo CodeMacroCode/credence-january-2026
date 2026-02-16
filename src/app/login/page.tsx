@@ -105,7 +105,7 @@ export default function LoginPage() {
       {/* Background Overlay */}
       <div className="absolute inset-0 z-0">
         <Image
-          src="/background.jpeg"
+          src="/background.webp"
           alt="Background Pattern"
           fill
           className="object-cover"
@@ -116,18 +116,6 @@ export default function LoginPage() {
       <div className="flex w-full max-w-6xl h-[800px] overflow-hidden rounded-3xl shadow-2xl bg-transparent border border-white/10 backdrop-blur-sm">
         {/* Left Panel - Branding & Info */}
         <div className="hidden lg:flex w-1/2 bg-[#0F2557]/90 relative flex-col justify-between p-16 overflow-hidden text-white border-r border-white/10">
-
-          {/* Background Overlay */}
-          <div className="absolute inset-0 z-0">
-            <Image
-              src="/login-bg.png"
-              alt="Background Pattern"
-              fill
-              className="object-cover opacity-30 mix-blend-overlay"
-              priority
-            />
-            <div className="absolute inset-0 bg-gradient-to-br from-[#0a1a3f]/90 to-[#1e3a8a]/80" />
-          </div>
 
           {/* Top: Logo */}
           <div className="relative bottom-16 right-6 z-10 flex items-center gap-3">
@@ -143,13 +131,36 @@ export default function LoginPage() {
 
           {/* Center: Hero Text */}
           <div className="relative z-10 max-w-xl mt-auto mb-auto">
-            <h1 className="text-5xl font-bold leading-tight mb-36 tracking-tight">
+            <h1 className="text-5xl font-bold leading-tight mb-12 tracking-tight">
               Real-time visibility for <br /> every mile.
             </h1>
-            {/* <div className="space-y-4 text-blue-100/90 text-lg leading-relaxed font-light">
-              <p className="italic font-medium">"Your child&apos;s safety, our peace of mind."</p>
-              <p>Manage your fleet with precision and confidence.</p>
-            </div> */}
+
+            <div className="flex flex-col gap-4">
+              <div className="flex items-center gap-6">
+                <div className="flex flex-col items-center gap-2">
+                  <div className="rounded-lg shadow-lg/20 hover:scale-105 transition-transform duration-300">
+                    <Image
+                      src="/qr-code/playstore.png"
+                      alt="Get it on Google Play"
+                      width={200}
+                      height={200}
+                      className="w-[150px] h-[150px] object-contain"
+                    />
+                  </div>
+                </div>
+                <div className="flex flex-col items-center gap-2">
+                  <div className="rounded-lg shadow-lg/20 hover:scale-105 transition-transform duration-300">
+                    <Image
+                      src="/qr-code/app-store.png"
+                      alt="Download on the App Store"
+                      width={200}
+                      height={200}
+                      className="w-[150px] h-[150px] object-contain"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 
