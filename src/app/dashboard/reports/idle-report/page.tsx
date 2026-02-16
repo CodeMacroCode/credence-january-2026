@@ -14,7 +14,7 @@ import { useExport } from "@/hooks/useExport";
 import { api } from "@/services/apiService";
 import { IdleReport } from "@/interface/modal";
 import { toast } from "sonner";
-import { getStopReportColumns } from "@/components/columns/columns";
+import { getIdleReportColumns } from "@/components/columns/columns";
 import { useIdleReport } from "@/hooks/reports/useIdleReport";
 import { useQueryClient } from "@tanstack/react-query";
 
@@ -41,7 +41,7 @@ const IdleReportPage: React.FC = () => {
     setDownloadLabel(label);
   };
 
-  const columns = getStopReportColumns();
+  const columns = getIdleReportColumns();
   const { exportToPDF, exportToExcel } = useExport();
 
   const [apiFilters, setApiFilters] = useState<Record<string, any>>({
@@ -155,10 +155,13 @@ const IdleReportPage: React.FC = () => {
           },
         )
 
-        const name = cashedDeviceId?.find(
-          (item: { uniqueId: string; name: string }) =>
-            Number(item.uniqueId) === data?.data?.uniqueId,
-        )?.name;
+        const name =
+          cashedDeviceId?.find(
+            (item: { uniqueId: string; name: string }) =>
+              Number(item.uniqueId) === Number(row.uniqueId || data?.data?.uniqueId)
+          )?.name ||
+          row.name ||
+          "-";
 
         return {
           ...row,
@@ -167,6 +170,7 @@ const IdleReportPage: React.FC = () => {
           arrivalTime,
           departureTime,
           name,
+          duration: haltTime,
         };
       }),
     );
@@ -285,7 +289,7 @@ const IdleReportPage: React.FC = () => {
     enableVirtualization: true,
     estimatedRowHeight: 50,
     overscan: 10,
-    maxHeight: "calc(100dvh - 250px)",
+    maxHeight: "calc(100dvh - 400px)",
   });
 
   return (

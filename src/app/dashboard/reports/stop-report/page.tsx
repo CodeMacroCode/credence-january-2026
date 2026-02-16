@@ -261,7 +261,7 @@ const StopReportPage: React.FC = () => {
     enableVirtualization: true,
     estimatedRowHeight: 50,
     overscan: 10,
-    maxHeight: "calc(100dvh - 250px)",
+    maxHeight: "calc(100dvh - 400px)",
   });
 
   return (

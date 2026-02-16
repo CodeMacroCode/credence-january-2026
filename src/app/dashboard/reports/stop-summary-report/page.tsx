@@ -403,6 +403,7 @@ const StopSummaryReportPage: React.FC = () => {
         },
         {
             accessorKey: "name",
+            id: "vehicleNumber",
             header: "Vehicle Number",
             size: 200,
             cell: ({ row }) => {
@@ -636,13 +637,13 @@ const StopSummaryReportPage: React.FC = () => {
         columnVisibility,
         onColumnVisibilityChange: setColumnVisibility,
         emptyMessage: isFetching ? "Loading report data..." : "No data available. Generate a report to see details.",
-        pageSizeOptions: [10, 20, 30, 40, 50],
+        pageSizeOptions: [20, 30, 40, 50],
         enableSorting: false,
         showSerialNumber: false, // Disable default SN, use custom column
-        enableVirtualization: true,
+        enableVirtualization: false,
         estimatedRowHeight: 50,
         overscan: 5,
-        maxHeight: "calc(100vh - 380px)", // Adjusted to ensure pagination is visible
+        maxHeight: "calc(100vh - 400px)", // Adjusted to ensure pagination is visible
     });
 
     return (
@@ -670,7 +671,7 @@ const StopSummaryReportPage: React.FC = () => {
                     setHasGenerated(true);
                     setExpandedRows(new Set());
                     setExpandedDays(new Set()); // Reset Level 2
-                    setPagination({ pageIndex: 0, pageSize: 10 });
+                    setPagination({ pageIndex: 0, pageSize: 20 });
                 }}
                 className="mb-4 flex-shrink-0"
                 config={{
@@ -693,7 +694,7 @@ const StopSummaryReportPage: React.FC = () => {
             />
 
             {hasGenerated && (
-                <div className="bg-white rounded-md shadow border overflow-hidden flex-1">
+                <div>
                     {tableElement}
                 </div>
             )}

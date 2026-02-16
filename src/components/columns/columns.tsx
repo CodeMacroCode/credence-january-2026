@@ -1505,21 +1505,12 @@ export const getIdleReportColumns = (): ColumnDef<IdleReport>[] => [
   },
   {
     header: "Duration",
-    accessorKey: "time",
+    accessorKey: "duration",
   },
-  {
-    header: "Distance",
-    accessorKey: "distance",
-  },
-  {
-    header: "Max Speed",
-    accessorKey: "maxSpeed",
-  },
-
   {
     header: "Start Time",
-    accessorFn: (row: StatusReport) =>
-      new Date(row.startDateTime).toLocaleString("en-IN", {
+    accessorFn: (row: IdleReport) =>
+      new Date(row.idleStartTime).toLocaleString("en-IN", {
         day: "2-digit",
         month: "short",
         year: "numeric",
@@ -1530,17 +1521,38 @@ export const getIdleReportColumns = (): ColumnDef<IdleReport>[] => [
       }),
   },
   {
-    header: "Start Location",
-    accessorKey: "startLocation",
+    header: "Location",
+    accessorKey: "location",
   },
   {
-    header: "Start Coordinates",
-    accessorKey: "startCoordinates",
+    header: "Coordinates",
+    accessorFn: (row: IdleReport) => `${row.latitude},${row.longitude}`,
+    cell: ({ getValue }) => {
+      const value = getValue<string>();
+      const [lat, lng] = value.split(",");
+
+      return (
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <a
+              href={`https://www.google.com/maps?q=${lat},${lng}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-blue-600 underline"
+            >
+              {lat}, {lng}
+            </a>
+          </TooltipTrigger>
+          <TooltipContent>Open in Google Maps</TooltipContent>
+        </Tooltip>
+      );
+    },
+    meta: { wrapConfig: { wrap: "wrap", maxWidth: "260px" } },
   },
   {
     header: "End Time",
-    accessorFn: (row: StatusReport) =>
-      new Date(row.endDateTime).toLocaleString("en-IN", {
+    accessorFn: (row: IdleReport) =>
+      new Date(row.idleEndTime).toLocaleString("en-IN", {
         day: "2-digit",
         month: "short",
         year: "numeric",
@@ -1549,14 +1561,6 @@ export const getIdleReportColumns = (): ColumnDef<IdleReport>[] => [
         second: "2-digit",
         hour12: true,
       }),
-  },
-  {
-    header: "End Location",
-    accessorKey: "endLocation",
-  },
-  {
-    header: "End Coordinates",
-    accessorKey: "endCoordinates",
   },
 ];
 

@@ -360,8 +360,8 @@ export interface IdleReport {
   vehicleStatus: string;
   name: string;
   time: string;
-  startDateTime: string;
-  endDateTime: string;
+  idleStartTime: string;
+  idleEndTime: string;
   startLocation: string;
   startCoordinates: string;
   endLocation: string;
@@ -369,6 +369,13 @@ export interface IdleReport {
   distance: number;
   maxSpeed: number;
   avgSpeed: number;
+  latitude: number;
+  longitude: number;
+  location?: string;
+  haltTime?: string;
+  arrivalTime?: string;
+  departureTime?: string;
+  duration?: string;
 }
 
 export interface GetIdleReportResponse {

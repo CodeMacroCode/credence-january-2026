@@ -140,7 +140,7 @@ const DistanceReportPage: React.FC = () => {
 
     const sample = rows[0];
     const dateKeys = Object.keys(sample).filter(
-      (k) => !["name", "totalKm"].includes(k)
+      (k) => !["name", "totalKm", "message"].includes(k)
     );
 
     const columns = [
@@ -255,7 +255,7 @@ const DistanceReportPage: React.FC = () => {
 
     const rawRow = distanceReport[0];
     const dateKeys = Object.keys(rawRow).filter(
-      (k) => !["name", "totalKm"].includes(k)
+      (k) => !["name", "totalKm", "message"].includes(k)
     );
 
     const newColumns = [
@@ -329,7 +329,7 @@ const DistanceReportPage: React.FC = () => {
     enableVirtualization: true,
     estimatedRowHeight: 50,
     overscan: 5,
-    maxHeight: "calc(100dvh - 250px)",
+    maxHeight: "calc(100dvh - 400px)",
   });
 
   return (
