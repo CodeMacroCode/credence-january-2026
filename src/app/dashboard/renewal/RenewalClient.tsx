@@ -106,11 +106,11 @@ export default function RenewalClient() {
         enableVirtualization: true,
         estimatedRowHeight: 50,
         overscan: 5,
-        maxHeight: "calc(100vh - 400px)",
+        maxHeight: "calc(100vh - 430px)",
     });
 
     return (
-        <div className="h-full flex flex-col space-y-4 p-4 bg-gray-50/50">
+        <div className="h-full flex flex-col space-y-4 p-4 bg-gray-50/50 overflow-hidden">
             <ResponseLoader isLoading={isLoading} />
 
             {/* Header & Stats */}
