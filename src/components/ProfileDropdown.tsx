@@ -31,7 +31,7 @@ import {
 
 export function ProfileDropdown() {
   const router = useRouter();
-  const token = localStorage.getItem("token");
+  const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
   const decodedToken = token ? getDecodedToken(token) : null;
   const username = decodedToken?.username || "User"; // Default username if not defined
 

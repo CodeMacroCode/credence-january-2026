@@ -142,7 +142,7 @@ class DeviceService {
 
   // Connection properties
   private socket: Socket | null = null;
-  private token = localStorage.getItem("token");
+  private token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
   private baseUrl: string;
   private isConnected = false;
   private isAuthenticated = false;
