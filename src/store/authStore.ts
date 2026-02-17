@@ -73,6 +73,7 @@ export const useAuthStore = create<AuthState>((set) => ({
 
   logout: () => {
     Cookies.remove("token");
+    localStorage.removeItem("token");
 
     // Disconnect sockets
     useDeviceStore.getState().disconnect();
