@@ -108,8 +108,8 @@ export const BottomDrawer = ({
               <div className="min-w-max flex gap-1 items-center">
                 <button
                   className={`rounded-sm text-black border border-black px-2 py-1 transition-colors duration-200 cursor-pointer ${!canTrack
-                      ? "opacity-50 cursor-not-allowed bg-gray-100 hover:bg-gray-100 hover:text-black"
-                      : "hover:bg-black hover:text-white"
+                    ? "opacity-50 cursor-not-allowed bg-gray-100 hover:bg-gray-100 hover:text-black"
+                    : "hover:bg-black hover:text-white"
                     }`}
                   disabled={!canTrack}
                   onClick={() => {
@@ -158,7 +158,7 @@ export const BottomDrawer = ({
           <div className="p-3 sm:p-4 space-y-4">
             {selectedDevice ? (
               <>
-                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4">
                   <div>
                     <label className="flex items-center gap-2">
                       <img
@@ -188,22 +188,6 @@ export const BottomDrawer = ({
                           ? distance?.totalDistance
                           : 0
                         }` + " km"}
-                    </p>
-                  </div>
-                  <div>
-                    <label className="flex items-center gap-2">
-                      <img
-                        src="/dashboard-icons/todays-distance.svg"
-                        className="w-6"
-                        alt=""
-                      />{" "}
-                      <span className="text-stone-600">Today's Distance</span>
-                    </label>
-                    <p className="ml-8">
-                      {isLoading
-                        ? "Loading..."
-                        : `${distance?.distance ? distance?.distance : 0}` +
-                        " km"}
                     </p>
                   </div>
                   <div>
