@@ -526,6 +526,12 @@ export default function DashboardClient() {
     estimatedRowHeight: 20,
     overscan: 5,
     maxHeight: "calc(100dvh - 340px)",
+    getRowClassName: (row: DeviceData) => {
+      if (row.expired && userRole !== "superadmin") {
+        return "bg-gray-400/40 relative cursor-not-allowed after:content-['Subscription_Expired'] after:absolute after:inset-0 after:flex after:items-center after:justify-start after:pl-[500px] after:text-red-700 after:font-bold after:text-xl after:opacity-80 after:uppercase after:tracking-wider after:pointer-events-none";
+      }
+      return "";
+    },
   });
 
   const bottomDrawerProps = useMemo(() => {
@@ -547,7 +553,6 @@ export default function DashboardClient() {
     addresses,
     loadingAddresses,
     handleOpenLiveTrack,
-
     handleOpenRouteTimeline,
     userRole,
   ]);

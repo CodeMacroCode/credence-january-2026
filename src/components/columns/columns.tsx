@@ -553,17 +553,24 @@ export const getLiveVehicleColumns = (userRole?: string): ColumnDef<LiveTrack>[]
       const isSuperAdmin = userRole === "superadmin";
 
       if (isExpired && !isSuperAdmin) {
+        const validCategory = getValidDeviceCategory(row.original.deviceCategory);
+        const imageUrl = `/${validCategory}/side-view/grey.svg`;
+
         return (
-          <div className="flex items-center justify-center flex-shrink-0">
-            <span className="text-red-500 font-bold text-xs text-center px-1">Subscription Expired</span>
+          <div className="flex items-center justify-center flex-shrink-0" title="Subscription Expired">
+            <img
+              src={imageUrl}
+              className="w-16 h-auto max-w-16 min-w-16 opacity-50 grayscale cursor-not-allowed"
+              alt="Subscription Expired"
+            />
           </div>
         )
       }
 
       const imageUrl = useMemo(() => {
         const validCategory = getValidDeviceCategory(row.original.deviceCategory);
-        console.log(row.original.deviceCategory, "deviceCategory")
-        console.log(validCategory, "validCategory")
+        // console.log(row.original.deviceCategory, "deviceCategory")
+        // console.log(validCategory, "validCategory")
         const statusToImageUrl = {
           running: `/${validCategory}/side-view/green.svg`,
           idle: `/${validCategory}/side-view/yellow.svg`,
@@ -572,13 +579,13 @@ export const getLiveVehicleColumns = (userRole?: string): ColumnDef<LiveTrack>[]
           overspeed: `/${validCategory}/side-view/orange.svg`,
           new: `/${validCategory}/side-view/blue.svg`,
         };
-        console.log(statusToImageUrl, "statusToImageUrl")
+        // console.log(statusToImageUrl, "statusToImageUrl")
         return (
           statusToImageUrl[
           String(row.original.category) as keyof typeof statusToImageUrl
           ] || statusToImageUrl.inactive
         );
-      }, [row.original.category]);
+      }, [row.original.category, row.original.deviceCategory]);
 
       return (
         <div className="flex items-center justify-center flex-shrink-0">

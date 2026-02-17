@@ -126,6 +126,7 @@ export function CustomTableServerSidePagination<
   enableVirtualization = false,
   estimatedRowHeight = 50,
   overscan = 5,
+  getRowClassName,
 }: DataTableProps<T>) {
   const tableContainerRef = useRef<HTMLDivElement>(null);
 
@@ -442,7 +443,7 @@ export function CustomTableServerSidePagination<
                           className={`border-b hover:bg-muted/50 ${enableRowClick && onRowClick
                             ? "cursor-pointer"
                             : ""
-                            }`}
+                            } ${getRowClassName ? getRowClassName(rowData, isSelected) : ""}`}
                           onClick={(event) => handleRowClick(row, event)}
                           data-selected={isSelected}
                           data-row-id={rowId}
