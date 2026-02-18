@@ -9,7 +9,7 @@ import { Save, ExternalLink } from "lucide-react";
 import { Branch, Geofence, Route, School } from "@/interface/modal";
 import { useRouteDropdown } from "@/hooks/useDropdown";
 import { Combobox } from "@/components/ui/combobox";
-import { TimePicker12 } from "../time-picker-12h";
+// import { TimePicker12 } from "../time-picker-12h";
 import { useGeofenceStore } from "@/store/geofenceStore";
 import { toast } from "sonner";
 
@@ -46,48 +46,14 @@ interface Props {
   handleSchoolSelect: (school: School | null) => void;
   selectedBranch: Branch | null;
   handleBranchSelect: (branch: Branch | null) => void;
-  pickupTime: Date | undefined;
-  setPickupTime: (time: Date | undefined) => void;
-  dropTime: Date | undefined;
-  setDropTime: (time: Date | undefined) => void;
   role: string;
   schools: School[];
   branches: Branch[];
 }
 
-function parseTimeStringToDate(timeString: string): Date | null {
-  try {
-    const match = timeString.match(/(\d+):(\d+)\s*(am|pm)/i);
-    if (!match) return null;
 
-    let hours = parseInt(match[1], 10);
-    const minutes = parseInt(match[2], 10);
-    const meridiem = match[3].toLowerCase();
-
-    if (meridiem === "pm" && hours < 12) {
-      hours += 12;
-    } else if (meridiem === "am" && hours === 12) {
-      hours = 0;
-    }
-
-    const date = new Date();
-    date.setHours(hours);
-    date.setMinutes(minutes);
-    date.setSeconds(0);
-    date.setMilliseconds(0);
-
-    return date;
-  } catch (error) {
-    console.error("Failed to parse time string:", timeString, error);
-    return null;
-  }
-}
 
 const GeofenceConfigurationPanel: React.FC<Props> = ({
-  pickupTime,
-  setPickupTime,
-  dropTime,
-  setDropTime,
   handleRouteSelect,
   handleBranchSelect,
   handleSchoolSelect,
@@ -184,16 +150,7 @@ const GeofenceConfigurationPanel: React.FC<Props> = ({
         updateCoordinates(lat, lng);
       }
 
-      // Times
-      if (editRowData.pickupTime) {
-        const pickupDate = parseTimeStringToDate(editRowData.pickupTime);
-        if (pickupDate) setPickupTime(pickupDate);
-      }
 
-      if (editRowData.dropTime) {
-        const dropDate = parseTimeStringToDate(editRowData.dropTime);
-        if (dropDate) setDropTime(dropDate);
-      }
 
       // School
       if (editRowData.schoolId) {
@@ -280,10 +237,7 @@ const GeofenceConfigurationPanel: React.FC<Props> = ({
   }, [editRowData]);
 
   // Debug current state
-  useEffect(() => {
-    console.log(dropTime);
-    console.log(pickupTime);
-  }, [dropTime, pickupTime]);
+
 
   return (
     <Card className="absolute top-14 right-4 w-auto min-w-[500px] max-w-[60vw] z-[1000]">
@@ -293,7 +247,9 @@ const GeofenceConfigurationPanel: React.FC<Props> = ({
         <div className="flex justify-around items-center">
           {role === "superAdmin" && (
             <div className="space-y-2">
-              <Label>Adminl</Label>
+              <Label>
+                Admin <span className="text-red-500">*</span>
+              </Label>
               <Combobox
                 items={schoolItems}
                 value={selectedSchool?._id}
@@ -311,7 +267,9 @@ const GeofenceConfigurationPanel: React.FC<Props> = ({
 
           {["superAdmin", "branchGroup", "school"].includes(role) && (
             <div className="space-y-2">
-              <Label>User</Label>
+              <Label>
+                User <span className="text-red-500">*</span>
+              </Label>
               <Combobox
                 items={branchItems}
                 value={selectedBranch?._id}
@@ -374,7 +332,9 @@ const GeofenceConfigurationPanel: React.FC<Props> = ({
         </div>
 
         <div className="space-y-2">
-          <Label>Geofence Name</Label>
+          <Label>
+            Geofence Name <span className="text-red-500">*</span>
+          </Label>
           <Input
             type="text"
             placeholder="Enter geofence name"
@@ -385,7 +345,9 @@ const GeofenceConfigurationPanel: React.FC<Props> = ({
         </div>
 
         <div className="space-y-2">
-          <Label>Radius (meters)</Label>
+          <Label>
+            Radius (meters) <span className="text-red-500">*</span>
+          </Label>
           <Input
             type="number"
             placeholder="Enter radius in meters"
@@ -395,16 +357,7 @@ const GeofenceConfigurationPanel: React.FC<Props> = ({
           />
         </div>
 
-        <div className="grid grid-cols-2 gap-4">
-          <div className="space-y-2">
-            <Label>Pickup time</Label>
-            <TimePicker12 date={pickupTime} setDate={setPickupTime} />
-          </div>
-          <div className="space-y-2">
-            <Label>Drop time</Label>
-            <TimePicker12 date={dropTime} setDate={setDropTime} />
-          </div>
-        </div>
+
 
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-1">

@@ -710,8 +710,6 @@ const SingleDeviceLiveTrack: React.FC<SingleDeviceLiveTrackProps> = ({
         center: [geofenceCenter![0], geofenceCenter![1]],
         radius: geofenceRadius,
       },
-      pickupTime: payload.pickupTime,
-      dropTime: payload.dropTime,
       schoolId: schoolId || payload.schoolId,
       branchId: branchId || payload.branchId,
       routeObjId: routeObjId || payload.routeObjId,

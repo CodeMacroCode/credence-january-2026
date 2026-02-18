@@ -15,7 +15,6 @@ import GeofenceConfigurationPanel from "./configuration-panel";
 import { Branch, Geofence, Route, School } from "@/interface/modal";
 import { useQueryClient } from "@tanstack/react-query";
 import "./style.css";
-import { parseTimeString } from "@/util/timeUtils";
 // import { useInfiniteRouteData } from "@/hooks/useInfiniteRouteData";
 import { useBranchDropdown, useSchoolDropdown } from "@/hooks/useDropdown";
 import { useGeofence } from "@/hooks/useGeofence";
@@ -47,8 +46,6 @@ interface GeofenceData {
     center?: number[];
     radius?: number;
   };
-  pickupTime?: Date;
-  dropTime?: Date;
   schoolId?: string;
   branchId?: string;
   routeObjId?: string;
@@ -107,8 +104,6 @@ const GeofenceManager: React.FC<GeofenceManagerProps> = ({
   const [selectedRoute, setSelectedRoute] = useState<Route | null>(null);
 
   const [debouncedQuery, setDebouncedQuery] = useState("");
-  const [pickupTime, setPickupTime] = useState<Date | undefined>(undefined);
-  const [dropTime, setDropTime] = useState<Date | undefined>(undefined);
 
   // Role-based state
   const [decodedToken, setDecodedToken] = useState<DecodedToken>({ role: "" });
@@ -262,8 +257,6 @@ const GeofenceManager: React.FC<GeofenceManagerProps> = ({
         name: initialData.geofenceName,
         coordinates: [[lng, lat]],
         radius: initialData.area.radius,
-        pickupTime: initialData.pickupTime,
-        dropTime: initialData.dropTime,
       });
 
       // Set address
@@ -275,34 +268,7 @@ const GeofenceManager: React.FC<GeofenceManagerProps> = ({
 
       // console.log("object", initialData);
 
-      // Handle time fields
-      if (initialData.pickupTime) {
-        try {
-          const pickupDate =
-            typeof initialData.pickupTime === "string"
-              ? parseTimeString(initialData.pickupTime, {
-                fallbackTime: new Date(),
-              })
-              : new Date(initialData.pickupTime);
-          setPickupTime(pickupDate);
-        } catch (error) {
-          // console.error("Error parsing pickup time:", error);
-        }
-      }
-
-      if (initialData.dropTime) {
-        try {
-          const dropDate =
-            typeof initialData.dropTime === "string"
-              ? parseTimeString(initialData.dropTime, {
-                fallbackTime: new Date(),
-              })
-              : new Date(initialData.dropTime);
-          setDropTime(dropDate);
-        } catch (error) {
-          console.error("Error parsing drop time:", error);
-        }
-      }
+      // Handle time fields - REMOVED
 
       // Set school/branch/route
       if (geofenceSchoolId) {
@@ -357,10 +323,7 @@ const GeofenceManager: React.FC<GeofenceManagerProps> = ({
       setSelectedSchool(null);
       setSelectedBranch(null);
       setSelectedRoute(null);
-      setSchoolId(undefined);
       setBranchId(undefined);
-      setPickupTime(undefined);
-      setDropTime(undefined);
       setTempGeofence(null);
       setCurrentCoords({ lat: 21.1286677, lng: 79.1038211 });
 
@@ -399,8 +362,6 @@ const GeofenceManager: React.FC<GeofenceManagerProps> = ({
           geofenceName: currentGeofenceName || `New Geofence`,
           coordinates: [[newCoords.lng, newCoords.lat]],
           radius: currentRadius,
-          pickupTime,
-          dropTime,
         });
         setCurrentGeofenceName(currentGeofenceName || `New Geofence`);
       });
@@ -414,6 +375,23 @@ const GeofenceManager: React.FC<GeofenceManagerProps> = ({
         map.current.remove();
         map.current = null;
       }
+    };
+  }, []);
+
+  // Handle resize
+  useEffect(() => {
+    if (!mapContainer.current) return;
+
+    const resizeObserver = new ResizeObserver(() => {
+      if (map.current) {
+        map.current.invalidateSize();
+      }
+    });
+
+    resizeObserver.observe(mapContainer.current);
+
+    return () => {
+      resizeObserver.disconnect();
     };
   }, []);
 
@@ -559,8 +537,6 @@ const GeofenceManager: React.FC<GeofenceManagerProps> = ({
         "New Geofence",
       coordinates: [[lng, lat]],
       radius: currentRadius,
-      pickupTime,
-      dropTime,
     });
   };
 
@@ -648,14 +624,7 @@ const GeofenceManager: React.FC<GeofenceManagerProps> = ({
     setSelectedRoute(route);
   };
 
-  const formatTime = (date?: Date) => {
-    if (!date) return "";
-    return date.toLocaleTimeString([], {
-      hour: "2-digit",
-      minute: "2-digit",
-      hour12: true,
-    });
-  };
+
 
   const saveGeofences = async () => {
     if (!tempGeofence) {
@@ -677,8 +646,6 @@ const GeofenceManager: React.FC<GeofenceManagerProps> = ({
         schoolId: selectedSchool?._id,
         branchId: selectedBranch?._id,
         routeObjId: selectedRoute?._id,
-        pickupTime: pickupTime ? formatTime(pickupTime) : "",
-        dropTime: dropTime ? formatTime(dropTime) : undefined,
       };
 
 
@@ -704,14 +671,8 @@ const GeofenceManager: React.FC<GeofenceManagerProps> = ({
         },
         schoolId: parsed.data.schoolId,
         branchId: parsed.data.branchId,
-        routeObjId: parsed.data.routeObjId,
+        routeObjId: selectedRoute?._id,
         address,
-        ...(parsed.data.pickupTime && {
-          pickupTime: parsed.data.pickupTime,
-        }),
-        ...(parsed.data.dropTime && {
-          dropTime: parsed.data.dropTime,
-        }),
       };
 
       if (mode === "add") {
@@ -769,10 +730,6 @@ const GeofenceManager: React.FC<GeofenceManagerProps> = ({
 
       {/* Configuration Panel */}
       <GeofenceConfigurationPanel
-        pickupTime={pickupTime}
-        setPickupTime={setPickupTime}
-        dropTime={dropTime}
-        setDropTime={setDropTime}
         selectedSchool={selectedSchool}
         handleSchoolSelect={handleSchoolSelect}
         selectedBranch={selectedBranch}

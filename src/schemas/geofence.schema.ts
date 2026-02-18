@@ -26,13 +26,4 @@ export const geofenceSchema = z.object({
     .string({ required_error: "Branch is required" })
     .min(1, "Branch is required"),
 
-  routeObjId: z
-    .string({ required_error: "Route is required" })
-    .min(1, "Route is required"),
-
-  pickupTime: z
-    .string({ required_error: "Pickup time is required" })
-    .min(1, "Pickup time is required"),
-
-  dropTime: z.string().optional(), // ❌ NOT mandatory
 });

@@ -19,7 +19,6 @@ import {
 } from "@/interface/modal";
 import { CellContent } from "@/components/ui/CustomTable";
 import { Eye, EyeOff, Locate } from "lucide-react";
-import { calculateTimeSince } from "@/util/calculateTimeSince";
 import React, { useMemo } from "react";
 import { Button } from "../ui/button";
 import Image from "next/image";
@@ -1007,27 +1006,27 @@ export const getGeofenceCoumns = (
       enableHiding: true,
       enableSorting: true,
     },
-    {
-      id: "routeNumber",
-      header: "Route Number",
-      accessorFn: (row) => row.route?.routeNumber || "N/A",
-      enableHiding: true,
-      enableSorting: true,
-    },
-    {
-      id: "pickupTime",
-      header: "Pickup Time",
-      accessorFn: (row) => row.pickupTime || "N/A",
-      enableHiding: true,
-      enableSorting: true,
-    },
-    {
-      id: "dropTime",
-      header: "Drop Time",
-      accessorFn: (row) => row.dropTime || "N/A",
-      enableHiding: true,
-      enableSorting: true,
-    },
+    // {
+    //   id: "routeNumber",
+    //   header: "Route Number",
+    //   accessorFn: (row) => row.route?.routeNumber || "N/A",
+    //   enableHiding: true,
+    //   enableSorting: true,
+    // },
+    // {
+    //   id: "pickupTime",
+    //   header: "Pickup Time",
+    //   accessorFn: (row) => row.pickupTime || "N/A",
+    //   enableHiding: true,
+    //   enableSorting: true,
+    // },
+    // {
+    //   id: "dropTime",
+    //   header: "Drop Time",
+    //   accessorFn: (row) => row.dropTime || "N/A",
+    //   enableHiding: true,
+    //   enableSorting: true,
+    // },
     {
       id: "actions",
       header: "Actions",

@@ -618,7 +618,7 @@ export default function DashboardClient() {
             {/* Search Bar (Left) */}
             <div className="relative w-full lg:w-1/3">
               <Input
-                placeholder="Search bus number"
+                placeholder="Search vehicle number or device IMEI"
                 className="w-full pl-9 bg-gray-50 border-gray-200 focus:bg-white transition-colors"
                 value={searchInput}
                 onChange={(e) => handleSearchChange(e.target.value)}

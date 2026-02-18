@@ -8,8 +8,6 @@ export type UserRole = "admin" | "user" | "superAdmin" | "school" | "branch";
 
 export interface GeofenceFormData {
   geofenceName: string;
-  pickupTime: string;
-  dropTime: string;
 }
 
 export interface GeofencePayload extends GeofenceFormData {
@@ -25,7 +23,7 @@ export interface GeofencePayload extends GeofenceFormData {
 interface GeofenceFormProps {
   center: [number, number];
   radius: number;
-  onSubmit: (data: GeofencePayload) => void;
+  onSubmit: (data: Omit<GeofencePayload, "area">) => void;
   onCancel: () => void;
   schoolId?: string;
   branchId?: string;
@@ -36,17 +34,8 @@ interface GeofenceFormProps {
 }
 
 // Utility function to convert 24-hour format to 12-hour AM/PM format
-const convertTo12Hour = (time24: string): string => {
-  const [hours, minutes] = time24.split(":").map(Number);
-
-  const period = hours >= 12 ? "PM" : "AM";
-  const hours12 = hours % 12 || 12; // Convert 0 to 12 for midnight
-  const hoursFormatted = hours12 < 10 ? `0${hours12}` : hours12;
-
-  const minutesFormatted = minutes < 10 ? `0${minutes}` : minutes;
-
-  return `${hoursFormatted}:${minutesFormatted} ${period}`;
-};
+// Utility function to convert 24-hour format to 12-hour AM/PM format
+// Removed convertTo12Hour as it is no longer used
 
 const GeofenceFormComponent: React.FC<GeofenceFormProps> = memo(
   ({
@@ -63,8 +52,6 @@ const GeofenceFormComponent: React.FC<GeofenceFormProps> = memo(
   }) => {
     const [formData, setFormData] = useState<GeofenceFormData>({
       geofenceName: "",
-      pickupTime: "",
-      dropTime: "",
     });
     const [selectedSchool, setSelectedSchool] = useState(schoolId);
     const [selectedBranch, setSelectedBranch] = useState(branchId);
@@ -90,22 +77,13 @@ const GeofenceFormComponent: React.FC<GeofenceFormProps> = memo(
       role,
     });
 
-    const convertTo12Hour = (time24: string): string => {
-      const [hours, minutes] = time24.split(":").map(Number);
-      const period = hours >= 12 ? "PM" : "AM";
-      const hours12 = hours % 12 || 12;
-      const hoursFormatted = hours12 < 10 ? `0${hours12}` : hours12;
-      const minutesFormatted = minutes < 10 ? `0${minutes}` : minutes;
-      return `${hoursFormatted}:${minutesFormatted} ${period}`;
-    };
+
 
     const handleSubmit = (e: React.FormEvent) => {
       e.preventDefault();
 
       const payload = {
         geofenceName: formData.geofenceName,
-        pickupTime: convertTo12Hour(formData.pickupTime),
-        dropTime: convertTo12Hour(formData.dropTime),
         schoolId: selectedSchool,
         branchId: selectedBranch,
         routeObjId: selectedRoute,
@@ -126,14 +104,6 @@ const GeofenceFormComponent: React.FC<GeofenceFormProps> = memo(
 
     const handleGeofenceNameChange = useMemo(
       () => handleInputChange("geofenceName"),
-      [handleInputChange]
-    );
-    const handlePickupTimeChange = useMemo(
-      () => handleInputChange("pickupTime"),
-      [handleInputChange]
-    );
-    const handleDropTimeChange = useMemo(
-      () => handleInputChange("dropTime"),
       [handleInputChange]
     );
 
@@ -302,23 +272,7 @@ const GeofenceFormComponent: React.FC<GeofenceFormProps> = memo(
             />
           </div> */}
 
-          <FormInput
-            label="Pickup Time"
-            type="time"
-            value={formData.pickupTime}
-            onChange={handlePickupTimeChange}
-            required
-            disabled={isLoading}
-          />
 
-          <FormInput
-            label="Drop Time"
-            type="time"
-            value={formData.dropTime}
-            onChange={handleDropTimeChange}
-            required
-            disabled={isLoading}
-          />
 
           <GeofenceDetails center={center} radius={radius} />
           <FormActions isLoading={isLoading} onCancel={onCancel} />
