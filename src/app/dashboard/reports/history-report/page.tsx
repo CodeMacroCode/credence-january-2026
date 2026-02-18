@@ -8,7 +8,7 @@ import FullScreenSpinner from "@/components/RouteLoader";
 import { formatDateToYYYYMMDD } from "@/util/formatDate";
 import { api } from "@/services/apiService";
 import TripsSidebar from "@/components/history/sliding-side-bar";
-import { Menu, Gauge, Clock } from "lucide-react";
+import { Menu, Gauge, Clock, MapPinOff } from "lucide-react";
 import dynamic from "next/dynamic";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useDeviceDropdownWithUniqueIdForHistory } from "@/hooks/useDropdown";
@@ -708,17 +708,28 @@ function HistoryReportContent() {
                   }`}
                 style={{ zIndex: 0 }}
               >
-                <VehicleMap
-                  data={activePlayback}
-                  stops={showStopsOnMap ? derivedStops : []}
-                  activeStopId={activeStopId}
-                  onStopClick={(id) => setActiveStopId(id)}
-                  currentIndex={displayIndex}
-                  isExpanded={isMapExpanded}
-                  onProgressChange={setPlaybackProgress}
-                  stopAddressMap={stopAddressMap}
-                  deviceCategory={deviceCategoryFromUrl || "CAR"}
-                />
+                {hasGenerated && (!activePlayback || activePlayback.length === 0) ? (
+                  <div className="flex flex-col items-center justify-center w-full h-full bg-white/50 backdrop-blur-sm rounded-lg border-2 border-dashed border-gray-300">
+                    <MapPinOff className="w-16 h-16 text-gray-400 mb-4" />
+                    <h3 className="text-xl font-semibold text-gray-700">No History Available</h3>
+                    <p className="text-gray-500 mt-2 text-center max-w-md px-4">
+                      No playback data found for the selected vehicle and date range.
+                      <br />Please try adjusting your filters.
+                    </p>
+                  </div>
+                ) : (
+                  <VehicleMap
+                    data={activePlayback}
+                    stops={showStopsOnMap ? derivedStops : []}
+                    activeStopId={activeStopId}
+                    onStopClick={(id) => setActiveStopId(id)}
+                    currentIndex={displayIndex}
+                    isExpanded={isMapExpanded}
+                    onProgressChange={setPlaybackProgress}
+                    stopAddressMap={stopAddressMap}
+                    deviceCategory={deviceCategoryFromUrl || "CAR"}
+                  />
+                )}
 
                 <div>
                   <div
