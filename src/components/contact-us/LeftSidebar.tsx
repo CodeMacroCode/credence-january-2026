@@ -24,6 +24,13 @@ const LeftSidebar = ({
   onSelectContact: (contact: Contact) => void;
   onToggleSidebar: () => void;
 }) => {
+  const [searchQuery, setSearchQuery] = React.useState("");
+
+  const filteredContacts = contacts.filter((contact) =>
+    contact.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    contact.phone.includes(searchQuery)
+  );
+
   return (
     <div
       className={`${showSidebar ? 'w-80' : 'w-0'
@@ -44,6 +51,8 @@ const LeftSidebar = ({
           <input
             type="text"
             placeholder="Search contacts..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
             className="w-full pl-10 pr-4 py-2 bg-blue-50 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 text-gray-800 placeholder-blue-700"
           />
         </div>
@@ -52,7 +61,7 @@ const LeftSidebar = ({
       {/* Contacts List */}
       <div className="flex-1 overflow-y-auto custom-scrollbar">
         <div className="py-2">
-          {contacts.map((contact) => (
+          {filteredContacts.map((contact) => (
             <div
               key={contact.id}
               onClick={() => onSelectContact(contact)}
@@ -93,6 +102,11 @@ const LeftSidebar = ({
               </div>
             </div>
           ))}
+          {filteredContacts.length === 0 && (
+            <div className="p-4 text-center text-gray-500 text-sm">
+              No contacts found
+            </div>
+          )}
         </div>
       </div>
 

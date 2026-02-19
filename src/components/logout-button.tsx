@@ -6,11 +6,15 @@ import { getMessaging, deleteToken } from "firebase/messaging";
 import { app } from "@/util/firebase"; // or wherever your Firebase app is initialized
 import Cookies from "js-cookie";
 import { LogOut } from "lucide-react";
+import { useState } from "react";
+import { LogoutLoader } from "./ui/logout-loader";
 
 export function LogoutButton() {
+  const [isLoading, setIsLoading] = useState(false);
   const logout = useAuthStore((state) => state.logout);
 
   const handleLogout = async () => {
+    setIsLoading(true);
     try {
       /**delete fcm token */
 
@@ -55,12 +59,18 @@ export function LogoutButton() {
       // Still logout even if token deletion fails
       logout();
       window.location.href = "/login";
+    } finally {
+      // We don't set loading to false here because we're redirecting
+      // if we did, it might flash before the redirect happens
     }
   };
 
   return (
-    <span onClick={handleLogout} className="cursor-pointer ml-2 w-full flex items-center gap-3">
-      <LogOut /> Logout
-    </span>
+    <>
+      {isLoading && <LogoutLoader />}
+      <span onClick={handleLogout} className="cursor-pointer ml-2 w-full flex items-center gap-3">
+        <LogOut /> Logout
+      </span>
+    </>
   );
 }

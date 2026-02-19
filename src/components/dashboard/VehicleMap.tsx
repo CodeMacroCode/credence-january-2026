@@ -209,7 +209,7 @@ const VehicleMarker = React.memo(
               <div className="detail-row">
                 <span className="label">Today's Distance:</span>
                 <span className="value">
-                  {vehicle.attributes.todayDistance} km
+                  {vehicle.todayKm} km
                 </span>
               </div>
               <div className="detail-row">

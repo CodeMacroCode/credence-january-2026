@@ -138,7 +138,7 @@ export function ProfileDropdown() {
           <span>Renewal</span>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
-        <DropdownMenuItem>
+        <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
           <LogoutButton />
         </DropdownMenuItem>
       </DropdownMenuContent>
