@@ -18,6 +18,7 @@ export const useLiveDeviceData = () => {
       { stopped: store.deviceData?.stoppedCount || 0 },
       { inactive: store.deviceData?.inactiveCount || 0 },
       { new: store.deviceData?.newCount || 0 },
+      { expiredCount: store.deviceData?.expiredCount || 0 },
     ],
 
     // Pagination

@@ -40,6 +40,7 @@ import { useAuthStore } from "@/store/authStore";
 import { Combobox } from "@/components/ui/combobox";
 import { FilterCard } from "@/components/dashboard/FilterCard";
 import { exportToExcel, exportToPdf } from "@/util/exportUtils";
+import { useRouter } from "next/navigation";
 
 type ViewState = "split" | "tableExpanded" | "mapExpanded";
 type StatusFilter = "all" | "running" | "idle" | "stopped" | "inactive" | "new";
@@ -48,6 +49,7 @@ type StatusFilter = "all" | "running" | "idle" | "stopped" | "inactive" | "new";
 const SUBSCRIPTION_POPUP_KEY = "subscription_popup_shown";
 
 export default function DashboardClient() {
+  const router = useRouter();
   const [open, setOpen] = useState(false);
 
   // Local search state (for input value)
@@ -500,6 +502,10 @@ export default function DashboardClient() {
     return statusCount ? statusCount[activeStatus] : 0;
   }, [counts, activeStatus]);
 
+  const expiredCount = useMemo(() => {
+    return counts.find((c) => c.expiredCount !== undefined)?.expiredCount || 0;
+  }, [counts]);
+
   // Server side pagination table instance
   const { table, tableElement } = CustomTableServerSidePagination({
     data: devices || [],
@@ -649,8 +655,20 @@ export default function DashboardClient() {
               </div>
             </div>
 
+
+
             {/* Controls (Right) */}
             <div className="flex items-center gap-2 w-full lg:w-auto justify-end">
+              {/* Expired Count Display */}
+              {expiredCount > 0 && (
+                <div 
+                  onClick={() => router.push("/dashboard/renewal")}
+                  className="flex w-full lg:w-auto justify-center lg:justify-start items-center gap-2 px-4 py-2 bg-red-50 text-red-600 rounded-md border border-red-100 shadow-sm animate-pulse cursor-pointer hover:bg-red-100 transition-colors"
+                >
+                  <span className="text-sm font-medium">Expired Vehicles:</span>
+                  <span className="text-sm font-bold">{expiredCount}</span>
+                </div>
+              )}
               {userRole !== "branch" && (
                 <Popover>
                   <PopoverTrigger asChild>

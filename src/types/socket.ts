@@ -65,6 +65,7 @@ export interface AllDeviceResponse {
   newCount: number;
   remainingCount: number;
   totalCountCheck: number;
+  expiredCount: number;
 }
 
 // Socket event interfaces for type safety
