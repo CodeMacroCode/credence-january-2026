@@ -88,7 +88,7 @@ export default function ModelPage() {
         columns={columnWithHandlers}
         isLoading={isLoading}
         showSerialNumber
-        maxHeight={450}
+        maxHeight={"calc(100vh - 250px)"}
         noDataMessage="No models added yet"
       />
 

@@ -40,7 +40,7 @@ export const getModelColumns = (
         type: "text",
         value: row.modelName ?? "",
       }),
-      meta: { minWidth: 570 },
+      meta: { minWidth: 200, maxWidth: 2000 },
       enableHiding: true,
     },
 
@@ -64,7 +64,7 @@ export const getModelColumns = (
           },
         ],
       }),
-      meta: { minWidth: 570 },
+      meta: { minWidth: 200, maxWidth: 2000 },
       enableSorting: false,
       enableHiding: true,
     },
@@ -80,7 +80,7 @@ export const getCategoryColumns = (
         type: "text",
         value: row.categoryName ?? "",
       }),
-      meta: { minWidth: 570 },
+      meta: { minWidth: 200, maxWidth: 2000 },
     },
     {
       header: "Action",
@@ -101,7 +101,7 @@ export const getCategoryColumns = (
           },
         ],
       }),
-      meta: { minWidth: 570 },
+      meta: { minWidth: 200, maxWidth: 2000 },
       enableSorting: false,
     },
   ];

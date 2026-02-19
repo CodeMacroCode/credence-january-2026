@@ -79,7 +79,7 @@ export default function CategoryPage() {
         columns={columnsWithHandlers}
         isLoading={isLoading}
         showSerialNumber
-        maxHeight={450}
+        maxHeight={"calc(100vh - 250px)"}
         noDataMessage="No categories added yet"
       />
 
