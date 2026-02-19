@@ -78,6 +78,7 @@ export default function DashboardClient() {
   });
   const [isRouteTimelineOpen, setIsRouteTimelineOpen] = useState(false);
   const [dynamicPageSize, setDynamicPageSize] = useState<number>(0);
+  const [mapType, setMapType] = useState<"roadmap" | "satellite">("roadmap");
   const [routeTimelineData, setRouteTimelineData] = useState<{
     uniqueId: string;
     deviceName: string;
@@ -605,6 +606,7 @@ export default function DashboardClient() {
           transform: scale(1.05);
           box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
         }
+
       `}</style>
 
       <ResponseLoader isLoading={isLoading} />
@@ -826,7 +828,7 @@ export default function DashboardClient() {
           {/* Main Layout */}
           <div className="dashboard">
             <div className="flex flex-col lg:flex-row gap-2 lg:gap-0">
-              <section className={`overflow-auto min-h-[300px] lg:min-h-0 ${getTableClass}`}>
+              <section className={`overflow-hidden min-h-[300px] lg:min-h-0 ${getTableClass}`}>
                 {viewState === "mapExpanded" && (
                   <div className="absolute top-1/2 left-0 z-50 hidden lg:block">
                     <button
@@ -878,37 +880,52 @@ export default function DashboardClient() {
                 </div>
               )}
 
+              {/* Collapse Button when Table is Expanded - Moved here to remain visible */}
+              {viewState === "tableExpanded" && (
+                <div className="hidden lg:flex flex-col justify-center items-center space-y-2 z-50 absolute top-1/2 right-2">
+                  <button
+                    onClick={handleExpandMap}
+                    className="p-2 rounded-full border border-gray-300 bg-white text-gray-600 hover:bg-primary hover:text-white transition-all duration-200 cursor-pointer shadow-lg hover:shadow-xl hover:-translate-y-0.5"
+                    title="Collapse table (Show map)"
+                  >
+                    <ChevronsLeft className="w-4 h-4" />
+                  </button>
+                </div>
+              )}
+
               {/* Right Side - Map */}
-              <section className={`${getMapClass} rounded-lg overflow-hidden min-h-[300px] lg:min-h-0`}>
+              <section className={`${getMapClass} rounded-lg overflow-hidden min-h-[300px] lg:min-h-0 relative`}>
                 {viewState !== "tableExpanded" && (
-                  <VehicleMap
-                    vehicles={mapDevices}
-                    height="calc(100dvh - 280px)"
-                    autoFitBounds={false}
-                    showTrails={false}
-                    clusterMarkers={true} // Always enable clustering for better performance
-                    zoom={6}
-                    selectedVehicleId={selectedVehicleId}
-                    onVehicleSelect={setSelectedVehicleId}
-                    fitBoundsTrigger={fitBoundsTrigger}
-                  />
+                  <>
+                    <div className="absolute top-4 right-4 z-[400] hidden lg:block">
+                      <button
+                        onClick={() => setMapType((prev) => (prev === "roadmap" ? "satellite" : "roadmap"))}
+                        className="p-2 rounded-full border border-gray-300 bg-white text-gray-600 hover:bg-gray-100 transition-all duration-200 cursor-pointer shadow-lg hover:shadow-xl hover:-translate-y-0.5 flex items-center justify-center"
+                        title={mapType === "roadmap" ? "Switch to Satellite" : "Switch to Map"}
+                        aria-label={mapType === "roadmap" ? "Switch to Satellite" : "Switch to Map"}
+                      >
+                        {mapType === "roadmap" ? (
+                          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-satellite"><path d="M13 7 9 3 5 7l4 4" /><path d="m17 11 4 4-4 4-4-4" /><path d="m8 12 4 4 6-6-4-4Z" /></svg>
+                        ) : (
+                          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-map"><path d="M14.106 5.553a2 2 0 0 0 1.788 0l3.659-1.83A1 1 0 0 1 21 4.619v12.764a1 1 0 0 1-.553.894l-4.553 2.277a2 2 0 0 1-1.788 0l-4.212-2.106a2 2 0 0 0-1.788 0l-3.659 1.83A1 1 0 0 1 3 19.381V6.618a1 1 0 0 1 .553-.894l4.553-2.277a2 2 0 0 1 1.788 0z" /><path d="M15 5.764v15" /><path d="M9 3.236v15" /></svg>
+                        )}
+                      </button>
+                    </div>
+                    <VehicleMap
+                      vehicles={mapDevices}
+                      height="calc(100dvh - 280px)"
+                      autoFitBounds={false}
+                      showTrails={false}
+                      clusterMarkers={true} // Always enable clustering for better performance
+                      zoom={6}
+                      selectedVehicleId={selectedVehicleId}
+                      onVehicleSelect={setSelectedVehicleId}
+                      fitBoundsTrigger={fitBoundsTrigger}
+                      mapType={mapType}
+                    />
+                  </>
                 )}
-                {viewState === "tableExpanded" && (
-                  <div className="absolute top-1/2 right-2 z-50 hidden lg:block">
-                    <button
-                      onClick={handleExpandMap}
-                      className={`p-2 rounded-full border border-gray-300 hover:bg-primary transition-all duration-200 cursor-pointer shadow-lg hover:shadow-xl hover:-translate-y-0.5  ${viewState === "mapExpanded"
-                        ? "bg-blue-100 "
-                        : "bg-white text-gray-600"
-                        }`}
-                      title={
-                        viewState === "mapExpanded" ? "Show both" : "Expand map"
-                      }
-                    >
-                      <ChevronsLeft className="w-4 h-4" />
-                    </button>
-                  </div>
-                )}
+
               </section>
             </div>
           </div>

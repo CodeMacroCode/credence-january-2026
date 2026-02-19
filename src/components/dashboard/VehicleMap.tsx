@@ -15,7 +15,7 @@ import "./VehicleMap.css";
 import { calculateTimeSince } from "@/util/calculateTimeSince";
 
 // Types based on your socket response
-import { DeviceData as VehicleData } from "@/types/socket";
+import { AllDeviceData as VehicleData } from "@/types/socket";
 
 interface VehicleMapProps {
   vehicles: VehicleData[];
@@ -29,7 +29,12 @@ interface VehicleMapProps {
   clusterMarkers?: boolean;
   autoFitBounds?: boolean;
   fitBoundsTrigger?: number;
+  mapType?: "roadmap" | "satellite";
 }
+
+// ... existing code ...
+
+
 
 // Custom cluster icon creator
 const createClusterCustomIcon = (cluster: any) => {
@@ -47,8 +52,8 @@ const createClusterCustomIcon = (cluster: any) => {
 
   return L.divIcon({
     html: `<div class="cluster-icon cluster-${size}">
-      <span class="cluster-count">${count}</span>
-    </div>`,
+          <span class="cluster-count">${count}</span>
+        </div>`,
     className: 'custom-cluster-marker',
     iconSize: L.point(dimensions, dimensions, true),
   });
@@ -86,21 +91,21 @@ const VehicleMarker = React.memo(
 
       return L.divIcon({
         html: `
-          <div class="vehicle-marker-container ${isSelected ? "selected" : ""}">
-            <img 
-              src="${imageUrl}" 
-              class="vehicle-marker-img"
-              style="
+        <div class="vehicle-marker-container ${isSelected ? " selected" : ""}">
+        <img
+          src="${imageUrl}"
+          class="vehicle-marker-img"
+          style="
                 transform: rotate(${rotationAngle}deg);
                 width: 100px;
                 height: 100px;
                 transform-origin: center center;
                 transition: transform 0.3s ease;
                 filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
-              " 
-              alt="Vehicle marker"
-            />
-          </div>
+              "
+          alt="Vehicle marker"
+        />
+    </div>
         `,
         className: "custom-vehicle-marker",
         iconSize: [32, 32],
@@ -125,7 +130,7 @@ const VehicleMarker = React.memo(
       const seconds = istDate.getUTCSeconds().toString().padStart(2, "0");
       const hour12 = hours % 12 || 12;
       const ampm = hours >= 12 ? "PM" : "AM";
-      return `${day}/${month}/${year}, ${hour12}:${minutes}:${seconds} ${ampm}`;
+      return `${day} /${month}/${year}, ${hour12}:${minutes}:${seconds} ${ampm} `;
     }, [vehicle.lastUpdate]);
 
     // Memoize status info
@@ -216,7 +221,7 @@ const VehicleMarker = React.memo(
                 <span className="label">Network:</span>
                 <span
                   className={`value ${vehicle.gsmSignal ? "online" : "offline"
-                    }`}
+                    } `}
                 >
                   {vehicle.gsmSignal ? "Online" : "Offline"}
                 </span>
@@ -313,7 +318,7 @@ const VehicleZoomHandler = ({
 
         // Optional: Add visual highlight
         const selectedMarker = document.querySelector(
-          `.custom-vehicle-marker[data-device-id="${vehicle.deviceId}"]`
+          `.custom - vehicle - marker[data - device - id="${vehicle.deviceId}"]`
         ) as HTMLElement;
 
         if (selectedMarker) {
@@ -532,6 +537,7 @@ const VehicleMap: React.FC<VehicleMapProps> = ({
   clusterMarkers = true,
   autoFitBounds = false,
   fitBoundsTrigger = 0,
+  mapType = "roadmap",
 }) => {
   const mapRef = useRef<L.Map | null>(null);
   const [isInitialLoad, setIsInitialLoad] = useState(true);
@@ -645,7 +651,7 @@ const VehicleMap: React.FC<VehicleMapProps> = ({
         attributionControl={false}
       >
         <TileLayer
-          url={`https://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}`}
+          url={`https://{s}.google.com/vt/lyrs=${mapType === "satellite" ? "y" : "m"}&x={x}&y={y}&z={z}`}
           subdomains={["mt0", "mt1", "mt2", "mt3"]}
           maxZoom={19}
         />

@@ -101,7 +101,7 @@ export function TravelTable<T extends Record<string, unknown>>({
   return (
     <div className="space-y-4">
       <div className="border rounded-lg overflow-hidden">
-        <div className="overflow-y-auto" style={{ maxHeight }}>
+        <div className="overflow-scroll" style={{ maxHeight }}>
           <Table>
             <TableHeader
               className="sticky top-0 z-10"

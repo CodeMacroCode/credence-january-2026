@@ -323,7 +323,7 @@ export function CustomTableServerSidePagination<
         <div className="border rounded-lg overflow-hidden">
           <div
             ref={tableContainerRef}
-            className="overflow-y-auto relative"
+            className="overflow-scroll relative"
             style={{ maxHeight }}
           >
             <Table>

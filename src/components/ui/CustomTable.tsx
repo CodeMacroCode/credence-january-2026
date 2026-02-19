@@ -258,7 +258,7 @@ export function CustomTable<TData extends RowData>({
       <div className="rounded-md border bg-background w-full flex flex-col overflow-hidden">
         <div
           ref={tableScrollRef}
-          className="overflow-y-auto relative"
+          className="overflow-scroll relative"
           style={{
             maxHeight: typeof adaptiveHeight === "number" ? `${adaptiveHeight}px` : adaptiveHeight,
             WebkitOverflowScrolling: "touch",
