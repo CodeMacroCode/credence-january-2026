@@ -16,7 +16,7 @@ export const exportToExcel = (data: DeviceData[], filename: string) => {
         })(),
         // "Speed (km/h)": vehicle.speed,
         "Last Update": ((vehicle?.category).toLowerCase() === "new") ? "--" : new Date(vehicle.lastUpdate).toLocaleString(),
-        "Category": vehicle.deviceCategory,
+        "Category": vehicle.category,
         // "Ignition": vehicle.attributes.ignition ? "On" : "Off",
         // "Motion": vehicle.attributes.motion ? "Moving" : "Stopped",
         // "Today Distance (km)": (vehicle.attributes.todayDistance / 1000).toFixed(2),

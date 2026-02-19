@@ -4,8 +4,8 @@ import { VehicleStatus } from "./useVehicleStatus";
 import { getValidDeviceCategory } from "@/components/statusIconMap";
 
 interface UseVehicleMarkerIconProps {
-  status: VehicleStatus;
-  deviceCategory: string;
+  status: string;
+  category: string;
   markerSize?: number;
   // statusImageMap?: Record<VehicleStatus, string>;
 }
@@ -13,19 +13,19 @@ interface UseVehicleMarkerIconProps {
 
 
 export const useVehicleMarkerIcon = ({
-  status,
-  deviceCategory,
+  status, // This seems to be mapped to state in caller, but keeping name for now. Or should I rename prop?
+  category,
   markerSize = 100,
   // statusImageMap = defaultStatusImageMap,
-}: UseVehicleMarkerIconProps) => {
+}: { status: string; category: string; markerSize?: number }) => {
 
-  const defaultStatusImageMap: Record<VehicleStatus, string> = {
-    running: `/${getValidDeviceCategory(deviceCategory)}/top-view/green.svg`,
-    idle: `/${getValidDeviceCategory(deviceCategory)}/top-view/yellow.svg`,
-    stopped: `/${getValidDeviceCategory(deviceCategory)}/top-view/red.svg`,
-    inactive: `/${getValidDeviceCategory(deviceCategory)}/top-view/grey.svg`,
-    overspeeding: `/${getValidDeviceCategory(deviceCategory)}/top-view/orange.svg`,
-    noData: `/${getValidDeviceCategory(deviceCategory)}/top-view/blue.svg`,
+  const defaultStatusImageMap: Record<string, string> = {
+    running: `/${getValidDeviceCategory(category)}/top-view/green.svg`,
+    idle: `/${getValidDeviceCategory(category)}/top-view/yellow.svg`,
+    stopped: `/${getValidDeviceCategory(category)}/top-view/red.svg`,
+    inactive: `/${getValidDeviceCategory(category)}/top-view/grey.svg`,
+    overspeeding: `/${getValidDeviceCategory(category)}/top-view/orange.svg`,
+    noData: `/${getValidDeviceCategory(category)}/top-view/blue.svg`,
   };
 
   console.log("default image: ", defaultStatusImageMap)

@@ -1,10 +1,14 @@
 import { create } from "zustand";
-import { devtools } from "zustand/middleware";
+import { devtools, persist, DevtoolsOptions } from "zustand/middleware";
 import Cookies from "js-cookie";
-import DeviceService, {
+import DeviceService from "@/services/livetrack/DeviceService";
+import {
+  DeviceData,
+  DeviceFilters as SocketDeviceFilters, // Renamed to avoid conflict with local interface
+  AllDeviceData,
   SingleDeviceData,
-} from "@/services/livetrack/DeviceService";
-import { AllDeviceResponse } from "@/types/socket";
+  AllDeviceResponse,
+} from "@/types/socket";
 import { useChatStore } from "./useChatStore";
 
 export interface DeviceFilters {
@@ -21,7 +25,7 @@ export interface DeviceFilters {
   searchTerm: string;
   branchId?: string;
   schoolId?: string;
-  deviceCategory?: string;
+  category?: string; // Renamed from deviceCategory
 }
 
 // Enhanced auth data interface
@@ -474,7 +478,7 @@ export const useDeviceStore = create<DeviceState>()(
           newFilters.searchTerm !== undefined ||
           newFilters.branchId !== undefined ||
           newFilters.schoolId !== undefined ||
-          newFilters.deviceCategory !== undefined
+          newFilters.category !== undefined
         ) {
           updatedFilters.page = 1;
         }
@@ -721,11 +725,12 @@ export const useDeviceStore = create<DeviceState>()(
       },
     }),
     {
-      name: "device-store",
+      name: "device-storage",
       partialize: (state) => ({
         filters: state.filters,
+        mapSettings: state.mapSettings,
       }),
-    },
+    } as unknown as DevtoolsOptions,
   ),
 );
 

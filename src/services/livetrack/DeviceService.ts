@@ -1,29 +1,11 @@
 import { io, Socket } from "socket.io-client";
 import Cookies from "js-cookie";
-import { AllDeviceResponse, DeviceFilters } from "@/types/socket";
+import { AllDeviceResponse, DeviceFilters, SingleDeviceData } from "@/types/socket";
 
 // ============================================================
 // Type Definitions
 // ============================================================
 
-/**
- * Represents data for a single GPS tracking device
- */
-export interface SingleDeviceData {
-  imei: string;
-  uniqueId: number;
-  attributes: {
-    ignition: boolean;
-    totalDistance: number;
-    [key: string]: unknown;
-  };
-  runningDuration: string;
-  tripDistance: number;
-  latitude: number;
-  longitude: number;
-  createdAt: string;
-  [key: string]: unknown;
-}
 
 /**
  * Event callbacks for device service socket events

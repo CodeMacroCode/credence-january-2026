@@ -77,6 +77,10 @@ export interface VehicleData {
   fuelConsumption: string;
   matchesSearch: boolean;
   uniqueId: number;
+  routeId?: string;
+  routeNumber?: string;
+  branchId?: string;
+  schoolId?: string;
 }
 
 // Updated props interface for single device
@@ -489,7 +493,6 @@ const SingleDeviceLiveTrack: React.FC<SingleDeviceLiveTrackProps> = ({
   //   createGeofenceMutation.isError,
   //   createGeofenceMutation.error,
   // ]);
-
   React.useEffect(() => {
     const token = localStorage.getItem("token");
     const decoded = token ? getDecodedToken(token) : null;
@@ -512,7 +515,7 @@ const SingleDeviceLiveTrack: React.FC<SingleDeviceLiveTrackProps> = ({
     const timeDifference = currentTime - lastUpdateTime;
     const thirtyFiveHoursInMs = 35 * 60 * 60 * 1000;
 
-    if (vehicle.category === "inactive") return "inactive";
+    if (vehicle.state === "inactive") return "inactive";
     if (timeDifference > thirtyFiveHoursInMs) return "inactive";
 
     const speedLimit = parseFloat(vehicle.speedLimit) || 60;

@@ -552,7 +552,7 @@ export const getLiveVehicleColumns = (userRole?: string): ColumnDef<LiveTrack>[]
       const isSuperAdmin = userRole === "superadmin";
 
       if (isExpired && !isSuperAdmin) {
-        const validCategory = getValidDeviceCategory(row.original.deviceCategory);
+        const validCategory = getValidDeviceCategory(row.original.category);
         const imageUrl = `/${validCategory}/side-view/grey.svg`;
 
         return (
@@ -567,8 +567,8 @@ export const getLiveVehicleColumns = (userRole?: string): ColumnDef<LiveTrack>[]
       }
 
       const imageUrl = useMemo(() => {
-        const validCategory = getValidDeviceCategory(row.original.deviceCategory);
-        // console.log(row.original.deviceCategory, "deviceCategory")
+        const validCategory = getValidDeviceCategory(row.original.category);
+        // console.log(row.original.category, "category")
         // console.log(validCategory, "validCategory")
         const statusToImageUrl = {
           running: `/${validCategory}/side-view/green.svg`,
@@ -581,10 +581,10 @@ export const getLiveVehicleColumns = (userRole?: string): ColumnDef<LiveTrack>[]
         // console.log(statusToImageUrl, "statusToImageUrl")
         return (
           statusToImageUrl[
-          String(row.original.category) as keyof typeof statusToImageUrl
+          String(row.original.state) as keyof typeof statusToImageUrl
           ] || statusToImageUrl.inactive
         );
-      }, [row.original.category, row.original.deviceCategory]);
+      }, [row.original.state, row.original.category]);
 
       return (
         <div className="flex items-center justify-center flex-shrink-0">

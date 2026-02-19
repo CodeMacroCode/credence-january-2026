@@ -85,8 +85,8 @@ export default function DashboardClient() {
   } | null>(null);
 
   const handleOpenRouteTimeline = useCallback(
-    (uniqueId: string, deviceName: string, routeObjId?: string) => {
-      setRouteTimelineData({ uniqueId, deviceName, routeObjId });
+    (uniqueId: number, deviceName: string, routeObjId?: string) => {
+      setRouteTimelineData({ uniqueId: String(uniqueId), deviceName, routeObjId });
       setIsRouteTimelineOpen(true);
     },
     []
@@ -508,10 +508,10 @@ export default function DashboardClient() {
 
   // Server side pagination table instance
   const { table, tableElement } = CustomTableServerSidePagination({
-    data: devices || [],
+    data: (devices || []) as any,
     columns,
     pagination,
-    totalCount: totalCount,
+    totalCount: totalCount || 0,
     loading: isLoading,
     onPaginationChange: handlePaginationChange,
     onSortingChange: setSorting,
@@ -608,6 +608,8 @@ export default function DashboardClient() {
           <div className="flex flex-wrap gap-4 overflow-x-auto py-2 px-2">
             {counts.map((countObj, index) => {
               const [key, value] = Object.entries(countObj)[0];
+              if (key === "expiredCount" || key === "ExpiredCount") return null;
+
               const label = key.charAt(0).toUpperCase() + key.slice(1);
               const statusKey = key.toLowerCase() as StatusFilter;
               const isActive = activeStatus === (key === "total" ? "all" : statusKey);
@@ -661,7 +663,7 @@ export default function DashboardClient() {
             <div className="flex items-center gap-2 w-full lg:w-auto justify-end">
               {/* Expired Count Display */}
               {expiredCount > 0 && (
-                <div 
+                <div
                   onClick={() => router.push("/dashboard/renewal")}
                   className="flex w-full lg:w-auto justify-center lg:justify-start items-center gap-2 px-4 py-2 bg-red-50 text-red-600 rounded-md border border-red-100 shadow-sm animate-pulse cursor-pointer hover:bg-red-100 transition-colors"
                 >
@@ -741,7 +743,7 @@ export default function DashboardClient() {
                                 ? userSchoolId
                                 : undefined,
                             branchId: undefined,
-                            deviceCategory: undefined,
+                            category: undefined,
                           })
                         }
                       >
@@ -768,9 +770,9 @@ export default function DashboardClient() {
                     value: cat.categoryName,
                   })) || []),
                 ]}
-                value={filters.deviceCategory || "all"}
+                value={filters.category || "all"}
                 onValueChange={(value) =>
-                  updateFilters({ deviceCategory: value === "all" ? undefined : value })
+                  updateFilters({ category: value === "all" ? undefined : value })
                 }
                 onOpenChange={setIsCategoryDropdownOpen}
                 placeholder="Vehicle Type"
@@ -908,7 +910,12 @@ export default function DashboardClient() {
           <BottomDrawer {...bottomDrawerProps} />
         </div>
         <div className="hidden lg:block">
-          <BottomDrawer {...bottomDrawerProps} />
+          <BottomDrawer
+            {...bottomDrawerProps}
+            onOpenRouteTimeline={(uniqueId, deviceName, routeObjId) =>
+              handleOpenRouteTimeline(uniqueId, deviceName, routeObjId)
+            }
+          />
         </div>
 
 

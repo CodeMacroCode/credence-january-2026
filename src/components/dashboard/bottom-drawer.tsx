@@ -18,7 +18,7 @@ interface BottomDrawerProps {
   selectedDevice: any;
   addresses: any;
   loadingAddresses: any;
-  handleOpenLiveTrack: (imei: string, name: string) => void;
+  handleOpenLiveTrack: (uniqueId: number, name: string) => void;
   onOpenRouteTimeline: (
     uniqueId: number,
     deviceName: string,
@@ -250,7 +250,7 @@ export const BottomDrawer = ({
                     <p className="ml-8">
                       {isLoading
                         ? "Loading..."
-                        : `${distance?.fuelConsumption ? distance?.fuelConsumption : 0}` +
+                        : `${(distance as any)?.fuelConsumption ? (distance as any)?.fuelConsumption : 0}` +
                         " Litre"}
                     </p>
                   </div>

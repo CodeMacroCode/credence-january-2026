@@ -40,9 +40,9 @@ export const VehicleMarker: React.FC<VehicleMarkerProps> = React.memo(
 
     // Get marker icon
     const { icon: busIcon, imageUrl } = useVehicleMarkerIcon({
-      status: vehicleStatus,
-      deviceCategory: vehicle.category,
-      markerSize,
+      status: vehicleStatus, // Assuming vehicleStatus is the correct status to use here
+      category: vehicle.category, // Changed from deviceCategory to category
+      markerSize: markerSize, // Using the prop markerSize
     });
 
     // Handle marker rotation and position

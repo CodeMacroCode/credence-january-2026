@@ -5,8 +5,8 @@ export interface DeviceData {
   latitude: number;
   course: number;
   deviceId: number;
-  uniqueId: number;
-  imei: string;
+  uniqueId: number | string;
+  imei?: string; // made optional as uniqueId seems to be the main identifier now, or they might reuse it
   attributes: {
     charge: boolean;
     ignition: boolean;
@@ -15,21 +15,35 @@ export interface DeviceData {
     distance: number;
     totalDistance: number;
     todayDistance: number;
+    [key: string]: any;
   };
-  batteryLevel: number;
   gsmSignal: number;
-  deviceCategory: string;
-  category: string;
-  status: string;
+  batteryLevel: number;
+  category: string; // Renamed from deviceCategory
+  status: string; // "online", "offline", etc.
   lastUpdate: string;
   name: string;
   TD: number;
-  mileage: string;
-  speedLimit: string;
+  mileage: string | number;
+  speedLimit: string | number;
   fuelConsumption: string;
-  matchesSearch: boolean;
-  total: number;
+  state: string; // Renamed from category. "running", "idle", etc.
+  stateDuration: string;
+  schoolId?: string;
+  branchId?: string;
+  matchesSearch?: boolean; // UI only prop probably
   expired?: boolean;
+}
+
+export interface AllDeviceData extends DeviceData {
+  todayKm: number;
+  expired?: boolean;
+}
+
+export interface SingleDeviceData extends DeviceData {
+  routeNumber?: string;
+  routeId?: string;
+  // single device might have slightly different attributes or extra fields
 }
 
 // Filter options for device queries
@@ -47,12 +61,12 @@ export interface DeviceFilters {
   searchTerm: string;
   branchId?: string;
   schoolId?: string;
-  deviceCategory?: string;
+  category?: string; // Renamed from deviceCategory
 }
 
 // Response structure from all-device-data event
 export interface AllDeviceResponse {
-  filteredData: DeviceData[];
+  filteredData: AllDeviceData[];
   page: number;
   pageLimit: number;
   pageCount: number;
@@ -71,8 +85,8 @@ export interface AllDeviceResponse {
 // Socket event interfaces for type safety
 export interface ServerToClientEvents {
   "all-device-data": (data: AllDeviceResponse) => void;
-  "single-device-data": (data: DeviceData) => void;
-  "shared device data": (data: DeviceData) => void;
+  "single-device-data": (data: SingleDeviceData) => void;
+  "shared device data": (data: SingleDeviceData) => void;
   "auth-success": () => void;
   error: (error: { message: string; details?: string }) => void;
   connect: () => void;

@@ -15,35 +15,7 @@ import "./VehicleMap.css";
 import { calculateTimeSince } from "@/util/calculateTimeSince";
 
 // Types based on your socket response
-interface VehicleData {
-  speed: number;
-  longitude: number;
-  latitude: number;
-  course: number;
-  deviceId: number;
-  imei: string;
-  uniqueId: number;
-  attributes: {
-    charge: boolean;
-    ignition: boolean;
-    motion: boolean;
-    sat: number;
-    distance: number;
-    totalDistance: number;
-    todayDistance: number;
-  };
-  gsmSignal: number;
-  category: string;
-  deviceCategory: string;
-  status: string;
-  lastUpdate: string;
-  name: string;
-  TD: number;
-  mileage: string;
-  speedLimit: string;
-  fuelConsumption: string;
-  matchesSearch: boolean;
-}
+import { DeviceData as VehicleData } from "@/types/socket";
 
 interface VehicleMapProps {
   vehicles: VehicleData[];
@@ -95,7 +67,7 @@ const VehicleMarker = React.memo(
   }) => {
     // Memoize image URL
     const imageUrl = useMemo(() => {
-      const validCategory = getValidDeviceCategory(vehicle.deviceCategory);
+      const validCategory = getValidDeviceCategory(vehicle.category);
       const statusToImageUrl: Record<string, string> = {
         running: `/${validCategory}/top-view/green.svg`,
         idle: `/${validCategory}/top-view/yellow.svg`,
@@ -104,8 +76,8 @@ const VehicleMarker = React.memo(
         overspeed: `/${validCategory}/top-view/orange.svg`,
         noData: `/${validCategory}/top-view/blue.svg`,
       };
-      return statusToImageUrl[vehicle.category];
-    }, [vehicle.category]);
+      return statusToImageUrl[vehicle.state] || statusToImageUrl.inactive;
+    }, [vehicle.category, vehicle.state]);
 
 
     // Memoize icon with proper sizing
@@ -166,8 +138,8 @@ const VehicleMarker = React.memo(
         overspeed: { text: "Overspeeding", color: "#fd7e14" },
         noData: { text: "No Data", color: "#007bff" },
       };
-      return statusMap[vehicle.category] || statusMap.noData;
-    }, [vehicle.category]);
+      return statusMap[vehicle.state] || statusMap.noData;
+    }, [vehicle.state]);
 
     return (
       <Marker
@@ -200,7 +172,7 @@ const VehicleMarker = React.memo(
               </div>
               <div className="detail-row">
                 <span className="label">Category:</span>
-                <span className="value">{vehicle.deviceCategory}</span>
+                <span className="value">{vehicle.category}</span>
               </div>
               <div className="detail-row">
                 <span className="label">Mileage:</span>

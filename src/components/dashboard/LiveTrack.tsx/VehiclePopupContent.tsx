@@ -39,7 +39,11 @@ export const VehiclePopupContent: React.FC<VehiclePopupContentProps> = ({
         </div>
         <div className="detail-row">
           <span className="label">Category:</span>
-          <span className="value">{vehicle.category}</span>
+          <span className="font-medium text-gray-900">{vehicle.category || 'N/A'}</span>
+        </div>
+        <div className="flex justify-between items-center py-1">
+          <span className="text-gray-500">Status</span>
+          <span className="font-medium text-gray-900 capitalize">{vehicleStatus || 'N/A'}</span>
         </div>
         <div className="detail-row">
           <span className="label">Mileage:</span>

@@ -17,7 +17,7 @@ export const useDistance = (uniqueId?: number) => {
   });
 
   return {
-    distance: getDistanceQuery.data ?? [],
+    distance: getDistanceQuery.data,
     isLoading: getDistanceQuery.isLoading,
     isFetching: getDistanceQuery.isFetching,
   };
