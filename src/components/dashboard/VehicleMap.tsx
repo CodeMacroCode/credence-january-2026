@@ -160,7 +160,7 @@ const VehicleMarker = React.memo(
     const statusInfo = useMemo(() => {
       const statusMap: Record<string, { text: string; color: string }> = {
         running: { text: "Running", color: "#28a745" },
-        idle: { text: "Idle", color: "#3b82f6" },
+        idle: { text: "Idle", color: "#ffc107" },
         stopped: { text: "Stopped", color: "#dc3545" },
         inactive: { text: "Inactive", color: "#666666" },
         overspeed: { text: "Overspeeding", color: "#fd7e14" },

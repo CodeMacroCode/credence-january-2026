@@ -210,7 +210,7 @@ export default function DashboardClient() {
     const paginationHeight = 60; // Height of pagination controls
 
     const availableHeight = viewportHeight - headerHeight - paginationHeight;
-    const optimalRows = Math.min(9, Math.floor(availableHeight / rowHeight));
+    const optimalRows = Math.min(10, Math.floor(availableHeight / rowHeight));
 
     // Clamp between 5 and 15 rows
     return Math.max(5, Math.min(15, optimalRows));
@@ -513,7 +513,7 @@ export default function DashboardClient() {
     columnVisibility,
     onColumnVisibilityChange: setColumnVisibility,
     emptyMessage: "No devices found",
-    pageSizeOptions: [5, dynamicPageSize, 10, 20, 30, 50, 100, 500, "All"],
+    pageSizeOptions: [5, dynamicPageSize, 20, 30, 50, 100, 500, "All"],
     enableSorting: true,
     showSerialNumber: true,
     onRowClick: handleDeviceSelection,
@@ -525,7 +525,7 @@ export default function DashboardClient() {
     enableVirtualization: true,
     estimatedRowHeight: 20,
     overscan: 5,
-    maxHeight: "calc(100dvh - 340px)",
+    maxHeight: "var(--table-max-height)",
     getRowClassName: (row: DeviceData) => {
       if (row.expired && userRole !== "superadmin") {
         return "bg-gray-400/40 relative cursor-not-allowed after:content-['Subscription_Expired'] after:absolute after:inset-0 after:flex after:items-center after:justify-start after:pl-[500px] after:text-red-700 after:font-bold after:text-xl after:opacity-80 after:uppercase after:tracking-wider after:pointer-events-none";
@@ -566,6 +566,14 @@ export default function DashboardClient() {
   return (
     <>
       <style jsx>{`
+        .dashboard-container {
+          --table-max-height: none;
+        }
+        @media (min-width: 1024px) {
+          .dashboard-container {
+            --table-max-height: calc(100dvh - 340px);
+          }
+        }
         .table-row-selected {
           background-color: #dbeafe !important;
           border-left: 4px solid #3b82f6 !important;
@@ -586,7 +594,7 @@ export default function DashboardClient() {
 
 
       {/* Main Dashboard Content */}
-      <div className="relative h-screen bg-gray-50/50 px-4 overflow-hidden">
+      <div className="dashboard-container relative lg:h-screen min-h-screen bg-gray-50/50 px-4 lg:overflow-hidden">
         {/* Dashboard Content */}
         <div className="space-y-4">
 
