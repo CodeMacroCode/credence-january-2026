@@ -73,7 +73,7 @@ export function Navbar() {
   return (
     <div className="w-full h-14 md:h-16 flex items-center relative px-2 sm:px-4 bg-primary border-b border-blue-600/20">
       {/* Mobile Menu Button - visible only on small screens */}
-      <div className="md:hidden flex items-center z-[9999]">
+      <div className="md:hidden flex items-center z-9999">
         <DropdownMenu open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
           <DropdownMenuTrigger asChild>
             <button
@@ -110,9 +110,9 @@ export function Navbar() {
       </div>
 
       {/* Desktop nav links - hidden on mobile */}
-      <div className="hidden md:flex items-center mr-4 z-[9999]">
+      <div className="hidden md:flex items-center mr-4 z-9999">
         {state === "collapsed" && (
-          <div className="animate-in fade-in slide-in-from-left-5 duration-300">
+          <div className="animate-in fade-in slide-in-from-left-5 duration-300 ml-12">
             <Image
               width={120}
               height={40}
@@ -127,7 +127,7 @@ export function Navbar() {
         )}
       </div>
 
-      <div className="hidden md:flex flex-1 justify-center items-center relative z-[9999]">
+      <div className="hidden md:flex flex-1 justify-center items-center relative z-9999">
         <NavigationMenu>
           <NavigationMenuList className="flex-wrap justify-center gap-1 lg:gap-2">
             {navSections.map((section) => (
@@ -153,7 +153,7 @@ export function Navbar() {
       <div className="flex-1 md:hidden" />
 
       {/* Right: Profile dropdown positioned at the right edge */}
-      <div className="flex items-center gap-2 sm:gap-4 z-[9999]">
+      <div className="flex items-center gap-2 sm:gap-4 z-9999">
         <NotificationSheet />
         <ProfileDropdown />
       </div>
