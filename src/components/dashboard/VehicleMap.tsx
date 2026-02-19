@@ -595,7 +595,7 @@ const VehicleMap: React.FC<VehicleMapProps> = ({
     }
   }, [isInitialLoad]);
 
-  // Render markers with or without clustering - optimized for 1500+ vehicles
+  // Render markers with or without clustering - optimized for 50K+ vehicles
   const renderMarkers = useMemo(() => {
     const markers = validVehicles.map((vehicle) => (
       <VehicleMarker
@@ -608,15 +608,22 @@ const VehicleMap: React.FC<VehicleMapProps> = ({
 
     // Use clustering for better performance with large datasets
     if (clusterMarkers && validVehicles.length > 10) {
+      // Dynamically adjust cluster radius based on dataset size
+      const dynamicRadius = validVehicles.length > 10000 ? 150 : validVehicles.length > 1000 ? 120 : 80;
+
       return (
         <MarkerClusterGroup
           chunkedLoading
+          chunkDelay={50}
+          chunkInterval={100}
           iconCreateFunction={createClusterCustomIcon}
-          maxClusterRadius={80} // Increased for better clustering with 1500+ markers
+          maxClusterRadius={dynamicRadius}
           spiderfyOnMaxZoom={true}
           showCoverageOnHover={false}
-          disableClusteringAtZoom={15} // Cluster until closer zoom
-          removeOutsideVisibleBounds={true} // Remove markers outside viewport for performance
+          disableClusteringAtZoom={18}   // Keep clusters active until very close zoom
+          removeOutsideVisibleBounds={true}
+          animate={validVehicles.length <= 5000}  // Disable animation for large datasets
+          zoomToBoundsOnClick={true}
         >
           {markers}
         </MarkerClusterGroup>

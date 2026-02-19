@@ -74,7 +74,7 @@ export default function RenewalClient() {
     }, [data, activeTab]);
 
     // Columns
-    const columns = useMemo(() => getRenewalColumns(activeTab), [activeTab]);
+    const columns = useMemo(() => getRenewalColumns(activeTab, userRole), [activeTab, userRole]);
 
     // Handlers
     const handlePaginationChange = (updater: any) => {

@@ -1,49 +1,146 @@
 // hooks/useLiveDeviceData.ts
 "use client";
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef, useMemo } from "react";
 import { useDeviceStore } from "@/store/deviceStore";
+import { useShallow } from "zustand/react/shallow";
+
+/**
+ * Performance-optimized hook for all device data streaming.
+ * 
+ * Uses granular Zustand selectors with shallow comparison to prevent
+ * unnecessary re-renders. Each selector only subscribes to the specific
+ * slice of state it needs.
+ * 
+ * Applied rules from vercel-react-best-practices:
+ * - rerender-defer-reads: Don't subscribe to state only used in callbacks
+ * - rerender-dependencies: Use primitive dependencies in effects
+ */
+
+// Selector for device data only — re-renders only when filteredData changes
+const useDevices = () =>
+  useDeviceStore(
+    useShallow((state) => state.deviceData?.filteredData || [])
+  );
+
+// Selector for counts — stable object, re-renders only when counts change
+const useCounts = () =>
+  useDeviceStore(
+    useShallow((state) => ({
+      total: state.deviceData?.total || 0,
+      running: state.deviceData?.runningCount || 0,
+      overspeed: state.deviceData?.overspeedCount || 0,
+      idle: state.deviceData?.idleCount || 0,
+      stopped: state.deviceData?.stoppedCount || 0,
+      inactive: state.deviceData?.inactiveCount || 0,
+      new: state.deviceData?.newCount || 0,
+      expiredCount: state.deviceData?.expiredCount || 0,
+    }))
+  );
+
+// Selector for pagination — re-renders only when pagination values change
+const usePagination = () =>
+  useDeviceStore(
+    useShallow((state) => ({
+      currentPage: state.filters.page,
+      totalPages: state.totalPages,
+      hasNextPage: state.hasNextPage,
+      hasPrevPage: state.hasPrevPage,
+      limit: state.filters.limit,
+    }))
+  );
+
+// Selector for filters — re-renders only when filters change
+const useFilters = () =>
+  useDeviceStore(
+    useShallow((state) => state.filters)
+  );
+
+// Selector for connection status — re-renders only when connection changes
+const useConnectionStatus = () =>
+  useDeviceStore(
+    useShallow((state) => ({
+      isLoading: state.isLoading,
+      isConnected: state.isConnected,
+      isAuthenticated: state.isAuthenticated,
+      error: state.error,
+    }))
+  );
+
+// Actions selector — these are stable references, no re-renders
+const useActions = () =>
+  useDeviceStore(
+    useShallow((state) => ({
+      updateFilters: state.updateFilters,
+      setPage: state.setPage,
+      clearError: state.clearError,
+      refreshData: state.refreshData,
+    }))
+  );
 
 // Hook for all device data streaming
 export const useLiveDeviceData = () => {
-  const store = useDeviceStore();
+  const devices = useDevices();
+  const counts = useCounts();
+  const pagination = usePagination();
+  const filters = useFilters();
+  const connectionStatus = useConnectionStatus();
+  const actions = useActions();
+
+  // Convert counts object to the array format expected by DashboardClient
+  // Memoized so it only recomputes when counts actually change
+  const countsArray = useMemo(
+    () => [
+      { total: counts.total },
+      { running: counts.running },
+      { overspeed: counts.overspeed },
+      { idle: counts.idle },
+      { stopped: counts.stopped },
+      { inactive: counts.inactive },
+      { new: counts.new },
+      { expiredCount: counts.expiredCount },
+    ],
+    [
+      counts.total,
+      counts.running,
+      counts.overspeed,
+      counts.idle,
+      counts.stopped,
+      counts.inactive,
+      counts.new,
+      counts.expiredCount,
+    ]
+  );
 
   return {
     // Data
-    devices: store.deviceData?.filteredData || [],
-    counts: [
-      { total: store.deviceData?.total || 0 },
-      { running: store.deviceData?.runningCount || 0 },
-      { overspeed: store.deviceData?.overspeedCount || 0 },
-      { idle: store.deviceData?.idleCount || 0 },
-      { stopped: store.deviceData?.stoppedCount || 0 },
-      { inactive: store.deviceData?.inactiveCount || 0 },
-      { new: store.deviceData?.newCount || 0 },
-      { expiredCount: store.deviceData?.expiredCount || 0 },
-    ],
+    devices,
+    counts: countsArray,
 
     // Pagination
-    currentPage: store.filters.page,
-    totalPages: store.totalPages,
-    hasNextPage: store.hasNextPage,
-    hasPrevPage: store.hasPrevPage,
-    limit: store.filters.limit,
+    currentPage: pagination.currentPage,
+    totalPages: pagination.totalPages,
+    hasNextPage: pagination.hasNextPage,
+    hasPrevPage: pagination.hasPrevPage,
+    limit: pagination.limit,
 
     // Filters
-    filters: store.filters,
+    filters,
 
     // Status
-    isLoading: store.isLoading,
-    isConnected: store.isConnected,
-    isAuthenticated: store.isAuthenticated,
-    error: store.error,
+    isLoading: connectionStatus.isLoading,
+    isConnected: connectionStatus.isConnected,
+    isAuthenticated: connectionStatus.isAuthenticated,
+    error: connectionStatus.error,
 
     // Actions
-    updateFilters: store.updateFilters,
-    setPage: store.setPage,
-    nextPage: () => store.hasNextPage && store.setPage(store.filters.page + 1),
-    prevPage: () => store.hasPrevPage && store.setPage(store.filters.page - 1),
-    clearError: store.clearError,
-    refreshData: store.refreshData,
+    updateFilters: actions.updateFilters,
+    setPage: actions.setPage,
+    nextPage: () =>
+      pagination.hasNextPage && actions.setPage(pagination.currentPage + 1),
+    prevPage: () =>
+      pagination.hasPrevPage && actions.setPage(pagination.currentPage - 1),
+    clearError: actions.clearError,
+    refreshData: actions.refreshData,
   };
 };
 
@@ -113,9 +210,6 @@ export const useSingleDeviceData = (uniqueId?: string) => {
       }
 
       console.log("[useSingleDeviceData] Refreshing stream for:", deviceId);
-
-      // Stop current stream
-      // store.stopSingleDeviceStream(deviceId);
 
       // Clear cached data
       store.clearSingleDeviceData(deviceId);

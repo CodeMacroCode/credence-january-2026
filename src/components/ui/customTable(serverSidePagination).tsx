@@ -280,11 +280,18 @@ export function CustomTableServerSidePagination<
   // Use data as dependency since table object is stable
   const rows = useMemo(() => table.getRowModel().rows, [data, table]);
 
+  // Adaptive overscan: increase for larger datasets for smoother scrolling
+  const adaptiveOverscan = useMemo(() => {
+    if (data.length > 10000) return 15;
+    if (data.length > 1000) return 10;
+    return overscan;
+  }, [data.length, overscan]);
+
   const rowVirtualizer = useVirtualizer({
     count: rows.length,
     getScrollElement: () => tableContainerRef.current,
     estimateSize: () => estimatedRowHeight,
-    overscan,
+    overscan: adaptiveOverscan,
     enabled: enableVirtualization,
   });
 

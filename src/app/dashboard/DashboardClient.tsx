@@ -12,7 +12,7 @@ import { useLiveDeviceData } from "@/hooks/livetrack/useLiveDeviceData";
 import { useReverseGeocode } from "@/hooks/useReverseGeocoding";
 import { DeviceData } from "@/types/socket";
 import { ChevronsLeft, ChevronsRight, Locate } from "lucide-react";
-import { useCallback, useEffect, useMemo, useState, useRef } from "react";
+import { useCallback, useEffect, useMemo, useState, useRef, startTransition } from "react";
 import { LiveTrack } from "@/components/dashboard/LiveTrack.tsx/livetrack";
 import { BottomDrawer } from "@/components/dashboard/bottom-drawer";
 // import SubscriptionExpiry from "@/components/dashboard/SubscriptionExpiry/SubscriptionExpiry";
@@ -309,13 +309,17 @@ export default function DashboardClient() {
   );
 
   // **Status Filter Handler**
+  // Skill: rerender-transitions — Use startTransition for non-urgent updates
+  // This keeps the UI responsive during filter switches with 50K+ devices
   const handleStatusFilter = useCallback(
     (status: StatusFilter) => {
       setActiveStatus(status);
 
-      updateFilters({
-        filter: status === "all" ? undefined : status,
-        page: 1,
+      startTransition(() => {
+        updateFilters({
+          filter: status === "all" ? undefined : status,
+          page: 1,
+        });
       });
 
       // Mark that we need to zoom after data loads
@@ -350,8 +354,10 @@ export default function DashboardClient() {
     [pagination, updateFilters]
   );
 
+  // Skip geocoding for large page sizes (> 100 devices) — geocoding 50K devices
+  // one-by-one at 1.2s intervals is pointless and wastes API quota
   const queueVisibleDevicesForGeocoding = useCallback(() => {
-    if (devices && devices.length > 0) {
+    if (devices && devices.length > 0 && pagination.pageSize <= 100) {
       const startIndex = pagination.pageIndex * pagination.pageSize;
       const endIndex = startIndex + pagination.pageSize;
       const visibleDevices = devices.slice(startIndex, endIndex);
@@ -440,22 +446,27 @@ export default function DashboardClient() {
     [queueForGeocoding, userRole]
   );
 
-  const handleOpenLiveTrack = (uniqueId: number, name: string) => {
-    // Check if device is expired
-    const device = devices?.find((d) => d.uniqueId === uniqueId) || selectedDevice;
-    const isExpired = device?.expired;
+  // Skill: rerender-defer-reads — Wrap in useCallback for stable reference
+  // Prevents bottomDrawerProps from re-creating on every render
+  const handleOpenLiveTrack = useCallback(
+    (uniqueId: number, name: string) => {
+      // Check if device is expired
+      const device = devices?.find((d) => d.uniqueId === uniqueId) || selectedDevice;
+      const isExpired = device?.expired;
 
-    // Superadmin bypass
-    const isSuperAdmin = userRole === "superadmin";
+      // Superadmin bypass
+      const isSuperAdmin = userRole === "superadmin";
 
-    if (isExpired && !isSuperAdmin) {
-      alert("Subscription Expired. Using live tracking is restricted.");
-      return;
-    }
+      if (isExpired && !isSuperAdmin) {
+        alert("Subscription Expired. Using live tracking is restricted.");
+        return;
+      }
 
-    setOpen(true);
-    setSelectedImei({ uniqueId, name });
-  };
+      setOpen(true);
+      setSelectedImei({ uniqueId, name });
+    },
+    [devices, selectedDevice, userRole]
+  );
 
   useEffect(() => {
     queueVisibleDevicesForGeocoding();

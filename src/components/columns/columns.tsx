@@ -329,7 +329,8 @@ export const getStudentColumns = (
   ];
 
 export const getRenewalColumns = (
-  activeTab: string
+  activeTab: string,
+  userRole?: string
 ): ColumnDef<Device>[] => [
     {
       accessorKey: "name",
@@ -371,7 +372,37 @@ export const getRenewalColumns = (
           {activeTab === "expired" ? "Expired" : "Expiring Soon"}
         </span>
       ),
-    }
+    },
+    // New Action Column for SuperAdmin
+    ...(userRole === "superadmin" ? [{
+      id: "action",
+      header: "Action",
+      cell: ({ row }: any) => (
+        <Button
+          variant="default"
+          size="sm"
+          className=" text-white"
+          onClick={() => alert(`Manual Renew for ${row.original.name}`)}
+        >
+          Manual Renewal
+        </Button>
+      ),
+    }] : []),
+    // New Payment Column for Non-SuperAdmin
+    ...(userRole !== "superadmin" ? [{
+      id: "payment",
+      header: "Payment",
+      cell: ({ row }: any) => (
+        <Button
+          variant="outline"
+          size="sm"
+          className="border-green-600 text-green-600 hover:bg-green-50"
+          onClick={() => alert(`Proceed to Payment for ${row.original.name}`)}
+        >
+          Pay Now
+        </Button>
+      ),
+    }] : [])
   ];
 
 // DEVICE COLUMNS START
@@ -566,25 +597,18 @@ export const getLiveVehicleColumns = (userRole?: string): ColumnDef<LiveTrack>[]
         )
       }
 
-      const imageUrl = useMemo(() => {
-        const validCategory = getValidDeviceCategory(row.original.category);
-        // console.log(row.original.category, "category")
-        // console.log(validCategory, "validCategory")
-        const statusToImageUrl = {
-          running: `/${validCategory}/side-view/green.svg`,
-          idle: `/${validCategory}/side-view/yellow.svg`,
-          stopped: `/${validCategory}/side-view/red.svg`,
-          inactive: `/${validCategory}/side-view/grey.svg`,
-          overspeed: `/${validCategory}/side-view/orange.svg`,
-          new: `/${validCategory}/side-view/blue.svg`,
-        };
-        // console.log(statusToImageUrl, "statusToImageUrl")
-        return (
-          statusToImageUrl[
-          String(row.original.state) as keyof typeof statusToImageUrl
-          ] || statusToImageUrl.inactive
-        );
-      }, [row.original.state, row.original.category]);
+      // Inline computation instead of useMemo (hooks cannot be used in cell renderers)
+      const validCategory = getValidDeviceCategory(row.original.category);
+      const statusToImageUrl: Record<string, string> = {
+        running: `/${validCategory}/side-view/green.svg`,
+        idle: `/${validCategory}/side-view/yellow.svg`,
+        stopped: `/${validCategory}/side-view/red.svg`,
+        inactive: `/${validCategory}/side-view/grey.svg`,
+        overspeed: `/${validCategory}/side-view/orange.svg`,
+        new: `/${validCategory}/side-view/blue.svg`,
+      };
+      const imageUrl =
+        statusToImageUrl[String(row.original.state)] || statusToImageUrl.inactive;
 
       return (
         <div className="flex items-center justify-center flex-shrink-0">
