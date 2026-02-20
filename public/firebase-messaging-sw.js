@@ -6,13 +6,13 @@ importScripts(
 );
 
 firebase.initializeApp({
-  apiKey: `AIzaSyDiHOKD_htTBuO_4vNNWQjbM17uxxszTuw`,
-  authDomain: `parentseye-88b2f.firebaseapp.com`,
-  projectId: `parentseye-88b2f`,
-  storageBucket: `parentseye-88b2f.firebasestorage.app`,
-  messagingSenderId: `713888678223`,
-  appId: `1:713888678223:web:5eb043aae3483ab752453a`,
-  measurementId: `G-NZMJZWCG1C`,
+  apiKey: "AIzaSyDcv0z79fwnkHSXcSSHXiTCEzgdhbX9qR4",
+  authDomain: "credence-tracker-faded.firebaseapp.com",
+  projectId: "credence-tracker-faded",
+  storageBucket: "credence-tracker-faded.firebasestorage.app",
+  messagingSenderId: "844537820319",
+  appId: "1:844537820319:web:dc1aedd2e8632184075eaa",
+  measurementId: "G-PS0FWPY16T"
 });
 
 const messaging = firebase.messaging();
@@ -80,20 +80,20 @@ messaging.onBackgroundMessage(async (payload) => {
   // EXCEPT if we handle it here? No, actually 'onBackgroundMessage' allows us to handle it, but suppressing a Notification-key message 
   // in background is tricky. Usually specific fields are used.
   // Assuming these are DATA messages that trigger local notifications (which seems to be the case given the code structure in other files or typical FCM usage for custom handling).
-  
+
   // If we want to show it:
   if (payload.data) {
-     const title = payload.notification?.title || payload.data.title || "New Notification";
-     const body = payload.notification?.body || payload.data.body || "";
-     
-     // We must explicitly show notification for background data messages
-     // If the message has a 'notification' key, the SDK might have already shown it? 
-     // Let's assume we control it or these are data messages.
-     // To be safe and avoid duplicates if it IS a notification message, we can just return if not blocked.
-     // But wait, if we want to BLOCK it, implies we have control. 
-     
-     // Let's explicitly show it if it's NOT blocked, ensuring we handle data-only messages too.
-     // self.registration.showNotification(title, { body, ... });
+    const title = payload.notification?.title || payload.data.title || "New Notification";
+    const body = payload.notification?.body || payload.data.body || "";
+
+    // We must explicitly show notification for background data messages
+    // If the message has a 'notification' key, the SDK might have already shown it? 
+    // Let's assume we control it or these are data messages.
+    // To be safe and avoid duplicates if it IS a notification message, we can just return if not blocked.
+    // But wait, if we want to BLOCK it, implies we have control. 
+
+    // Let's explicitly show it if it's NOT blocked, ensuring we handle data-only messages too.
+    // self.registration.showNotification(title, { body, ... });
   }
 
   clients
