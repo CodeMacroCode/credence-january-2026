@@ -79,7 +79,8 @@ export function AddDeviceForm({
       average: 0,
       odometer: 0,
       keyFeature: false,
-      subscriptionEndDate: "",
+      expirationdate: "",
+      
     },
   });
 
@@ -172,7 +173,7 @@ export function AddDeviceForm({
         average: editData.average || 0,
         odometer: editData.odometer || 0,
         keyFeature: editData.keyFeature ?? false,
-        subscriptionEndDate: editData.subscriptionEndDate || "",
+        expirationdate: editData.expirationdate || "",
       });
     } else if (open && !editData) {
       reset({
@@ -189,7 +190,7 @@ export function AddDeviceForm({
         average: 0,
         odometer: 0,
         keyFeature: false,
-        subscriptionEndDate: "",
+        expirationdate: "",
       });
     }
   }, [open, editData, reset]);
@@ -341,7 +342,7 @@ export function AddDeviceForm({
           average: data.average,
           odometer: data.odometer,
           keyFeature: data.keyFeature,
-          subscriptionEndDate: data.subscriptionEndDate,
+          sexpirationdate: data.expirationdate,
         };
 
         // UPDATE NEW API
@@ -391,7 +392,7 @@ export function AddDeviceForm({
           average: data.average,
           odometer: data.odometer,
           keyFeature: data.keyFeature,
-          subscriptionEndDate: data.subscriptionEndDate,
+          expirationdate: data.expirationdate,
         };
 
         createDevice(newApiPayload);
@@ -750,7 +751,7 @@ export function AddDeviceForm({
               </label>
 
               <Controller
-                name="subscriptionEndDate"
+                name="expirationdate"
                 control={control}
                 render={({ field }) => {
                   const selectedDate = field.value
@@ -798,9 +799,9 @@ export function AddDeviceForm({
                         </PopoverContent>
                       </Popover>
 
-                      {errors.subscriptionEndDate && (
+                      {errors.expirationdate && (
                         <p className="text-sm text-red-500">
-                          {errors.subscriptionEndDate.message}
+                          {errors.expirationdate.message}
                         </p>
                       )}
                     </>

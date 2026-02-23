@@ -10,10 +10,14 @@ import { Combobox } from "@/components/ui/combobox";
 import { useBranchDropdown, useSchoolDropdown } from "@/hooks/useDropdown";
 import { useAuthStore } from "@/store/authStore";
 import { ColumnVisibilitySelector } from "@/components/column-visibility-selector";
-import { AlertCircle, CalendarClock, RefreshCcw, Search } from "lucide-react";
+import { AlertCircle, CalendarClock, RefreshCcw, Search, Loader2 } from "lucide-react";
 import { PaginationState } from "@tanstack/react-table";
 import ResponseLoader from "@/components/ResponseLoader";
 import { getRenewalColumns } from "@/components/columns/columns";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { toast } from "sonner";
+import { ExpirationDatePicker } from "@/components/ui/ExpirationDatePicker";
 
 export default function RenewalClient() {
     // State
@@ -29,6 +33,19 @@ export default function RenewalClient() {
         branchId: undefined as string | undefined,
     });
     const [sorting, setSorting] = useState([]);
+
+    // Manual Renewal State
+    const [selectedDevice, setSelectedDevice] = useState<any>(null);
+    const [isRenewalModalOpen, setIsRenewalModalOpen] = useState(false);
+    const [renewalDate, setRenewalDate] = useState("2026-12-31T23:59:59.000Z");
+    const [renewalPassword, setRenewalPassword] = useState("");
+    const [isRenewing, setIsRenewing] = useState(false);
+
+    // Payment State
+    const [selectedPaymentDevice, setSelectedPaymentDevice] = useState<any>(null);
+    const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
+    const [paymentYears, setPaymentYears] = useState("1");
+    const [isProcessingPayment, setIsProcessingPayment] = useState(false);
 
     // Hooks
     const { decodedToken: user } = useAuthStore();
@@ -73,10 +90,119 @@ export default function RenewalClient() {
         return activeTab === "expired" ? data.expiredTotal : data.expiringSoonTotal;
     }, [data, activeTab]);
 
+    const handleManualRenewal = (device: any) => {
+        setSelectedDevice(device);
+        setRenewalDate("2026-12-31T23:59:59.000Z");
+        setRenewalPassword("");
+        setIsRenewalModalOpen(true);
+    };
+
+    // Payment Handlers
+    const handlePayNow = (device: any) => {
+        setSelectedPaymentDevice(device);
+        setPaymentYears("1");
+        setIsPaymentModalOpen(true);
+    };
+
+    const loadRazorpayScript = () => {
+        return new Promise((resolve) => {
+            if (typeof window !== "undefined" && (window as any).Razorpay) {
+                resolve(true);
+                return;
+            }
+            const script = document.createElement("script");
+            script.src = "https://checkout.razorpay.com/v1/checkout.js";
+            script.onload = () => resolve(true);
+            script.onerror = () => resolve(false);
+            document.body.appendChild(script);
+        });
+    };
+
+    const submitPayment = async () => {
+        if (!selectedPaymentDevice || !paymentYears) {
+            toast.error("Please select subscription duration.");
+            return;
+        }
+
+        try {
+            setIsProcessingPayment(true);
+
+            const isLoaded = await loadRazorpayScript();
+            if (!isLoaded) {
+                toast.error("Razorpay SDK failed to load");
+                return;
+            }
+
+            const orderResponse = await deviceApiService.createSubscriptionOrder({
+                uniqueId: selectedPaymentDevice.uniqueId,
+                years: parseInt(paymentYears)
+            });
+
+            console.log("orderResponse", orderResponse);
+
+            if (!orderResponse) {
+                throw new Error("Invalid order response");
+            }
+
+            const options = {
+                key: orderResponse.keyId,
+                amount: orderResponse.amount,
+                currency: orderResponse.currency,
+                name: "Credence Tracker",
+                description: `Subscription Renewal for ${selectedPaymentDevice.name}`,
+                order_id: orderResponse.orderId,
+                handler: function (response: any) {
+                    toast.success("Payment successful!");
+                    setIsPaymentModalOpen(false);
+                    refetch();
+                },
+                prefill: {
+                    name: (user as any)?.name || "",
+                },
+                theme: {
+                    color: "#3399cc",
+                },
+            };
+
+            const rzp1 = new (window as any).Razorpay(options);
+            rzp1.on("payment.failed", function (response: any) {
+                toast.error("Payment failed: " + response.error.description);
+            });
+            rzp1.open();
+
+        } catch (error: any) {
+            toast.error(error?.response?.data?.message || error.message || "Failed to initiate payment");
+        } finally {
+            setIsProcessingPayment(false);
+        }
+    };
+
     // Columns
-    const columns = useMemo(() => getRenewalColumns(activeTab, userRole), [activeTab, userRole]);
+    const columns = useMemo(() => getRenewalColumns(activeTab, userRole, handleManualRenewal, handlePayNow), [activeTab, userRole]);
 
     // Handlers
+    const submitManualRenewal = async () => {
+        if (!selectedDevice || !renewalPassword || !renewalDate) {
+            toast.error("Please provide expiration date and password.");
+            return;
+        }
+        try {
+            setIsRenewing(true);
+            const payload = {
+                expirationdate: renewalDate,
+                password: renewalPassword
+            };
+            await deviceApiService.updateExpirationDate(selectedDevice.uniqueId, payload);
+            toast.success("Expiration date updated successfully.");
+            setIsRenewalModalOpen(false);
+            refetch();
+        } catch (error: any) {
+            toast.error(error?.response?.data?.message || "Failed to update expiration date");
+        } finally {
+            setIsRenewing(false);
+        }
+    };
+
     const handlePaginationChange = (updater: any) => {
         setPagination(prev => {
             const newValues = typeof updater === "function" ? updater(prev) : updater;
@@ -142,11 +268,11 @@ export default function RenewalClient() {
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                         <Button className="flex items-center gap-2 cursor-pointer" onClick={() => {
                             setActiveTab("expired");
-                            setPagination(p => ({ ...p, pageIndex: 0 }));
+                            setPagination((p: PaginationState) => ({ ...p, pageIndex: 0 }));
                         }}>Expired {data?.expiredTotal || 0}</Button>
                         <Button className="flex items-center gap-2 cursor-pointer" onClick={() => {
                             setActiveTab("expiringSoon");
-                            setPagination(p => ({ ...p, pageIndex: 0 }));
+                            setPagination((p: PaginationState) => ({ ...p, pageIndex: 0 }));
                         }}>Expiring Soon {data?.expiringSoonTotal || 0}</Button>
                     </div>
 
@@ -228,6 +354,103 @@ export default function RenewalClient() {
                     {tableElement}
                 </div>
             </div>
+
+            {/* Manual Renewal Modal */}
+            <Dialog open={isRenewalModalOpen} onOpenChange={setIsRenewalModalOpen}>
+                <DialogContent className="sm:max-w-[425px]">
+                    <DialogHeader>
+                        <DialogTitle>Manual Renewal</DialogTitle>
+                        <DialogDescription>
+                            Renew subscription for {selectedDevice?.name || "Device"} ({selectedDevice?.uniqueId})
+                        </DialogDescription>
+                    </DialogHeader>
+
+                    <div className="space-y-4 py-4">
+                        <div className="grid gap-2">
+                            <Label>Expiration Date</Label>
+                            <ExpirationDatePicker
+                                date={renewalDate ? new Date(renewalDate) : undefined}
+                                onDateChange={(date) => {
+                                    if (date) {
+                                        const yyyy = date.getFullYear();
+                                        const mm = String(date.getMonth() + 1).padStart(2, "0");
+                                        const dd = String(date.getDate()).padStart(2, "0");
+                                        setRenewalDate(`${yyyy}-${mm}-${dd}T23:59:59.000Z`);
+                                    } else {
+                                        setRenewalDate("");
+                                    }
+                                }}
+                            />
+                        </div>
+                        <div className="grid gap-2">
+                            <Label htmlFor="password">SuperAdmin Password</Label>
+                            <Input
+                                id="password"
+                                type="password"
+                                value={renewalPassword}
+                                onChange={(e) => setRenewalPassword(e.target.value)}
+                                placeholder="Enter your password"
+                                autoComplete="new-password"
+                            />
+                        </div>
+                    </div>
+
+                    <DialogFooter>
+                        <Button type="button" variant="outline" onClick={() => setIsRenewalModalOpen(false)}>
+                            Cancel
+                        </Button>
+                        <Button type="button" onClick={submitManualRenewal} disabled={isRenewing}>
+                            {isRenewing ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Updating...</> : "Confirm Renewal"}
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
+
+            {/* Payment Modal */}
+            <Dialog open={isPaymentModalOpen} onOpenChange={setIsPaymentModalOpen}>
+                <DialogContent className="sm:max-w-[425px]">
+                    <DialogHeader>
+                        <DialogTitle>Subscription Renewal</DialogTitle>
+                        <DialogDescription>
+                            Select subscription duration for {selectedPaymentDevice?.name || "Device"} ({selectedPaymentDevice?.uniqueId})
+                        </DialogDescription>
+                    </DialogHeader>
+
+                    <div className="space-y-4 py-4">
+                        <div className="grid gap-2 items-start justify-start w-full relative z-50 overflow-visible">
+                            <Label htmlFor="years" className="mb-1">Duration (Years)</Label>
+                            <Combobox
+                                className="w-full"
+                                items={[
+                                    { label: "1 Year", value: "1" },
+                                    { label: "2 Years", value: "2" },
+                                    { label: "3 Years", value: "3" },
+                                    { label: "4 Years", value: "4" },
+                                    { label: "5 Years", value: "5" },
+                                ]}
+                                value={paymentYears}
+                                onValueChange={(value) => {
+                                    if (value && value !== "all") {
+                                        setPaymentYears(value);
+                                    }
+                                }}
+                                placeholder="Select duration"
+                                searchPlaceholder="Search duration..."
+                                emptyMessage="No options found."
+                            />
+                        </div>
+                    </div>
+
+                    <DialogFooter>
+                        <Button type="button" variant="outline" onClick={() => setIsPaymentModalOpen(false)}>
+                            Cancel
+                        </Button>
+                        <Button type="button" onClick={submitPayment} disabled={isProcessingPayment}>
+                            {isProcessingPayment ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Processing...</> : "Proceed to Pay"}
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
         </div>
     );
 }

@@ -55,7 +55,7 @@ export interface Device {
   branchId: Branch;
   createdAt: string;
   updatedAt: string;
-  subscriptionEndDate: string;
+  expirationdate: string;
 }
 
 export interface GetDeviceResponse {
@@ -610,4 +610,24 @@ export interface PickupAndDrop {
   child: Student;
   school: School;
   branch: Branch;
+}
+
+export interface ExpiredDeviceData {
+  name: string;
+  uniqueId: string;
+  expirationdate: string;
+}
+
+export interface GetExpiredDevicesResponse {
+  success: boolean;
+  days: number;
+  search: string;
+  page: number;
+  limit: number;
+  expiredTotal: number;
+  expiringSoonTotal: number;
+  expiredTotalPages: number;
+  expiringSoonTotalPages: number;
+  expired: ExpiredDeviceData[];
+  expiringSoon: ExpiredDeviceData[];
 }

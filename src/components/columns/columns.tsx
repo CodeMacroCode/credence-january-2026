@@ -397,19 +397,31 @@ export const getRenewalColumns = (
     ...(userRole !== "superadmin" ? [{
       id: "payment",
       header: "Payment",
-      cell: ({ row }: any) => (
-        <Button
-          variant="outline"
-          size="sm"
-          className="border-green-600 text-green-600 hover:bg-green-50 cursor-pointer"
-          onClick={() => {
-            if (onPayNow) onPayNow(row.original);
-            else alert(`Proceed to Payment for ${row.original.name}`);
-          }}
-        >
-          Pay Now
-        </Button>
-      ),
+      cell: ({ row }: any) => {
+        const device = row.original;
+
+        if (device.noRenewalNeeded) {
+          return (
+            <span className="text-sm text-gray-500 italic block min-w-[200px]">
+              This device's model does not require yearly renewal.
+            </span>
+          );
+        }
+
+        return (
+          <Button
+            variant="outline"
+            size="sm"
+            className="border-green-600 text-green-600 hover:bg-green-50 cursor-pointer"
+            onClick={() => {
+              if (onPayNow) onPayNow(device);
+              else alert(`Proceed to Payment for ${device.name}`);
+            }}
+          >
+            Pay Now
+          </Button>
+        );
+      },
     }] : [])
   ];
 

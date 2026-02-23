@@ -114,22 +114,32 @@ export default function SchoolMaster() {
     { value: "ePoliceReport", label: "ePolice Report" },
   ];
 
+  const companyOptions = [
+    { value: "HBGadgets", label: "HBGadgets" },
+    { value: "StealthTrack", label: "StealthTrack" },
+    { value: "ParentsEye", label: "ParentsEye" },
+  ];
+
   // Permissions state for add admin form - arrays for multi-select
   const [selectedMasterPermissions, setSelectedMasterPermissions] = useState<string[]>([]);
   const [selectedReportPermissions, setSelectedReportPermissions] = useState<string[]>([]);
+  const [selectedCompany, setSelectedCompany] = useState<string>("");
 
   // Permissions state for edit admin form
   const [editMasterPermissions, setEditMasterPermissions] = useState<string[]>([]);
   const [editReportPermissions, setEditReportPermissions] = useState<string[]>([]);
+  const [editCompany, setEditCompany] = useState<string>("");
 
   const resetPermissions = () => {
     setSelectedMasterPermissions([]);
     setSelectedReportPermissions([]);
+    setSelectedCompany("");
   };
 
   const resetEditPermissions = () => {
     setEditMasterPermissions([]);
     setEditReportPermissions([]);
+    setEditCompany("");
   };
 
   // Load access permissions when edit target changes
@@ -137,6 +147,7 @@ export default function SchoolMaster() {
     console.log("🔍 editTarget changed:", editTarget);
 
     if (editTarget) {
+      setEditCompany((editTarget as any).assignedCompany || "");
       const access = (editTarget as any).access;
       console.log("🔍 access object:", access);
 
@@ -283,6 +294,15 @@ export default function SchoolMaster() {
       meta: { flex: 1, minWidth: 150, maxWidth: 300 },
     },
     {
+      header: "Assigned Company",
+      accessorFn: (row) => ({
+        type: "text",
+        value: (row as any).assignedCompany ?? "",
+      }),
+      meta: { flex: 1, minWidth: 150, maxWidth: 300 },
+      enableHiding: true,
+    },
+    {
       header: "Registration Date",
       accessorFn: (row) => ({
         type: "text",
@@ -293,7 +313,7 @@ export default function SchoolMaster() {
     },
     {
       header: "Action",
-      accessorFn: (row) => ({
+      accessorFn: (row: School) => ({
         type: "group",
         items: [
           {
@@ -335,15 +355,6 @@ export default function SchoolMaster() {
       enableHiding: true,
     },
   ];
-
-  // // columns for export
-  // const columnsForExport = [
-  //   { key: "schoolName", header: "School Name" },
-  //   { key: "mobileNo", header: "Mobile" },
-  //   { key: "username", header: "School Username" },
-  //   { key: "password", header: "School Password" },
-  //   { key: "createdAt", header: "Registration Date" },
-  // ];
 
   // Define the fields for the edit dialog
   const schoolFieldConfigs: FieldConfig[] = [
@@ -529,6 +540,7 @@ export default function SchoolMaster() {
       email: (form.elements.namedItem("email") as HTMLInputElement)?.value,
       mobileNo: (form.elements.namedItem("mobileNo") as HTMLInputElement)
         ?.value,
+      assignedCompany: selectedCompany || undefined,
       fullAccess: fullAccessEl ? !!fullAccessEl.checked : false,
       // Access - convert arrays to true/false values
       access: {
@@ -700,6 +712,18 @@ export default function SchoolMaster() {
                     />
                   </div>
 
+                  <div className="grid gap-2">
+                    <Label>Assigned Company</Label>
+                    <Combobox
+                      items={companyOptions}
+                      value={selectedCompany}
+                      onValueChange={(val) => setSelectedCompany(val || "")}
+                      placeholder="Select Company"
+                      searchPlaceholder="Search company..."
+                      emptyMessage="No companies found"
+                    />
+                  </div>
+
                   {/* Permissions Section */}
                   <div className="col-span-full border rounded-lg p-4 mt-2">
                     <div className="flex items-center justify-between mb-4">
@@ -823,6 +847,7 @@ export default function SchoolMaster() {
                     mobileNo: (form.elements.namedItem("editMobileNo") as HTMLInputElement)?.value,
                     username: (form.elements.namedItem("editUsername") as HTMLInputElement)?.value,
                     password: (form.elements.namedItem("editPassword") as HTMLInputElement)?.value,
+                    assignedCompany: editCompany || undefined,
                     access: {
                       master: {
                         route: editMasterPermissions.includes("route"),
@@ -900,6 +925,18 @@ export default function SchoolMaster() {
                       defaultValue={editTarget.password}
                       placeholder="Enter password"
                       required
+                    />
+                  </div>
+
+                  <div className="grid gap-2">
+                    <Label>Assigned Company</Label>
+                    <Combobox
+                      items={companyOptions}
+                      value={editCompany}
+                      onValueChange={(val) => setEditCompany(val || "")}
+                      placeholder="Select Company"
+                      searchPlaceholder="Search company..."
+                      emptyMessage="No companies found"
                     />
                   </div>
 

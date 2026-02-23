@@ -43,8 +43,9 @@ import {
   XCircle,
   MessageCircle,
   Group,
+  SubscriptIcon,
 } from "lucide-react";
-import { GiGps } from "react-icons/gi";
+import { GiGps, GiReceiveMoney } from "react-icons/gi";
 import Image from "next/image";
 import { MdOutlineLocalPolice } from "react-icons/md";
 
@@ -87,6 +88,8 @@ const iconMap: Record<string, React.ElementType> = {
   "ePolice Stop Report": MdOutlineLocalPolice,
   Model: GiGps,
   Category: FileText,
+  "Subscription Config": GiReceiveMoney,
+  "Custom Subscription Config": GiReceiveMoney,
 };
 
 // Access permission mapping for Master section
@@ -167,6 +170,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               // { title: "Notification", url: "/dashboard/users/notification" },
               { title: "Model", url: "/dashboard/master/model" },
               { title: "Category", url: "/dashboard/master/category" },
+              { title: "Subscription Config", url: "/dashboard/master/subscription-config" },
+              {title: "Custom Subscription Config", url: "/dashboard/master/custom-subscription-config"}
             ];
           } else if (role === "school" || role === "branchGroup") {
             return [

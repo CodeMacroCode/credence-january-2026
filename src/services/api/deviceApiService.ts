@@ -1,5 +1,5 @@
 import api from "@/lib/axios";
-import { GetDeviceResponse } from "@/interface/modal";
+import { GetDeviceResponse, GetExpiredDevicesResponse } from "@/interface/modal";
 
 export const deviceApiService = {
   getDevices: async (
@@ -69,24 +69,15 @@ export const deviceApiService = {
     const res = await api.get("/deivce/expired", { params });
     return res.data;
   },
+
+  updateExpirationDate: async (uniqueId: string, payload: { expirationdate: string; password?: string }) => {
+    const res = await api.put(`/device/expiration/${uniqueId}`, payload);
+    return res.data;
+  },
+
+  createSubscriptionOrder: async (payload: { uniqueId: string; years: number }) => {
+    const res = await api.post("https://psychotropic-kary-bolographically.ngrok-free.dev/api/subscription/create-order", payload);
+    return res.data;
+  },
 };
 
-export interface ExpiredDeviceData {
-  name: string;
-  uniqueId: string;
-  expirationdate: string;
-}
-
-export interface GetExpiredDevicesResponse {
-  success: boolean;
-  days: number;
-  search: string;
-  page: number;
-  limit: number;
-  expiredTotal: number;
-  expiringSoonTotal: number;
-  expiredTotalPages: number;
-  expiringSoonTotalPages: number;
-  expired: ExpiredDeviceData[];
-  expiringSoon: ExpiredDeviceData[];
-}
