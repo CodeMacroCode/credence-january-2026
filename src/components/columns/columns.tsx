@@ -330,7 +330,9 @@ export const getStudentColumns = (
 
 export const getRenewalColumns = (
   activeTab: string,
-  userRole?: string
+  userRole?: string,
+  onManualRenewal?: (device: any) => void,
+  onPayNow?: (device: any) => void
 ): ColumnDef<Device>[] => [
     {
       accessorKey: "name",
@@ -382,7 +384,10 @@ export const getRenewalColumns = (
           variant="default"
           size="sm"
           className=" text-white"
-          onClick={() => alert(`Manual Renew for ${row.original.name}`)}
+          onClick={() => {
+            if (onManualRenewal) onManualRenewal(row.original);
+            else alert(`Manual Renew for ${row.original.name}`);
+          }}
         >
           Manual Renewal
         </Button>
@@ -396,8 +401,11 @@ export const getRenewalColumns = (
         <Button
           variant="outline"
           size="sm"
-          className="border-green-600 text-green-600 hover:bg-green-50"
-          onClick={() => alert(`Proceed to Payment for ${row.original.name}`)}
+          className="border-green-600 text-green-600 hover:bg-green-50 cursor-pointer"
+          onClick={() => {
+            if (onPayNow) onPayNow(row.original);
+            else alert(`Proceed to Payment for ${row.original.name}`);
+          }}
         >
           Pay Now
         </Button>
@@ -525,10 +533,10 @@ export const getDeviceColumns = (
       accessorFn: (row: Device) => row.driverObjId?.driverName ?? "—",
     },
     {
-      id: "subscriptionEndDate",
+      id: "expirationdate",
       header: "Subscription End",
       cell: ({ row }: any) => {
-        const value = row.original.subscriptionEndDate;
+        const value = row.original.expirationdate;
         if (!value) return "-";
 
         const date = new Date(value);
