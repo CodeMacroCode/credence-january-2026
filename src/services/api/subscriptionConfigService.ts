@@ -4,6 +4,7 @@ export interface SubscriptionConfigData {
     _id: string;
     modelName: string;
     yearlyAmount: number | string;
+    noRenewalNeeded?: boolean;
     createdAt?: string;
     updatedBy?: string;
     currency?: string;
@@ -16,7 +17,7 @@ export const subscriptionConfigService = {
         return res.data;
     },
 
-    setConfig: async (payload: { modelName: string; yearlyAmount: string | number }) => {
+    setConfig: async (payload: { modelName: string; yearlyAmount: string | number; noRenewalNeeded?: boolean }) => {
         const res = await api.put("/subscription/config", payload);
         return res.data;
     },

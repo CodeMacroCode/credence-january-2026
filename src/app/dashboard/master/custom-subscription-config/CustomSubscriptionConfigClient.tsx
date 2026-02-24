@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { Plus, Edit, X, Loader2, Save, Eye } from "lucide-react";
+import { Plus, Edit, X, Loader2, Save, Eye, Trash2 } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
 import { Combobox } from "@/components/ui/combobox";
 import { useSchoolDropdown, useModelDropdown } from "@/hooks/useDropdown";
@@ -94,6 +94,24 @@ export default function CustomSubscriptionConfigClient() {
         setOverrideModelName(modelName);
         setOverrideCustomPrice(customPrice.toString());
         setIsOverrideModalOpen(true);
+    };
+
+    const handleDeleteOverride = async (schoolId: string, modelName: string) => {
+        if (!confirm(`Are you sure you want to delete the custom subscription plan for model ${modelName}?`)) {
+            return;
+        }
+
+        try {
+            await customSubscriptionConfigService.deleteSubscriptionOverride(schoolId, modelName);
+            toast.success("Custom subscription plan deleted successfully.");
+
+            refetchList();
+            if (selectedSchool?.id === schoolId) {
+                refetchDetails();
+            }
+        } catch (error: any) {
+            toast.error(error?.response?.data?.message || "Failed to delete custom plan");
+        }
     };
 
     return (
@@ -225,7 +243,7 @@ export default function CustomSubscriptionConfigClient() {
                                         <tr key={override._id} className="hover:bg-gray-50 transition-colors">
                                             <td className="px-4 py-3 font-medium text-gray-900">{override.modelName}</td>
                                             <td className="px-4 py-3 text-green-600 font-semibold">₹{override.customPrice}</td>
-                                            <td className="px-4 py-3 text-right">
+                                            <td className="px-4 py-3 text-right space-x-2">
                                                 <Button
                                                     variant="ghost"
                                                     size="sm"
@@ -233,6 +251,14 @@ export default function CustomSubscriptionConfigClient() {
                                                     onClick={() => handleOpenEditModal(selectedSchool.id, override.modelName, override.customPrice)}
                                                 >
                                                     <Edit className="h-4 w-4 text-blue-600" />
+                                                </Button>
+                                                <Button
+                                                    variant="ghost"
+                                                    size="sm"
+                                                    title="Delete custom price"
+                                                    onClick={() => handleDeleteOverride(selectedSchool.id, override.modelName)}
+                                                >
+                                                    <Trash2 className="h-4 w-4 text-red-600" />
                                                 </Button>
                                             </td>
                                         </tr>
@@ -260,7 +286,7 @@ export default function CustomSubscriptionConfigClient() {
                             <Combobox
                                 items={[
                                     ...(schoolData?.map((s: any) => ({
-                                        label: `${s.schoolName} (${s.username})`,
+                                        label: `${s.schoolName}`,
                                         value: s._id,
                                     })) || []),
                                 ]}

@@ -30,6 +30,7 @@ interface VehicleMapProps {
   autoFitBounds?: boolean;
   fitBoundsTrigger?: number;
   mapType?: "roadmap" | "satellite";
+  showMapTypeSelector?: boolean;
 }
 
 // ... existing code ...
@@ -538,10 +539,12 @@ const VehicleMap: React.FC<VehicleMapProps> = ({
   autoFitBounds = false,
   fitBoundsTrigger = 0,
   mapType = "roadmap",
+  showMapTypeSelector = true,
 }) => {
   const mapRef = useRef<L.Map | null>(null);
   const [isInitialLoad, setIsInitialLoad] = useState(true);
   const [shouldFitBounds, setShouldFitBounds] = useState(false);
+  const [internalMapType, setInternalMapType] = useState<"roadmap" | "satellite">(mapType);
 
   // Filter valid vehicles with memoization
   const validVehicles = useMemo(() => {
@@ -640,7 +643,7 @@ const VehicleMap: React.FC<VehicleMapProps> = ({
   }, [validVehicles, handleVehicleClick, selectedVehicleId, clusterMarkers]);
 
   return (
-    <div className="vehicle-map-container" style={{ height, width: "100%" }}>
+    <div className="vehicle-map-container" style={{ height, width: "100%", position: "relative" }}>
       <MapContainer
         ref={mapRef}
         center={mapCenter}
@@ -651,7 +654,7 @@ const VehicleMap: React.FC<VehicleMapProps> = ({
         attributionControl={false}
       >
         <TileLayer
-          url={`https://{s}.google.com/vt/lyrs=${mapType === "satellite" ? "y" : "m"}&x={x}&y={y}&z={z}`}
+          url={`https://{s}.google.com/vt/lyrs=${internalMapType === "satellite" ? "y" : "m"}&x={x}&y={y}&z={z}`}
           subdomains={["mt0", "mt1", "mt2", "mt3"]}
           maxZoom={19}
         />
@@ -673,9 +676,25 @@ const VehicleMap: React.FC<VehicleMapProps> = ({
           fitBoundsTrigger={fitBoundsTrigger}
         />
 
-        {/* Render optimized markers */}
         {renderMarkers}
       </MapContainer>
+
+      {showMapTypeSelector && (
+        <div className="absolute top-4 right-4 z-[1000] hidden lg:block">
+          <button
+            onClick={() => setInternalMapType((prev) => (prev === "roadmap" ? "satellite" : "roadmap"))}
+            className="p-2 rounded-full border border-gray-300 bg-white text-gray-600 hover:bg-gray-100 transition-all duration-200 cursor-pointer shadow-lg hover:shadow-xl hover:-translate-y-0.5 flex items-center justify-center"
+            title={internalMapType === "roadmap" ? "Switch to Satellite" : "Switch to Map"}
+            aria-label={internalMapType === "roadmap" ? "Switch to Satellite" : "Switch to Map"}
+          >
+            {internalMapType === "roadmap" ? (
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-satellite"><path d="M13 7 9 3 5 7l4 4" /><path d="m17 11 4 4-4 4-4-4" /><path d="m8 12 4 4 6-6-4-4Z" /></svg>
+            ) : (
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-map"><path d="M14.106 5.553a2 2 0 0 0 1.788 0l3.659-1.83A1 1 0 0 1 21 4.619v12.764a1 1 0 0 1-.553.894l-4.553 2.277a2 2 0 0 1-1.788 0l-4.212-2.106a2 2 0 0 0-1.788 0l-3.659 1.83A1 1 0 0 1 3 19.381V6.618a1 1 0 0 1 .553-.894l4.553-2.277a2 2 0 0 1 1.788 0z" /><path d="M15 5.764v15" /><path d="M9 3.236v15" /></svg>
+            )}
+          </button>
+        </div>
+      )}
 
       {/* Map Controls */}
       {/* <MapControls

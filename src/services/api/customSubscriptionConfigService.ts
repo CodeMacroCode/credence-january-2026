@@ -36,5 +36,10 @@ export const customSubscriptionConfigService = {
     updateSubscriptionOverride: async (schoolId: string, payload: { modelName: string; customPrice: number }) => {
         const res = await api.put(`/school/${schoolId}/subscription-override`, payload);
         return res.data;
+    },
+
+    deleteSubscriptionOverride: async (schoolId: string, modelName: string) => {
+        const res = await api.delete(`/school/${schoolId}/subscription-override/${modelName}`);
+        return res.data;
     }
 };

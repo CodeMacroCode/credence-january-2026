@@ -8,13 +8,17 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { Plus, Trash2, Save, Edit, X, Loader2 } from "lucide-react";
-import { subscriptionConfigService } from "@/services/api/subscriptionConfigService";
+import { subscriptionConfigService, SubscriptionConfigData } from "@/services/api/subscriptionConfigService";
+import { Switch } from "@/components/ui/switch";
+import { CustomTable } from "@/components/ui/CustomTable";
+import { getSubscriptionConfigColumns } from "@/components/columns/columns";
 
 export default function SubscriptionConfigClient() {
     const [isAdding, setIsAdding] = useState(false);
     const [editingId, setEditingId] = useState<string | null>(null);
     const [newModelName, setNewModelName] = useState("");
     const [newYearlyAmount, setNewYearlyAmount] = useState("");
+    const [newNoRenewalNeeded, setNewNoRenewalNeeded] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
 
     // Fetch configurations
@@ -25,8 +29,34 @@ export default function SubscriptionConfigClient() {
 
     const configs = response?.data || [];
 
+    const handleEdit = (row: SubscriptionConfigData) => {
+        setEditingId(row._id);
+        setNewModelName(row.modelName);
+        setNewYearlyAmount(row.yearlyAmount ? row.yearlyAmount.toString() : "");
+        setNewNoRenewalNeeded(row.noRenewalNeeded || false);
+        setIsAdding(true);
+    };
+
+    const handleDelete = async (modelName: string) => {
+        if (confirm(`Are you sure you want to delete the configuration for ${modelName}?`)) {
+            try {
+                const response = await subscriptionConfigService.deleteConfig(modelName);
+                if (response.success) {
+                    toast.success(response.message || "Configuration deleted successfully");
+                    refetch();
+                } else {
+                    toast.error(response.message || "Failed to delete configuration");
+                }
+            } catch (error: any) {
+                toast.error(error.response?.data?.message || "Error deleting configuration");
+            }
+        }
+    };
+
+    const columns = getSubscriptionConfigColumns(handleEdit, handleDelete);
+
     const handleAddOrUpdate = async () => {
-        if (!newModelName || !newYearlyAmount) {
+        if (!newModelName || (!newNoRenewalNeeded && !newYearlyAmount)) {
             toast.error("Please fill in all fields");
             return;
         }
@@ -35,7 +65,8 @@ export default function SubscriptionConfigClient() {
             setIsSaving(true);
             await subscriptionConfigService.setConfig({
                 modelName: newModelName,
-                yearlyAmount: Number(newYearlyAmount)
+                yearlyAmount: newNoRenewalNeeded ? 0 : Number(newYearlyAmount),
+                noRenewalNeeded: newNoRenewalNeeded
             });
             toast.success(editingId ? "Subscription plan updated successfully" : "Subscription plan added successfully");
             resetForm();
@@ -47,21 +78,10 @@ export default function SubscriptionConfigClient() {
         }
     };
 
-    const handleDelete = async (modelName: string) => {
-        if (confirm(`Are you sure you want to delete the configuration for ${modelName}?`)) {
-            try {
-                await subscriptionConfigService.deleteConfig(modelName);
-                toast.success("Subscription plan deleted successfully");
-                refetch();
-            } catch (error: any) {
-                toast.error(error?.response?.data?.message || "Failed to delete configuration");
-            }
-        }
-    };
-
     const resetForm = () => {
         setNewModelName("");
         setNewYearlyAmount("");
+        setNewNoRenewalNeeded(false);
         setIsAdding(false);
         setEditingId(null);
     };
@@ -93,7 +113,15 @@ export default function SubscriptionConfigClient() {
                         <CardTitle>{editingId ? "Edit Subscription Plan" : "Add New Subscription Plan"}</CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-4">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
+                            <div className="flex items-center space-x-2 md:col-span-2">
+                                <Switch
+                                    id="noRenewalNeeded"
+                                    checked={newNoRenewalNeeded}
+                                    onCheckedChange={setNewNoRenewalNeeded}
+                                />
+                                <Label htmlFor="noRenewalNeeded">No Renewal Needed</Label>
+                            </div>
                             <div>
                                 <Label htmlFor="modelName">Model Name</Label>
                                 <Input
@@ -104,16 +132,18 @@ export default function SubscriptionConfigClient() {
                                     disabled={!!editingId} // Disable model name edit since it's the identifier for DELETE
                                 />
                             </div>
-                            <div>
-                                <Label htmlFor="yearlyAmount">Yearly Amount (₹)</Label>
-                                <Input
-                                    id="yearlyAmount"
-                                    type="number"
-                                    value={newYearlyAmount}
-                                    onChange={(e) => setNewYearlyAmount(e.target.value)}
-                                    placeholder="e.g., 1200"
-                                />
-                            </div>
+                            {!newNoRenewalNeeded && (
+                                <div>
+                                    <Label htmlFor="yearlyAmount">Yearly Amount (₹)</Label>
+                                    <Input
+                                        id="yearlyAmount"
+                                        type="number"
+                                        value={newYearlyAmount}
+                                        onChange={(e) => setNewYearlyAmount(e.target.value)}
+                                        placeholder="e.g., 1200"
+                                    />
+                                </div>
+                            )}
                         </div>
                         <div className="flex gap-2 justify-end">
                             <Button variant="outline" onClick={resetForm}>
@@ -130,61 +160,26 @@ export default function SubscriptionConfigClient() {
             )}
 
             {/* Subscription Plans List */}
-            <Card>
-                <CardHeader>
-                    <CardTitle>All Subscription Plans</CardTitle>
-                </CardHeader>
-                <CardContent>
-                    {isLoading ? (
-                        <div className="flex justify-center py-8">
-                            <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-                        </div>
-                    ) : configs.length === 0 ? (
-                        <div className="text-center py-8 text-muted-foreground">
-                            No subscription plans found. Add one to get started.
-                        </div>
-                    ) : (
-                        <div className="space-y-3">
-                            {configs.map((config) => (
-                                <div
-                                    key={config._id}
-                                    className="flex items-center justify-between p-4 border rounded-lg hover:shadow-sm transition-shadow"
-                                >
-                                    <div className="flex items-center gap-4">
-                                        <div>
-                                            <div className="font-medium">{config.modelName}</div>
-                                            <div className="text-sm text-muted-foreground">
-                                                Yearly Amount: ₹{config.yearlyAmount} {config.currency ? `(${config.currency})` : ""}
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div className="flex items-center gap-2">
-                                        <Button
-                                            variant="ghost"
-                                            size="sm"
-                                            onClick={() => {
-                                                setEditingId(config._id);
-                                                setNewModelName(config.modelName);
-                                                setNewYearlyAmount(config.yearlyAmount.toString());
-                                                setIsAdding(true);
-                                            }}
-                                        >
-                                            <Edit className="h-4 w-4" />
-                                        </Button>
-                                        <Button
-                                            variant="ghost"
-                                            size="sm"
-                                            onClick={() => handleDelete(config.modelName)}
-                                        >
-                                            <Trash2 className="h-4 w-4" />
-                                        </Button>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    )}
-                </CardContent>
-            </Card>
+            <div>
+                {isLoading ? (
+                    <div className="flex justify-center py-8">
+                        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+                    </div>
+                ) : configs.length === 0 ? (
+                    <div className="text-center py-8 text-muted-foreground">
+                        No subscription plans found. Add one to get started.
+                    </div>
+                ) : (
+                    <div className="border rounded-md">
+                        <CustomTable<SubscriptionConfigData>
+                            data={configs}
+                            columns={columns}
+                            isLoading={isLoading}
+                            noDataMessage="No subscription plans found."
+                        />
+                    </div>
+                )}
+            </div>
         </div>
     );
 }

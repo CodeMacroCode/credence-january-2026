@@ -43,11 +43,11 @@ import {
   XCircle,
   MessageCircle,
   Group,
-  SubscriptIcon,
 } from "lucide-react";
 import { GiGps, GiReceiveMoney } from "react-icons/gi";
 import Image from "next/image";
 import { MdOutlineLocalPolice } from "react-icons/md";
+import { LiaMoneyBillAlt } from "react-icons/lia";
 
 type UserRole = "superAdmin" | "school" | "branchGroup" | "branch" | null;
 
@@ -90,6 +90,7 @@ const iconMap: Record<string, React.ElementType> = {
   Category: FileText,
   "Subscription Config": GiReceiveMoney,
   "Custom Subscription Config": GiReceiveMoney,
+  Billing: LiaMoneyBillAlt,
 };
 
 // Access permission mapping for Master section
@@ -171,7 +172,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               { title: "Model", url: "/dashboard/master/model" },
               { title: "Category", url: "/dashboard/master/category" },
               { title: "Subscription Config", url: "/dashboard/master/subscription-config" },
-              {title: "Custom Subscription Config", url: "/dashboard/master/custom-subscription-config"}
+              { title: "Custom Subscription Config", url: "/dashboard/master/custom-subscription-config" },
+              {
+                title: "Billing",
+                url: "/dashboard/billing",
+              }
             ];
           } else if (role === "school" || role === "branchGroup") {
             return [
@@ -196,6 +201,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 title: "Geofence",
                 url: "/dashboard/school/geofence",
               },
+              {
+                title: "Billing",
+                url: "/dashboard/billing",
+              }
             ];
           } else {
             return [
@@ -216,6 +225,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 title: "Geofence",
                 url: "/dashboard/school/geofence",
               },
+              {
+                title: "Billing",
+                url: "/dashboard/billing",
+              }
             ];
           }
         // case "Admin":

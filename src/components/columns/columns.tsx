@@ -1,4 +1,5 @@
 import { ColumnDef } from "@tanstack/react-table";
+import { SubscriptionConfigData } from "@/services/api/subscriptionConfigService";
 import {
   AlertsAndEventsReport,
   Category,
@@ -103,6 +104,70 @@ export const getCategoryColumns = (
       }),
       meta: { minWidth: 200, maxWidth: 2000 },
       enableSorting: false,
+    },
+  ];
+
+export const getSubscriptionConfigColumns = (
+  setEditTarget: (row: SubscriptionConfigData) => void,
+  setDeleteTarget: (modelName: string) => void
+): ColumnDef<SubscriptionConfigData, CellContent>[] => [
+    {
+      header: "Model Name",
+      accessorFn: (row: SubscriptionConfigData) => ({
+        type: "custom",
+        render: () => <span className="font-medium">{row.modelName}</span>,
+      }),
+    },
+    {
+      header: "Yearly Amount",
+      accessorFn: (row: SubscriptionConfigData) => ({
+        type: "custom",
+        render: () => (
+          <span>
+            {row.noRenewalNeeded
+              ? "N/A"
+              : `₹${row.yearlyAmount} ${row.currency ? `(${row.currency})` : ""}`}
+          </span>
+        ),
+      }),
+    },
+    {
+      header: "Renewal Required",
+      accessorFn: (row: SubscriptionConfigData) => ({
+        type: "text",
+        value: row.noRenewalNeeded ? "No" : "Yes",
+        render: () => row.noRenewalNeeded ? "No" : "Yes"
+      }),
+    },
+    {
+      header: "Created At",
+      accessorFn: (row: SubscriptionConfigData) => ({
+        type: "text",
+        value: row.createdAt ? new Date(row.createdAt).toLocaleDateString() : "N/A",
+        render: () => row.createdAt ? new Date(row.createdAt).toLocaleDateString() : "N/A"
+      }),
+    },
+    {
+      id: "actions",
+      header: () => <div className="text-right w-full pr-4">Actions</div>,
+      accessorFn: (row: SubscriptionConfigData) => ({
+        type: "group",
+        items: [
+          {
+            type: "button",
+            label: "Edit",
+            onClick: () => setEditTarget(row),
+            className: "cursor-pointer bg-blue-500 hover:bg-blue-600 text-white font-semibold py-1 px-3 rounded-md text-sm",
+          },
+          {
+            type: "button",
+            label: "Delete",
+            onClick: () => setDeleteTarget(row.modelName),
+            className: "cursor-pointer bg-red-500 hover:bg-red-600 text-white font-semibold py-1 px-3 rounded-md text-sm",
+          }
+        ],
+      }),
+      meta: { minWidth: 100, maxWidth: 120 },
     },
   ];
 
