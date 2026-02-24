@@ -204,6 +204,22 @@ export default function DashboardClient() {
     });
   }, [currentPage, limit]);
 
+  // Sync local sorting with store filters
+  useEffect(() => {
+    if (sorting.length > 0) {
+      const { id, desc } = sorting[0] as { id: string; desc: boolean };
+
+      let sortBy = id;
+      // Map column ids to expected backend sort keys
+      if (id === "name") sortBy = "vehicle";
+      if (id === "todaysKms") sortBy = "todayKm";
+
+      updateFilters({ sortBy, sortOrder: desc ? "desc" : "asc", page: 1 });
+    } else {
+      updateFilters({ sortBy: undefined, sortOrder: undefined, page: 1 });
+    }
+  }, [sorting, updateFilters]);
+
   // Calculate optimal rows per page based on screen height
   const calculateOptimalRows = useCallback(() => {
     const viewportHeight = window.innerHeight;

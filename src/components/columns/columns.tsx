@@ -721,6 +721,7 @@ export const getLiveVehicleColumns = (userRole?: string): ColumnDef<LiveTrack>[]
   {
     id: "lastUpdate",
     header: "Last Update",
+    accessorFn: (row: any) => row.lastUpdate ?? "N/A",
     cell: ({ row }: any) => {
       if (row.original.expired && userRole !== "superadmin") return "-";
       const value = row.original.lastUpdate;

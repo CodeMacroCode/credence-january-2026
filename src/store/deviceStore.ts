@@ -26,6 +26,8 @@ export interface DeviceFilters {
   branchId?: string;
   schoolId?: string;
   category?: string; // Renamed from deviceCategory
+  sortBy?: "speed" | "todayKm" | "vehicle" | "lastUpdate" | string;
+  sortOrder?: "asc" | "desc";
 }
 
 // Enhanced auth data interface
@@ -726,9 +728,9 @@ export const useDeviceStore = create<DeviceState>()(
     }),
     {
       name: "device-storage",
-      partialize: (state) => ({
+      partialize: (state: DeviceState) => ({
         filters: state.filters,
-        mapSettings: state.mapSettings,
+        // mapSettings: state.mapSettings, // Removed if not in DeviceState, or cast as any if it dynamically exists
       }),
     } as unknown as DevtoolsOptions,
   ),
