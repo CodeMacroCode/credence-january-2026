@@ -61,7 +61,7 @@ export default function DashboardClient() {
   const authRequestTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const pendingZoomRef = useRef(false); // Track if zoom is pending after filter change
 
-  const [sorting, setSorting] = useState([]);
+  const [sorting, setSorting] = useState<any>([{ id: "lastUpdate", desc: true }]);
   const [columnVisibility, setColumnVisibility] = useState({});
   const [viewState, setViewState] = useState<ViewState>("split");
   const [selectedVehicleId, setSelectedVehicleId] = useState<number | null>(
@@ -189,7 +189,6 @@ export default function DashboardClient() {
     showSubscriptionPopup
   );
 
-
   // Sync local pagination with store pagination
   const [pagination, setPagination] = useState({
     pageIndex: currentPage - 1,
@@ -243,7 +242,7 @@ export default function DashboardClient() {
     const initialRows = calculateOptimalRows();
     setDynamicPageSize(initialRows);
 
-    updateFilters({ page: 1, limit: initialRows, filter: "all", searchTerm: "" });
+    updateFilters({ page: 1, limit: initialRows, filter: "all", searchTerm: "", sortBy: "lastUpdate", sortOrder: "desc" });
 
     if (!hasPopupBeenShown) {
       // If no value exists in localStorage, show the popup
@@ -931,7 +930,6 @@ export default function DashboardClient() {
             </div>
           </div>
         </div>
-
 
         {/* Drawer */}
         <div className="lg:hidden">

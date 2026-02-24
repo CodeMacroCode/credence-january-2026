@@ -104,6 +104,8 @@ const initialFilters: DeviceFilters = {
   limit: 10,
   filter: "all",
   searchTerm: "",
+  sortBy: "lastUpdate",
+  sortOrder: "desc",
 };
 
 // ========== MODULE-LEVEL MAP FOR CHAT WORKAROUND ==========

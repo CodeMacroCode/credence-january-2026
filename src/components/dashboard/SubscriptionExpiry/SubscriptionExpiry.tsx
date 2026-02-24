@@ -12,7 +12,6 @@ interface SubscriptionExpiryProps {
   isOpen?: boolean;
   onClose?: () => void;
   branches?: SubscriptionExpiration[];
-  onRenew?: () => void;
 }
 
 // =============================
@@ -26,7 +25,6 @@ export const SubscriptionExpiry: React.FC<SubscriptionExpiryProps & {
   isOpen: controlledIsOpen,
   onClose,
   branches: branchesData,
-  onRenew,
   onLoadMore,
   hasMore,
   isLoadingMore
@@ -83,27 +81,18 @@ export const SubscriptionExpiry: React.FC<SubscriptionExpiryProps & {
       }, 300); // Match this with CSS animation duration
     };
 
-    const handleRenew = () => {
-      onRenew?.();
-      handleClose();
-    };
-
-
-
-    const formatDate = (dateString: string) => {
-      const date = new Date(dateString);
-      return date.toLocaleString("en-GB", {
-        day: "2-digit",
-        month: "short",
-        year: "numeric",
-        timeZone: "UTC",
-      });
-    };
-
     if (!isOpen || (branches.length === 0 && !isLoadingMore)) return null;
 
     return (
       <>
+        {/* Backdrop overlay */}
+        <div
+          className={`fixed inset-0 z-40 bg-black/40 backdrop-blur-sm transition-opacity duration-300 ${isClosing ? "opacity-0" : "opacity-100"
+            }`}
+          onClick={handleClose}
+          aria-hidden="true"
+        />
+
         {/* Overlay container - Responsive positioning and sizing */}
         <div
           className="fixed z-50 pointer-events-none responsive-popup-container"
@@ -114,7 +103,7 @@ export const SubscriptionExpiry: React.FC<SubscriptionExpiryProps & {
             bg-white/95 backdrop-blur-lg rounded-lg shadow-2xl overflow-hidden 
             pointer-events-auto transform transition-all duration-300 border border-gray-200
             responsive-popup
-            ${isClosing ? "animate-slideOutRight" : "animate-fadeInSlideIn"}
+            ${isClosing ? "animate-popupFadeOut" : "animate-popupFadeIn"}
           `}
           >
 
@@ -214,40 +203,30 @@ export const SubscriptionExpiry: React.FC<SubscriptionExpiryProps & {
           }
         }
 
-        @keyframes slideInRight {
-          from {
-            opacity: 0;
-            transform: translateX(100%);
-          }
-          to {
-            opacity: 1;
-            transform: translateX(0);
-          }
-        }
-
-        @keyframes slideOutRight {
+        @keyframes fadeOut {
           from {
             opacity: 1;
-            transform: translateX(0);
+            transform: scale(1);
           }
           to {
             opacity: 0;
-            transform: translateX(100%);
+            transform: scale(0.95);
           }
         }
 
-        .animate-fadeInSlideIn {
-          animation: slideInRight 0.3s ease-out forwards;
+        .animate-popupFadeIn {
+          animation: fadeIn 0.3s ease-out forwards;
         }
 
-        .animate-slideOutRight {
-          animation: slideOutRight 0.3s ease-out forwards;
+        .animate-popupFadeOut {
+          animation: fadeOut 0.3s ease-out forwards;
         }
 
         /* Responsive styles for different screen sizes */
         .responsive-popup-container {
-          bottom: 1rem;
-          right: 1rem;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
           width: calc(100vw - 2rem);
           max-width: 400px;
         }
@@ -264,8 +243,6 @@ export const SubscriptionExpiry: React.FC<SubscriptionExpiryProps & {
         /* 16:10 resolution optimization (1920x1200, 2560x1600, etc.) */
         @media (min-width: 1920px) and (min-height: 1000px) {
           .responsive-popup-container {
-            bottom: 1.5rem;
-            right: 1.5rem;
             max-width: 450px;
           }
 
@@ -281,8 +258,6 @@ export const SubscriptionExpiry: React.FC<SubscriptionExpiryProps & {
         /* Large desktop screens */
         @media (min-width: 2560px) {
           .responsive-popup-container {
-            bottom: 2rem;
-            right: 2rem;
             max-width: 500px;
           }
         }
@@ -297,8 +272,6 @@ export const SubscriptionExpiry: React.FC<SubscriptionExpiryProps & {
         /* Mobile devices */
         @media (max-width: 768px) {
           .responsive-popup-container {
-            bottom: 0.5rem;
-            right: 0.5rem;
             width: calc(100vw - 1rem);
             max-width: none;
           }
@@ -315,8 +288,6 @@ export const SubscriptionExpiry: React.FC<SubscriptionExpiryProps & {
         /* Small mobile devices */
         @media (max-width: 480px) {
           .responsive-popup-container {
-            bottom: 0.25rem;
-            right: 0.25rem;
             width: calc(100vw - 0.5rem);
           }
 
@@ -332,12 +303,7 @@ export const SubscriptionExpiry: React.FC<SubscriptionExpiryProps & {
         /* Very small screens */
         @media (max-width: 360px) {
           .responsive-popup-container {
-            position: fixed;
-            top: 0.25rem;
-            bottom: auto;
-            right: 0.25rem;
-            left: 0.25rem;
-            width: auto;
+            width: calc(100vw - 0.5rem);
           }
         }
 
