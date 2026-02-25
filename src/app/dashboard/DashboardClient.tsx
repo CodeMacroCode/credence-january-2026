@@ -41,6 +41,7 @@ import { Combobox } from "@/components/ui/combobox";
 import { FilterCard } from "@/components/dashboard/FilterCard";
 import { exportToExcel, exportToPdf } from "@/util/exportUtils";
 import { useRouter } from "next/navigation";
+import { UserCardsFilter } from "@/components/dashboard/UserCardsFilter/UserCardsFilter";
 
 type ViewState = "split" | "tableExpanded" | "mapExpanded";
 type StatusFilter = "all" | "running" | "idle" | "stopped" | "inactive" | "new";
@@ -151,6 +152,8 @@ export default function DashboardClient() {
   const { decodedToken } = useAuthStore();
   const rawRole = (decodedToken?.role || "").toLowerCase();
 
+  const isSrpfUser = decodedToken?.id === process.env.NEXT_PUBLIC_SRPF_OBJECT_ID;
+
   const userRole = useMemo(() => {
     if (["superadmin", "super_admin", "admin", "root"].includes(rawRole)) return "superadmin";
     if (["school", "schooladmin"].includes(rawRole)) return "school";
@@ -176,7 +179,7 @@ export default function DashboardClient() {
   const [isBranchDropdownOpen, setIsBranchDropdownOpen] = useState(false);
   const { data: branchData } = useBranchDropdown(
     filters.schoolId,
-    isBranchDropdownOpen,
+    isBranchDropdownOpen || isSrpfUser,
     !filters.schoolId
   );
 
@@ -627,7 +630,7 @@ export default function DashboardClient() {
 
 
       {/* Main Dashboard Content */}
-      <div className="dashboard-container relative lg:h-screen min-h-screen bg-gray-50/50 px-4 lg:overflow-hidden">
+      <div className="dashboard-container relative h-full bg-gray-50/50 px-4 overflow-y-auto overflow-x-hidden pb-4">
         {/* Dashboard Content */}
         <div className="space-y-4">
 
@@ -655,6 +658,18 @@ export default function DashboardClient() {
               );
             })}
           </div>
+
+          {/* User Cards Filter for SRPF User */}
+          {isSrpfUser && branchData && branchData.length > 0 && (
+            <UserCardsFilter
+              users={branchData.map((branch: any) => ({
+                label: branch.branchName,
+                value: branch._id,
+              }))}
+              selectedValue={filters.branchId}
+              onSelect={(value) => updateFilters({ branchId: value, page: 1 })}
+            />
+          )}
 
           {/* Second Row: Search and Controls */}
           <div className="flex flex-col lg:flex-row justify-between items-center gap-4 bg-white p-3 rounded-lg shadow-sm border border-gray-100">
@@ -737,27 +752,29 @@ export default function DashboardClient() {
                       )}
 
                       {/* Branch Dropdown */}
-                      <div className="space-y-2">
-                        <h4 className="font-medium text-sm leading-none mb-2">Users</h4>
-                        <Combobox
-                          items={[
-                            { label: "All Users", value: "all" },
-                            ...(branchData?.map((branch: any) => ({
-                              label: branch.branchName,
-                              value: branch._id,
-                            })) || []),
-                          ]}
-                          value={filters.branchId || "all"}
-                          onValueChange={(value) =>
-                            updateFilters({ branchId: value === "all" ? undefined : value })
-                          }
-                          onOpenChange={setIsBranchDropdownOpen}
-                          placeholder="Select Branch"
-                          searchPlaceholder="Search branch..."
-                          width="w-full"
-                          className="cursor-pointer"
-                        />
-                      </div>
+                      {!isSrpfUser && (
+                        <div className="space-y-2">
+                          <h4 className="font-medium text-sm leading-none mb-2">Users</h4>
+                          <Combobox
+                            items={[
+                              { label: "All Users", value: "all" },
+                              ...(branchData?.map((branch: any) => ({
+                                label: branch.branchName,
+                                value: branch._id,
+                              })) || []),
+                            ]}
+                            value={filters.branchId || "all"}
+                            onValueChange={(value) =>
+                              updateFilters({ branchId: value === "all" ? undefined : value })
+                            }
+                            onOpenChange={setIsBranchDropdownOpen}
+                            placeholder="Select Branch"
+                            searchPlaceholder="Search branch..."
+                            width="w-full"
+                            className="cursor-pointer"
+                          />
+                        </div>
+                      )}
 
                       {/* Clear Filters Button */}
                       <Button

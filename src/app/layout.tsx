@@ -1,11 +1,9 @@
-"use client";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Providers } from "@/components/providers";
 import { Toaster } from "@/components/ui/sonner";
-import { useAuthStore } from "@/store/authStore";
-import { useEffect } from "react";
+import { AuthHydrator } from "@/components/AuthHydrator";
 // import RouteTransitionWrapper from "@/components/RouteTransitionWrapper";
 // Fonts
 const geistSans = Geist({
@@ -18,28 +16,23 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-// export const metadata: Metadata = {
-//   title: "Credence Tracker",
-//   description: "School Bus Tracking Solutions",
-// };
+export const metadata: Metadata = {
+  title: "Credence Tracker",
+  description: "School Bus Tracking Solutions",
+};
 
 export default function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const hydrateAuth = useAuthStore((s) => s.hydrateAuth);
-
-  useEffect(() => {
-    hydrateAuth();
-  }, [hydrateAuth]);
-
   return (
     <html lang="en">
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <Providers>
+          <AuthHydrator />
           {/* <RouteTransitionWrapper> */}
           {children}
           {/* </RouteTransitionWrapper> */}
@@ -50,3 +43,4 @@ export default function RootLayout({
     </html>
   );
 }
+
