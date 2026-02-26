@@ -412,10 +412,26 @@ const SingleDeviceLiveTrack: React.FC<SingleDeviceLiveTrackProps> = ({
   const startPointRef = useRef<[number, number] | null>(null);
   const targetPointRef = useRef<[number, number] | null>(null);
   const currentPathRef = useRef<[number, number][]>([]);
+  const isWakingUpRef = useRef(false);
   const { distance } = useDistance(vehicle?.uniqueId);
   const maxPathPoints = 500;
   const animationDuration = 10000;
   const samplingInterval = 500;
+
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "visible") {
+        isWakingUpRef.current = true;
+        setTimeout(() => {
+          isWakingUpRef.current = false;
+        }, 5000);
+      }
+    };
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    return () =>
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+  }, []);
 
   const [isSatelliteView, setIsSatelliteView] = useState(false);
   const [showTraffic, setShowTraffic] = useState(false);
@@ -569,19 +585,57 @@ const SingleDeviceLiveTrack: React.FC<SingleDeviceLiveTrackProps> = ({
       return;
     }
 
+    let shouldClearPath = isWakingUpRef.current;
+    if (!shouldClearPath && lastPoint) {
+      const distanceApproximation = Math.hypot(
+        newPoint[0] - lastPoint[0],
+        newPoint[1] - lastPoint[1]
+      );
+      // Roughly > 500 meters is an unnatural jump in a single update
+      if (distanceApproximation > 0.005) {
+        shouldClearPath = true;
+      }
+    }
+
+    if (shouldClearPath) {
+      isWakingUpRef.current = false;
+      currentPathRef.current = [];
+      setVehiclePath([]);
+      startPointRef.current = newPoint;
+      targetPointRef.current = newPoint;
+
+      if (animationRef.current) {
+        cancelAnimationFrame(animationRef.current);
+      }
+      return;
+    }
+
     startPointRef.current = lastPoint || newPoint;
     targetPointRef.current = newPoint;
     startTimeRef.current = Date.now();
     let lastSampleTime = Date.now();
+    let lastAnimFrameTime = Date.now();
 
     if (animationRef.current) {
       cancelAnimationFrame(animationRef.current);
     }
 
     const animate = () => {
-      const elapsed = Date.now() - startTimeRef.current;
-      const progress = Math.min(elapsed / animationDuration, 1);
       const currentTime = Date.now();
+      const frameDelta = currentTime - lastAnimFrameTime;
+      lastAnimFrameTime = currentTime;
+
+      const elapsed = currentTime - startTimeRef.current;
+      const progress = Math.min(elapsed / animationDuration, 1);
+
+      if (frameDelta > 1500) {
+        currentPathRef.current = [];
+        setVehiclePath([]);
+        startPointRef.current = targetPointRef.current;
+        startTimeRef.current = currentTime;
+        animationRef.current = requestAnimationFrame(animate);
+        return;
+      }
 
       if (startPointRef.current && targetPointRef.current) {
         if (
@@ -753,6 +807,7 @@ const SingleDeviceLiveTrack: React.FC<SingleDeviceLiveTrackProps> = ({
         ref={mapRef}
         center={mapCenter}
         zoom={zoom}
+        maxZoom={28}
         style={{ height: "100%", width: "100%" }}
       >
         <ZoomTransitionController />
@@ -768,6 +823,8 @@ const SingleDeviceLiveTrack: React.FC<SingleDeviceLiveTrackProps> = ({
           url={`https://{s}.google.com/vt/lyrs=${isSatelliteView ? "s" : "m"
             }&x={x}&y={y}&z={z}`}
           subdomains={["mt0", "mt1", "mt2", "mt3"]}
+          maxZoom={28}
+          maxNativeZoom={28}
         />
 
         {vehicle && <DataRefreshIndicator vehicle={vehicle} />}
@@ -777,6 +834,8 @@ const SingleDeviceLiveTrack: React.FC<SingleDeviceLiveTrackProps> = ({
             url={`https://{s}.google.com/vt/lyrs=${isSatelliteView ? "s" : "m"
               }@221097413,traffic&x={x}&y={y}&z={z}`}
             subdomains={["mt0", "mt1", "mt2", "mt3"]}
+            maxZoom={28}
+            maxNativeZoom={28}
           />
         )}
 
@@ -798,7 +857,7 @@ const SingleDeviceLiveTrack: React.FC<SingleDeviceLiveTrackProps> = ({
         )}
 
         {showTrail && vehiclePath.length > 1 && (
-          <VehiclePathTrail path={vehiclePath} />
+          <VehiclePathTrail path={vehiclePath} vehicleStatus={vehicleStatus} />
         )}
 
         {isValidVehicle && vehicle && (

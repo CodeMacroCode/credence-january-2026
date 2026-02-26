@@ -19,7 +19,7 @@ import {
   TripReport,
 } from "@/interface/modal";
 import { CellContent } from "@/components/ui/CustomTable";
-import { Eye, EyeOff, Locate } from "lucide-react";
+import { Eye, EyeOff, Locate, WifiOff } from "lucide-react";
 import React, { useMemo } from "react";
 import { Button } from "../ui/button";
 import Image from "next/image";
@@ -695,9 +695,25 @@ export const getLiveVehicleColumns = (userRole?: string): ColumnDef<LiveTrack>[]
       const imageUrl =
         statusToImageUrl[String(row.original.state)] || statusToImageUrl.inactive;
 
+      const lastUpdate = row.original.lastUpdate;
+      let isOfflineByTime = false;
+      if (lastUpdate) {
+        // Backend often sends local time but appends "Z", causing JS to parse it as future UTC time.
+        // Stripping "Z" makes it parse as local time, ensuring diff matches what the user sees.
+        const parsedStr = String(lastUpdate).replace(/Z$/i, "");
+        const diff = Date.now() - new Date(parsedStr).getTime();
+        isOfflineByTime = diff > 60000;
+      }
+
+      const showOffline = row.original.status === "offline" || isOfflineByTime;
       return (
-        <div className="flex items-center justify-center flex-shrink-0">
+        <div className="relative flex items-center justify-center flex-shrink-0">
           <img src={imageUrl} className="w-16 h-auto max-w-16 min-w-16" alt="vehicle status" />
+          {showOffline && (
+            <div className="absolute -top-1 -right-1" title="Offline">
+              <WifiOff className="w-5 h-5 text-red-500 bg-white rounded-full p-0.5 shadow-sm" />
+            </div>
+          )}
         </div>
       );
     },
@@ -757,7 +773,7 @@ export const getLiveVehicleColumns = (userRole?: string): ColumnDef<LiveTrack>[]
   },
   {
     id: "since",
-    header: "Since",
+    header: "State Since",
     cell: ({ row }: any) => {
       if (row.original.expired && userRole !== "superadmin") return "-";
       // const timeSince = calculateTimeSince(row.original.lastUpdate);

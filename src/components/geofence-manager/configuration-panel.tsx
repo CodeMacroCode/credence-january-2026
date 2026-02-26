@@ -5,7 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { Save, ExternalLink } from "lucide-react";
+import { Save, ExternalLink, Map as MapIcon, Globe } from "lucide-react";
 import { Branch, Geofence, Route, School } from "@/interface/modal";
 import { useRouteDropdown } from "@/hooks/useDropdown";
 import { Combobox } from "@/components/ui/combobox";
@@ -49,6 +49,8 @@ interface Props {
   role: string;
   schools: School[];
   branches: Branch[];
+  isSatellite?: boolean;
+  toggleSatelliteView?: () => void;
 }
 
 
@@ -78,6 +80,8 @@ const GeofenceConfigurationPanel: React.FC<Props> = ({
   role,
   schools,
   branches,
+  isSatellite,
+  toggleSatelliteView,
 }) => {
   const editRowData = useGeofenceStore((state) => state.rowData);
 
@@ -243,7 +247,6 @@ const GeofenceConfigurationPanel: React.FC<Props> = ({
     <Card className="absolute top-14 right-4 w-auto min-w-[500px] max-w-[60vw] z-[1000]">
       <CardContent className=" space-y-4">
         <h2 className="text-lg font-semibold">Configuration</h2>
-
         <div className="flex justify-around items-center">
           {role === "superAdmin" && (
             <div className="space-y-2">
@@ -388,7 +391,7 @@ const GeofenceConfigurationPanel: React.FC<Props> = ({
           </div>
         </div>
 
-        <div className="space-y-2 pt-4">
+        <div className="grid grid-cols-2 gap-4 pt-4">
           <Button
             variant="outline"
             className="w-full cursor-pointer"
@@ -398,6 +401,17 @@ const GeofenceConfigurationPanel: React.FC<Props> = ({
             <ExternalLink className="w-4 h-4 mr-2" />
             Street View
           </Button>
+          <Button
+            variant="outline"
+            className="w-full cursor-pointer"
+            onClick={toggleSatelliteView}
+            type="button"
+          >
+            {isSatellite ? <MapIcon className="w-4 h-4 mr-2" /> : <Globe className="w-4 h-4 mr-2" />}
+            {isSatellite ? "Map View" : "Satellite"}
+          </Button>
+        </div>
+        <div className="space-y-2">
           <Button
             className="w-full cursor-pointer text-white"
             onClick={saveGeofences}

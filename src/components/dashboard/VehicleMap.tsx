@@ -92,7 +92,7 @@ const VehicleMarker = React.memo(
 
       return L.divIcon({
         html: `
-        <div class="vehicle-marker-container ${isSelected ? " selected" : ""}">
+        <div class="vehicle-marker-container ${isSelected ? " selected" : ""}" data-device-id="${vehicle.deviceId}">
         <img
           src="${imageUrl}"
           class="vehicle-marker-img"
@@ -113,7 +113,7 @@ const VehicleMarker = React.memo(
         iconAnchor: [16, 16],
         popupAnchor: [0, -16],
       });
-    }, [imageUrl, vehicle.course, isSelected]);
+    }, [imageUrl, vehicle.course, isSelected, vehicle.deviceId]);
 
     const handleClick = useCallback(() => {
       onClick?.(vehicle);
@@ -319,7 +319,7 @@ const VehicleZoomHandler = ({
 
         // Optional: Add visual highlight
         const selectedMarker = document.querySelector(
-          `.custom - vehicle - marker[data - device - id="${vehicle.deviceId}"]`
+          `.custom-vehicle-marker [data-device-id="${vehicle.deviceId}"]`
         ) as HTMLElement;
 
         if (selectedMarker) {
@@ -680,7 +680,7 @@ const VehicleMap: React.FC<VehicleMapProps> = ({
       </MapContainer>
 
       {showMapTypeSelector && (
-        <div className="absolute top-4 right-4 z-[1000] hidden lg:block">
+        <div className="absolute top-4 right-4 z-1000 hidden lg:block">
           <button
             onClick={() => setInternalMapType((prev) => (prev === "roadmap" ? "satellite" : "roadmap"))}
             className="p-2 rounded-full border border-gray-300 bg-white text-gray-600 hover:bg-gray-100 transition-all duration-200 cursor-pointer shadow-lg hover:shadow-xl hover:-translate-y-0.5 flex items-center justify-center"

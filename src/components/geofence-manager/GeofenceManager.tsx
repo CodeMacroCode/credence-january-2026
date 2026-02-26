@@ -10,7 +10,7 @@ import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { RotateCcw, Undo, X } from "lucide-react";
+import { RotateCcw, Undo, X, Map as MapIcon, Globe } from "lucide-react";
 import GeofenceConfigurationPanel from "./configuration-panel";
 import { Branch, Geofence, Route, School } from "@/interface/modal";
 import { useQueryClient } from "@tanstack/react-query";
@@ -80,7 +80,9 @@ const GeofenceManager: React.FC<GeofenceManagerProps> = ({
   const map = useRef<L.Map | null>(null);
   const geofenceLayerGroup = useRef<L.LayerGroup | null>(null);
   const tempLayerGroup = useRef<L.LayerGroup | null>(null);
+  const tileLayerRef = useRef<L.TileLayer | null>(null);
 
+  const [isSatellite, setIsSatellite] = useState(false);
   const [geofences, setGeofences] = useState<GeofenceData[]>([]);
   const [locationSearchQuery, setLocationSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<any[]>([]);
@@ -338,14 +340,19 @@ const GeofenceManager: React.FC<GeofenceManagerProps> = ({
     if (!mapContainer.current || map.current) return;
 
     try {
-      map.current = L.map(mapContainer.current).setView(
+      map.current = L.map(mapContainer.current, {
+        maxZoom: 24,
+      }).setView(
         [21.1286677, 79.1038211],
         12
       );
 
-      L.tileLayer(`https://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}`, {
+      tileLayerRef.current = L.tileLayer(`https://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}`, {
         subdomains: ["mt0", "mt1", "mt2", "mt3"],
-      }).addTo(map.current);
+        maxZoom: 24,
+        maxNativeZoom: 22,
+      });
+      tileLayerRef.current.addTo(map.current);
 
       geofenceLayerGroup.current = L.layerGroup().addTo(map.current);
       tempLayerGroup.current = L.layerGroup().addTo(map.current);
@@ -377,6 +384,20 @@ const GeofenceManager: React.FC<GeofenceManagerProps> = ({
       }
     };
   }, []);
+
+  // Handle satellite toggle
+  useEffect(() => {
+    if (tileLayerRef.current) {
+      tileLayerRef.current.setUrl(
+        `https://{s}.google.com/vt/lyrs=${isSatellite ? 'y' : 'm'}&x={x}&y={y}&z={z}`
+      );
+    }
+  }, [isSatellite]);
+
+  const toggleSatelliteView = () => {
+    setIsSatellite((prev) => !prev);
+    toast(isSatellite ? "Switched to standard view" : "Switched to satellite view");
+  };
 
   // Handle resize
   useEffect(() => {
@@ -720,6 +741,9 @@ const GeofenceManager: React.FC<GeofenceManagerProps> = ({
           <Button size="sm" variant="secondary" onClick={undoLastAction}>
             <Undo className="h-4 w-4" />
           </Button>
+          <Button size="sm" variant="secondary" onClick={toggleSatelliteView} title={isSatellite ? "Standard View" : "Satellite View"}>
+            {isSatellite ? <MapIcon className="h-4 w-4" /> : <Globe className="h-4 w-4" />}
+          </Button>
           {mode === "add" && (
             <Button size="sm" variant="secondary" onClick={clearTempGeofence}>
               <X className="h-4 w-4" />
@@ -754,6 +778,8 @@ const GeofenceManager: React.FC<GeofenceManagerProps> = ({
         saveGeofences={saveGeofences}
         isLoading={isCreateLoading || isUpdateLoading || isLoading}
         tempGeofence={tempGeofence}
+        isSatellite={isSatellite}
+        toggleSatelliteView={toggleSatelliteView}
       />
     </div>
   );

@@ -1,21 +1,26 @@
 "use client";
 
-import React, { useEffect, useState, use } from "react";
+import React, { useEffect, useState } from "react";
 import { useDeviceStore } from "@/store/deviceStore";
 import { getDecodedToken } from "@/lib/jwt";
-import SingleDeviceLiveTrack from "@/components/dashboard/LiveTrack.tsx/single-device-livetrack";
+import dynamic from "next/dynamic";
+const SingleDeviceLiveTrack = dynamic(() => import("@/components/dashboard/LiveTrack.tsx/single-device-livetrack"), { ssr: false });
 import { useSingleDeviceData } from "@/hooks/livetrack/useLiveDeviceData";
 import { Loader2 } from "lucide-react";
 
-interface PageProps {
-    params: Promise<{ token: string }>;
-}
+export default function SharedLiveTrackPage() {
+    const [token, setToken] = useState<string | null>(null);
 
-export default function SharedLiveTrackPage({ params }: PageProps) {
-    const unwrappedParams = use(params);
-    const token = unwrappedParams.token;
+    useEffect(() => {
+        if (typeof window !== "undefined") {
+            const hashValue = window.location.hash.replace("#", "");
+            if (hashValue) {
+                setToken(hashValue);
+            }
+        }
+    }, []);
 
-    const decodedTarget = getDecodedToken(token) as any;
+    const decodedTarget = token ? getDecodedToken(token) as any : null;
     const uniqueId = decodedTarget?.uniqueId;
     const isExpired = decodedTarget?.exp ? decodedTarget.exp * 1000 < Date.now() : false;
 
@@ -80,7 +85,7 @@ export default function SharedLiveTrackPage({ params }: PageProps) {
             </div>
             <div className="flex-1 w-full relative">
                 <SingleDeviceLiveTrack
-                    vehicle={deviceData}
+                    vehicle={deviceData as any}
                     autoCenter={true}
                     showTrail={true}
                     height="100%"
