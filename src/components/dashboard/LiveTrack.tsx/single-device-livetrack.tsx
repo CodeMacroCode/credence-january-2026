@@ -22,6 +22,7 @@ import { VehiclePathTrail } from "./vehicle-path-trail";
 import DataRefreshIndicator from "./data-refresh-indicator";
 import { SingleDeviceLiveTrackControls } from "./single-device-livetrack-controls";
 import { VehicleMarker } from "./VehicleMarker";
+import { ShareLiveTrackModal } from "./ShareLiveTrackModal";
 import { Slider } from "@/components/ui/slider";
 import { getDecodedToken } from "@/lib/jwt";
 import Cookies from "js-cookie";
@@ -397,6 +398,7 @@ const SingleDeviceLiveTrack: React.FC<SingleDeviceLiveTrackProps> = ({
   schoolId,
   branchId,
   routeObjId,
+  height = "80vh",
 }) => {
   const mapRef = useRef<L.Map | null>(null);
   const smoothSpeed = useSmoothSocketSpeed(
@@ -427,6 +429,7 @@ const SingleDeviceLiveTrack: React.FC<SingleDeviceLiveTrackProps> = ({
   );
   const [userRole, setUserRole] = useState<UserRole | null>(null);
   const [showGeofences, setShowGeofences] = useState(true);
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
 
   const pagination = useMemo(
     () => ({
@@ -743,7 +746,7 @@ const SingleDeviceLiveTrack: React.FC<SingleDeviceLiveTrackProps> = ({
 
   return (
     <div
-      style={{ height: "80vh", width: "100%", position: "relative" }}
+      style={{ height, width: "100%", position: "relative" }}
       className="rounded-lg overflow-hidden"
     >
       <MapContainer
@@ -916,7 +919,17 @@ const SingleDeviceLiveTrack: React.FC<SingleDeviceLiveTrackProps> = ({
         showGeofences={showGeofences}
         onToggleGeofences={handleToggleGeofences}
         geofenceCount={geofenceByRoute?.length}
+        onShareToggle={() => setIsShareModalOpen(true)}
       />
+
+      {/* Share Modal */}
+      {vehicle?.uniqueId && (
+        <ShareLiveTrackModal
+          isOpen={isShareModalOpen}
+          onClose={() => setIsShareModalOpen(false)}
+          uniqueId={vehicle.uniqueId.toString()}
+        />
+      )}
 
       {/* Next Button during drawing */}
       {isDrawingGeofence && !showGeofenceForm && geofenceCenter && (

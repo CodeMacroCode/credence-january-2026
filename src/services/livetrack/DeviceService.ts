@@ -162,6 +162,14 @@ class DeviceService {
   // ============================================================
 
   /**
+   * Override the token used for connection (useful for shared links)
+   * @param token - JWT authentication token
+   */
+  public setToken(token: string): void {
+    this.token = token;
+  }
+
+  /**
    * Initialize and connect to the WebSocket server
    * @param callbacks - Event callbacks for handling socket events
    */

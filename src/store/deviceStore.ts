@@ -72,6 +72,7 @@ interface DeviceState {
   clearError: () => void;
   refreshData: () => void;
   stopAllDeviceData: () => void;
+  setToken: (token: string) => void;
 
   // Single device actions
   startSingleDeviceStream: (uniqueId: string) => void;
@@ -133,6 +134,10 @@ export const useDeviceStore = create<DeviceState>()(
       hasPrevPage: false,
 
       // Actions
+      setToken: (token: string) => {
+        const deviceService = DeviceService.getInstance();
+        deviceService.setToken(token);
+      },
       connect: async () => {
         const deviceService = DeviceService.getInstance();
         set({ isLoading: true, error: null });
