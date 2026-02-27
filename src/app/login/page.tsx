@@ -124,7 +124,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="flex min-h-screen w-full items-center justify-center bg-[#f1f5f9] p-4 font-sans">
+    <div className="relative flex min-h-screen w-full items-center justify-center bg-[#f1f5f9] p-4 sm:p-6 lg:p-8 font-sans">
 
       {/* Background Overlay */}
       <div className="absolute inset-0 z-0">
@@ -137,7 +137,7 @@ export default function LoginPage() {
         />
         <div className="absolute inset-0 bg-blue-600/20 mix-blend-multiply" />
       </div>
-      <div className="flex w-full max-w-6xl h-[800px] overflow-hidden rounded-3xl shadow-2xl bg-transparent border border-white/10 backdrop-blur-sm">
+      <div className="relative z-10 flex w-full max-w-6xl flex-col lg:flex-row min-h-[500px] sm:min-h-[600px] lg:min-h-[700px] xl:min-h-[800px] overflow-hidden rounded-2xl sm:rounded-3xl shadow-2xl bg-transparent border border-white/10 backdrop-blur-sm">
         {/* Left Panel - Branding & Info */}
         <div className="hidden lg:flex w-[50%] bg-[#0F2557]/90 relative flex-col justify-between overflow-hidden text-white border-r border-white/10">
           {/* Top: Logo */}
@@ -161,19 +161,32 @@ export default function LoginPage() {
         </div>
 
         {/* Right Panel - Login Form */}
-        <div className="flex-1 flex flex-col justify-center items-center bg-black/55 backdrop-blur-[100px] p-6 sm:p-12 xl:p-24 relative border-l border-white/20 shadow-[-10px_0_30px_-10px_rgba(255,255,255,0.1)]">
-          <div className="w-full max-w-[440px] space-y-8">
+        <div className="flex-1 flex flex-col justify-center items-center bg-black/55 backdrop-blur-[100px] px-6 py-10 sm:px-12 sm:py-16 md:px-16 lg:px-12 xl:px-24 relative lg:border-l lg:border-white/20 lg:shadow-[-10px_0_30px_-10px_rgba(255,255,255,0.1)] overflow-y-auto">
 
-            <div className="space-y-2">
-              <h2 className="text-3xl font-bold text-white tracking-tight">Secure Login</h2>
-              <p className="text-white text-base font-medium">Welcome back! Please enter your details to access the dashboard.</p>
+          {/* Mobile Logo */}
+          <div className="lg:hidden flex justify-center w-full mb-6 sm:mb-8">
+            <Image
+              src="/logo.png"
+              alt="Credence Tracker"
+              width={128}
+              height={128}
+              className="w-32 sm:w-40 h-12 sm:h-16 object-contain"
+              unoptimized
+            />
+          </div>
+
+          <div className="w-full max-w-[340px] sm:max-w-[400px] md:max-w-[440px] xl:max-w-[500px] space-y-6 sm:space-y-8">
+
+            <div className="space-y-2 text-center lg:text-left">
+              <h2 className="text-2xl sm:text-3xl font-bold text-white tracking-tight">Secure Login</h2>
+              <p className="text-white/90 text-sm sm:text-base font-medium">Welcome back! Please enter your details to access the dashboard.</p>
             </div>
 
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
                 {form.formState.errors.root && (
                   <div className="p-4 rounded-lg bg-red-50/80 backdrop-blur-sm border border-red-200 text-sm text-red-600 font-medium flex items-center gap-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5 flex-shrink-0">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5 shrink-0">
                       <path fillRule="evenodd" d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25zm-1.72 6.97a.75.75 0 10-1.06 1.06L10.94 12l-1.72 1.72a.75.75 0 101.06 1.06L12 13.06l1.72 1.72a.75.75 0 101.06-1.06L13.06 12l1.72-1.72a.75.75 0 10-1.06-1.06L12 10.94l-1.72-1.72z" clipRule="evenodd" />
                     </svg>
                     {form.formState.errors.root.message}
