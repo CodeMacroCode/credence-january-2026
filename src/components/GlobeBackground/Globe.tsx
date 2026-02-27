@@ -172,7 +172,7 @@ export default function Globe() {
         if (!pointsData.length) return;
 
         // 🔥 Highly pixelated low-poly dot
-        const dotGeometry = new THREE.CircleGeometry(0.20, 5); // LOW SEGMENTS = pixelated
+        const dotGeometry = new THREE.CircleGeometry(0.18, 5); // LOW SEGMENTS = pixelated
         const dotMaterial = new THREE.MeshBasicMaterial({
             color: "#7fb3e6",
             side: THREE.DoubleSide,
@@ -288,7 +288,7 @@ export default function Globe() {
             <group>
                 <OrbitControls
                     enableZoom
-                    minDistance={300}
+                    minDistance={250}
                     maxDistance={400}
                     zoomSpeed={0.6}
                     autoRotate={!isDragging}
