@@ -22,6 +22,22 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import dynamic from "next/dynamic";
+import { Canvas } from "@react-three/fiber";
+
+const Globe = dynamic(() => import("@/components/GlobeBackground/Globe"), { ssr: false });
+
+// export function GlobeCanvas() {
+//   return (
+//     <Canvas
+//       camera={{ position: [0, 0, 350], fov: 45 }}
+//       style={{ width: "100%", height: "100%" }}
+//       gl={{ antialias: true }}
+//     >
+//       <Globe />
+//     </Canvas>
+//   );
+// }
 
 const loginSchema = z.object({
   username: z.string().min(1, "Username or Email is required"),
@@ -123,66 +139,25 @@ export default function LoginPage() {
       </div>
       <div className="flex w-full max-w-6xl h-[800px] overflow-hidden rounded-3xl shadow-2xl bg-transparent border border-white/10 backdrop-blur-sm">
         {/* Left Panel - Branding & Info */}
-        <div className="hidden lg:flex w-1/2 bg-[#0F2557]/90 relative flex-col justify-between p-16 overflow-hidden text-white border-r border-white/10">
-
+        <div className="hidden lg:flex w-[50%] bg-[#0F2557]/90 relative flex-col justify-between overflow-hidden text-white border-r border-white/10">
           {/* Top: Logo */}
-          <div className="relative bottom-16 right-6 z-10 flex items-center gap-3">
+          <div className="absolute top-0 left-4 z-10 flex items-center gap-3">
             <Image
               src="/logo.png"
               alt="Credence Tracker"
               width={128}
               height={128}
-              className="w-40 h-40 object-contain"
+              className="w-40 h-20 object-contain"
               unoptimized
             />
           </div>
-
-          {/* Center: Hero Text */}
-          <div className="relative z-10 max-w-xl mt-auto mb-auto">
-            <h1 className="text-5xl font-bold leading-tight mb-12 tracking-tight">
-              Real-time visibility for <br /> every mile.
-            </h1>
-
-            <div className="flex flex-col gap-4">
-              <div className="flex items-center gap-6">
-                <div className="flex flex-col items-center gap-2">
-                  <div className="rounded-lg shadow-lg/20 hover:scale-105 transition-transform duration-300">
-                    <Image
-                      src="/qr-code/playstore.png"
-                      alt="Get it on Google Play"
-                      width={200}
-                      height={200}
-                      className="w-[150px] h-[150px] object-contain"
-                    />
-                  </div>
-                </div>
-                <div className="flex flex-col items-center gap-2">
-                  <div className="rounded-lg shadow-lg/20 hover:scale-105 transition-transform duration-300">
-                    <Image
-                      src="/qr-code/app-store.png"
-                      alt="Download on the App Store"
-                      width={200}
-                      height={200}
-                      className="w-[150px] h-[150px] object-contain"
-                    />
-                  </div>
-                </div>
-                <div className="flex flex-col items-center gap-2">
-                  <div className="rounded-lg shadow-lg/20 hover:scale-105 transition-transform duration-300">
-                    <Link href="https://shop.credencetracker.com/">
-                      <Image
-                        src="/qr-code/shop.png"
-                        alt="SHOP"
-                        width={200}
-                        height={200}
-                        className="w-[150px] h-[150px] object-contain"
-                      />
-                    </Link>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+          <Canvas
+            camera={{ position: [0, 0, 350], fov: 45 }}
+            style={{ width: "100%", height: "100%" }}
+            gl={{ antialias: true }}
+          >
+            <Globe />
+          </Canvas>
         </div>
 
         {/* Right Panel - Login Form */}
