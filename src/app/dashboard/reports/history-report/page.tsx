@@ -8,7 +8,7 @@ import FullScreenSpinner from "@/components/RouteLoader";
 import { formatDateToYYYYMMDD } from "@/util/formatDate";
 import { api } from "@/services/apiService";
 import TripsSidebar from "@/components/history/sliding-side-bar";
-import { Menu, Gauge, Clock, MapPinOff } from "lucide-react";
+import { Menu, Gauge, Clock, MapPinOff, Route } from "lucide-react";
 import dynamic from "next/dynamic";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useDeviceDropdownWithUniqueIdForHistory } from "@/hooks/useDropdown";
@@ -57,6 +57,7 @@ function HistoryReportContent() {
   const [shouldFetch, setShouldFetch] = useState(false);
   const [hasGenerated, setHasGenerated] = useState(false);
   const [showStopsOnMap, setShowStopsOnMap] = useState(false);
+  const [showArrows, setShowArrows] = useState(true);
   const [activeStopId, setActiveStopId] = useState<number | null>(null);
 
   // Trip-wise source data
@@ -707,12 +708,23 @@ function HistoryReportContent() {
           <div className="w-full">
             {isFetching ? (
               <div
-                className={`w-full mt-3 transition-all duration-300 ease-in-out ${isMapExpanded
+                className={`w-full mt-3 transition-all duration-300 ease-in-out relative ${isMapExpanded
                   ? "h-[100vh] md:h-[80vh] lg:h-[90vh]"
                   : "h-[50vh] md:h-[25vh] lg:h-[40vh]"
                   }`}
                 style={{ zIndex: 0 }}
               >
+                <div className="absolute top-4 right-4 z-[1000]">
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    className="bg-white/90 hover:bg-white text-gray-700 shadow-md border border-gray-200 cursor-pointer flex items-center gap-2"
+                    onClick={() => setShowArrows(!showArrows)}
+                  >
+                    <Route className="w-4 h-4" />
+                    {showArrows ? "Hide Arrows" : "Show Arrows"}
+                  </Button>
+                </div>
                 <FullScreenSpinner />
                 <VehicleMap
                   data={metaPosition}
@@ -720,6 +732,7 @@ function HistoryReportContent() {
                   isExpanded={isMapExpanded}
                   onProgressChange={setPlaybackProgress}
                   deviceCategory={deviceCategoryFromUrl || "CAR"}
+                  showArrows={showArrows}
                 />
                 <div>
                   <div
@@ -773,12 +786,23 @@ function HistoryReportContent() {
               </div>
             ) : (
               <div
-                className={`w-full mt-3 transition-all duration-300 ease-in-out ${isMapExpanded
+                className={`w-full mt-3 transition-all duration-300 ease-in-out relative ${isMapExpanded
                   ? "h-[80vh] md:h-[60vh] lg:h-[70vh]"
                   : "h-[60vh] md:h-[45vh] lg:h-[55vh]"
                   }`}
                 style={{ zIndex: 0 }}
               >
+                <div className="absolute top-4 right-4 z-[1000]">
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    className="bg-white/90 hover:bg-white text-gray-700 shadow-md border border-gray-200 cursor-pointer flex items-center gap-2"
+                    onClick={() => setShowArrows(!showArrows)}
+                  >
+                    <Route className="w-4 h-4" />
+                    {showArrows ? "Hide Arrows" : "Show Arrows"}
+                  </Button>
+                </div>
                 {hasGenerated && (!activePlayback || activePlayback.length === 0) ? (
                   <div className="flex flex-col items-center justify-center w-full h-full bg-white/50 backdrop-blur-sm rounded-lg border-2 border-dashed border-gray-300">
                     <MapPinOff className="w-16 h-16 text-gray-400 mb-4" />
@@ -799,6 +823,7 @@ function HistoryReportContent() {
                     onProgressChange={handlePlaybackProgress}
                     stopAddressMap={stopAddressMap}
                     deviceCategory={deviceCategoryFromUrl || "CAR"}
+                    showArrows={showArrows}
                   />
                 )}
 

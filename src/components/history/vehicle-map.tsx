@@ -37,6 +37,7 @@ interface VehicleMapProps {
   onStopClick?: (stop: any) => void;
   stopAddressMap: Record<number, string>;
   deviceCategory?: string;
+  showArrows?: boolean;
 }
 
 type RoutePoint = {
@@ -53,6 +54,7 @@ const VehicleMap: React.FC<VehicleMapProps> = ({
   onStopClick,
   stopAddressMap,
   deviceCategory = "CAR",
+  showArrows = true,
 }) => {
   // Minimum segment duration in ms (one animation frame)
   const MIN_SEGMENT_MS = 16;
@@ -154,9 +156,7 @@ const VehicleMap: React.FC<VehicleMapProps> = ({
     });
   }, []);
 
-  const updateArrowVisibility = useCallback(() => {
-    // Relying on Leaflet to handle visibility and clustering at normal zooms
-  }, []);
+
 
   const createAllArrowMarkers = useCallback(
     () => {
@@ -170,6 +170,8 @@ const VehicleMap: React.FC<VehicleMapProps> = ({
       if (arrowLayerRef.current) {
         arrowLayerRef.current.clearLayers();
       }
+
+      if (!showArrows) return;
 
       // Default optimal size 
       const arrowSize = 24;
@@ -297,7 +299,7 @@ const VehicleMap: React.FC<VehicleMapProps> = ({
         lastPoint = point;
       }
     },
-    [data, createArrowIcon]
+    [data, createArrowIcon, showArrows]
   );
 
   const createStopIcon = (isActive: boolean) =>
@@ -318,18 +320,6 @@ const VehicleMap: React.FC<VehicleMapProps> = ({
     });
 
   // ✅ Debounced arrow visibility update
-  const updateArrowVisibilityDebounced = useCallback(
-    (() => {
-      let timeoutId: NodeJS.Timeout;
-      return () => {
-        clearTimeout(timeoutId);
-        timeoutId = setTimeout(() => {
-          updateArrowVisibility();
-        }, 150);
-      };
-    })(),
-    [updateArrowVisibility]
-  );
 
   const getBearing = (from: L.LatLng, to: L.LatLng): number => {
     const lat1 = (from.lat * Math.PI) / 180;
@@ -344,16 +334,6 @@ const VehicleMap: React.FC<VehicleMapProps> = ({
     let brng = (Math.atan2(y, x) * 180) / Math.PI;
     return (brng + 360) % 360;
   };
-
-  const handleZoomEnd = useCallback(() => {
-    if (!mapRef.current) return;
-    createAllArrowMarkers();
-    updateArrowVisibility();
-  }, [createAllArrowMarkers, updateArrowVisibility]);
-
-  const handleMoveEnd = useCallback(() => {
-    updateArrowVisibilityDebounced();
-  }, [updateArrowVisibilityDebounced]);
 
   // ✅ Optimized smooth rotation function
   const smoothRotateVehicle = useCallback(
@@ -404,15 +384,8 @@ const VehicleMap: React.FC<VehicleMapProps> = ({
     mapRef.current = map;
     arrowLayerRef.current = L.layerGroup().addTo(map);
 
-    map.on("zoomend", handleZoomEnd);
-    map.on("moveend", handleMoveEnd);
-    map.on("resize", updateArrowVisibility);
-
     return () => {
       if (mapRef.current) {
-        mapRef.current.off("zoomend", handleZoomEnd);
-        mapRef.current.off("moveend", handleMoveEnd);
-        mapRef.current.off("resize", updateArrowVisibility);
         allArrowMarkersRef.current.forEach((marker) => marker.remove());
         allArrowMarkersRef.current = [];
         if (startFlagRef.current) startFlagRef.current.remove();
@@ -422,7 +395,7 @@ const VehicleMap: React.FC<VehicleMapProps> = ({
         mapRef.current = null;
       }
     };
-  }, [data, handleZoomEnd, handleMoveEnd, updateArrowVisibility]);
+  }, [data]);
 
   // Handle tile layer changes
   useEffect(() => {
@@ -626,9 +599,8 @@ const VehicleMap: React.FC<VehicleMapProps> = ({
   useEffect(() => {
     if (isRouteDrawn && mapRef.current) {
       createAllArrowMarkers();
-      updateArrowVisibility();
     }
-  }, [isRouteDrawn, data, createAllArrowMarkers, updateArrowVisibility]);
+  }, [isRouteDrawn, data, createAllArrowMarkers, showArrows]);
 
   // Create MarkerPlayer
   useEffect(() => {
