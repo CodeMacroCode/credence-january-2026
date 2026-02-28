@@ -70,6 +70,8 @@ const VehicleMap: React.FC<VehicleMapProps> = ({
   const startFlagRef = useRef<L.Marker | null>(null);
   const endFlagRef = useRef<L.Marker | null>(null);
   const stopMarkersRef = useRef<Map<number, L.Marker>>(new Map());
+  // Stable ref so zoomend listener always calls the latest version
+  const createAllArrowMarkersRef = useRef<() => void>(() => { });
 
   const [isRouteDrawn, setIsRouteDrawn] = useState(false);
   const [startAddress, setStartAddress] = useState<string>("");
@@ -156,10 +158,19 @@ const VehicleMap: React.FC<VehicleMapProps> = ({
     });
   }, []);
 
-
+  // Returns arrow spacing in metres for a given zoom level
+  const getArrowSpacingForZoom = useCallback((zoom: number): number => {
+    // Each zoom step halves the "scale", so double spacing per step zoomed out.
+    // Minimum is 1000 m (even at high zoom levels).
+    const baseZoom = 15;
+    const baseSpacing = 1000;
+    return Math.max(1000, baseSpacing * Math.pow(2, baseZoom - zoom));
+  }, []);
 
   const createAllArrowMarkers = useCallback(
     () => {
+      const zoom = mapRef.current?.getZoom() ?? 15;
+      const arrowSpacing = getArrowSpacingForZoom(zoom);
       if (!mapRef.current || !data || data.length === 0) return;
 
       allArrowMarkersRef.current.forEach((marker) => {
@@ -173,8 +184,8 @@ const VehicleMap: React.FC<VehicleMapProps> = ({
 
       if (!showArrows) return;
 
-      // Default optimal size 
-      const arrowSize = 24;
+      // Arrow size scales slightly with zoom
+      const arrowSize = Math.max(16, Math.min(28, zoom + 10));
 
       // Always place an arrow at the very start
       if (data.length > 0) {
@@ -211,8 +222,8 @@ const VehicleMap: React.FC<VehicleMapProps> = ({
 
         let segmentCovered = 0;
 
-        while (distanceSinceLastArrow + (dist - segmentCovered) >= 1000) {
-          const distanceToNextArrow = 1000 - distanceSinceLastArrow;
+        while (distanceSinceLastArrow + (dist - segmentCovered) >= arrowSpacing) {
+          const distanceToNextArrow = arrowSpacing - distanceSinceLastArrow;
           segmentCovered += distanceToNextArrow;
 
           const fraction = segmentCovered / dist;
@@ -299,7 +310,7 @@ const VehicleMap: React.FC<VehicleMapProps> = ({
         lastPoint = point;
       }
     },
-    [data, createArrowIcon, showArrows]
+    [data, createArrowIcon, showArrows, getArrowSpacingForZoom]
   );
 
   const createStopIcon = (isActive: boolean) =>
@@ -372,12 +383,16 @@ const VehicleMap: React.FC<VehicleMapProps> = ({
       center: initialCenter,
       zoom: hasData ? 15 : 17,
       zoomControl: false,
+      fadeAnimation: false,
     });
 
     tileLayerRef.current = L.tileLayer(
       "https://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}",
       {
         subdomains: ["mt0", "mt1", "mt2", "mt3"],
+        updateWhenZooming: false,
+        updateWhenIdle: true,
+        keepBuffer: 8,
       }
     ).addTo(map);
 
@@ -412,6 +427,9 @@ const VehicleMap: React.FC<VehicleMapProps> = ({
       `https://{s}.google.com/vt/lyrs=${lyrsParam}&x={x}&y={y}&z={z}`,
       {
         subdomains: ["mt0", "mt1", "mt2", "mt3"],
+        updateWhenZooming: false,
+        updateWhenIdle: true,
+        keepBuffer: 8,
       }
     ).addTo(mapRef.current);
   }, [isSatelliteView, showTraffic]);
@@ -594,6 +612,22 @@ const VehicleMap: React.FC<VehicleMapProps> = ({
       setIsRouteDrawn(true);
     }
   }, [data, completeRoute, startAddress, endAddress, createFlagIcon]);
+
+  // Keep ref in sync with the latest callback
+  useEffect(() => {
+    createAllArrowMarkersRef.current = createAllArrowMarkers;
+  });
+
+  // Attach a zoomend listener that redraws arrows at the new zoom level
+  useEffect(() => {
+    if (!mapRef.current) return;
+    const map = mapRef.current;
+    const onZoomEnd = () => createAllArrowMarkersRef.current();
+    map.on("zoomend", onZoomEnd);
+    return () => {
+      map.off("zoomend", onZoomEnd);
+    };
+  }, [isRouteDrawn]);
 
   // Create arrows when route is drawn
   useEffect(() => {
@@ -1014,6 +1048,19 @@ const VehicleMap: React.FC<VehicleMapProps> = ({
         </button>
       </div>
       <style jsx>{`
+        .leaflet-tile-pane {
+          background: #e5e7eb !important;
+        }
+        .leaflet-zoom-anim .leaflet-tile-pane > .leaflet-layer {
+          will-change: auto !important;
+        }
+        .leaflet-tile-container {
+          transition: none !important;
+        }
+        .leaflet-fade-anim .leaflet-tile {
+          opacity: 1 !important;
+          transition: none !important;
+        }
         .course-arrow {
           background: transparent !important;
           border: none !important;
