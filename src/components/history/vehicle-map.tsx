@@ -143,7 +143,8 @@ const VehicleMap: React.FC<VehicleMapProps> = ({
             <svg width="${Math.round(size * 0.75)}" height="${Math.round(
           size * 0.75
         )}" viewBox="0 0 24 24" fill="none" style="filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.7));">
-              <path d="M7 10L12 15L17 10" stroke="white" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M7 6L12 11L17 6" stroke="white" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M7 14L12 19L17 14" stroke="white" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
           </div>
         </div>
@@ -153,31 +154,13 @@ const VehicleMap: React.FC<VehicleMapProps> = ({
     });
   }, []);
 
-  const getArrowDensity = useCallback((zoom: number): number => {
-    if (zoom < 14) return 0;
-    if (zoom >= 16) return 0.01;
-    if (zoom >= 14) return 0.01;
-    return 0.0;
-  }, []);
-
   const updateArrowVisibility = useCallback(() => {
-    if (!mapRef.current || !arrowLayerRef.current) return;
-    const bounds = mapRef.current.getBounds();
-    arrowLayerRef.current.clearLayers();
-    allArrowMarkersRef.current.forEach((marker) => {
-      if (bounds.contains(marker.getLatLng())) {
-        marker.addTo(arrowLayerRef.current!);
-      }
-    });
+    // Relying on Leaflet to handle visibility and clustering at normal zooms
   }, []);
 
   const createAllArrowMarkers = useCallback(
-    (zoom: number) => {
+    () => {
       if (!mapRef.current || !data || data.length === 0) return;
-
-      const density = getArrowDensity(zoom);
-      const step = Math.max(1, Math.floor(1 / density));
-      const arrowSize = zoom >= 14 ? 28 : zoom >= 12 ? 20 : 24;
 
       allArrowMarkersRef.current.forEach((marker) => {
         if (marker && marker.remove) marker.remove();
@@ -188,189 +171,133 @@ const VehicleMap: React.FC<VehicleMapProps> = ({
         arrowLayerRef.current.clearLayers();
       }
 
-      for (let i = 0; i < data.length; i += step) {
-        const point = data[i];
-        const arrowIcon = createArrowIcon(point.course, arrowSize);
-        const marker = L.marker([point.latitude, point.longitude], {
-          icon: arrowIcon,
+      // Default optimal size 
+      const arrowSize = 24;
+
+      // Always place an arrow at the very start
+      if (data.length > 0) {
+        const startPt = data[0];
+        const marker = L.marker([startPt.latitude, startPt.longitude], {
+          icon: createArrowIcon(startPt.course, arrowSize),
           interactive: true,
           zIndexOffset: -1000,
         });
 
-        marker.bindTooltip(`Speed: ${point.speed?.toFixed(1) || "N/A"} km/h`, {
+        marker.addTo(arrowLayerRef.current!);
+        marker.bindTooltip(`Speed: ${startPt.speed?.toFixed(1) || "N/A"} km/h`, {
           permanent: false,
           direction: "top",
           offset: [0, -10],
         });
 
-        marker.on("click", () => {
-          console.log("Marker clicked:", point.createdAt);
-          const formattedTime = new Date(point.createdAt).toLocaleTimeString(
-            "en-GB",
-            {
-              year: "numeric",
-              month: "2-digit",
-              day: "2-digit",
-              hour: "2-digit",
-              minute: "2-digit",
-              second: "2-digit",
-              hour12: true,
-              timeZone: "UTC",
-            }
-          );
-
-          if (speedCache.current.has(i)) {
-            marker
-              .bindPopup(
-                `
-<div style="
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  padding: 8px 4px;
-  min-width: 200px;
-  line-height: 1.5;
-  color: #374151;
-">
-  <div style="
-    font-size: 14px;
-    font-weight: 600;
-    color: #111827;
-    margin-bottom: 10px;
-    padding-bottom: 8px;
-    border-bottom: 1px solid #e5e7eb;
-  ">
-    Vehicle Info
-  </div>
-  
-  <div style="font-size: 12px; margin-bottom: 10px;">
-    <div style="display: grid; grid-template-columns: 60px 1fr; gap: 6px 8px;">
-      <span style="color: #6b7280; font-weight: 500;">Speed:</span>
-      <span style="color: #111827; font-weight: 600;">${point.speed?.toFixed(1) || "N/A"
-                } km/h</span>
-      
-      <span style="color: #6b7280; font-weight: 500;">Time:</span>
-      <span style="color: #111827;">${formattedTime}</span>
-    </div>
-  </div>
-  
-  <div style="
-    padding-top: 8px;
-    border-top: 1px solid #e5e7eb;
-    font-size: 12px;
-  ">
-    <div style="color: #6b7280; font-weight: 500; margin-bottom: 4px;">Address</div>
-    <div style="color: #111827; line-height: 1.4;">${speedCache.current.get(i) || "Loading..."
-                }</div>
-  </div>
-</div>
-`
-              )
-              .openPopup();
-          } else {
-            reverseGeocode(point.latitude, point.longitude)
-              .then((address) => {
-                speedCache.current.set(i, address);
-                marker
-                  .bindPopup(
-                    `
-<div style="
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  padding: 8px 4px;
-  min-width: 200px;
-  line-height: 1.5;
-  color: #374151;
-">
-  <div style="
-    font-size: 14px;
-    font-weight: 600;
-    color: #111827;
-    margin-bottom: 10px;
-    padding-bottom: 8px;
-    border-bottom: 1px solid #e5e7eb;
-  ">
-    Vehicle Info
-  </div>
-  
-  <div style="font-size: 12px; margin-bottom: 10px;">
-    <div style="display: grid; grid-template-columns: 60px 1fr; gap: 6px 8px;">
-      <span style="color: #6b7280; font-weight: 500;">Speed:</span>
-      <span style="color: #111827; font-weight: 600;">${point.speed?.toFixed(1) || "N/A"
-                    } km/h</span>
-      
-      <span style="color: #6b7280; font-weight: 500;">Time:</span>
-      <span style="color: #111827;">${formattedTime}</span>
-    </div>
-  </div>
-  
-  <div style="
-    padding-top: 8px;
-    border-top: 1px solid #e5e7eb;
-    font-size: 12px;
-  ">
-    <div style="color: #6b7280; font-weight: 500; margin-bottom: 4px;">Address</div>
-    <div style="color: #111827; line-height: 1.4;">${speedCache.current.get(i) || "Loading..."
-                    }</div>
-  </div>
-</div>
-`
-                  )
-                  .openPopup();
-              })
-              .catch(() => {
-                marker
-                  .bindPopup(
-                    `
-<div style="
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  padding: 8px 4px;
-  min-width: 200px;
-  line-height: 1.5;
-  color: #374151;
-">
-  <div style="
-    font-size: 14px;
-    font-weight: 600;
-    color: #111827;
-    margin-bottom: 10px;
-    padding-bottom: 8px;
-    border-bottom: 1px solid #e5e7eb;
-  ">
-    Vehicle Info
-  </div>
-  
-  <div style="font-size: 12px; margin-bottom: 10px;">
-    <div style="display: grid; grid-template-columns: 60px 1fr; gap: 6px 8px;">
-      <span style="color: #6b7280; font-weight: 500;">Speed:</span>
-      <span style="color: #111827; font-weight: 600;">${point.speed?.toFixed(1) || "N/A"
-                    } km/h</span>
-      
-      <span style="color: #6b7280; font-weight: 500;">Time:</span>
-      <span style="color: #111827;">${formattedTime}</span>
-    </div>
-  </div>
-  
-  <div style="
-    padding-top: 8px;
-    border-top: 1px solid #e5e7eb;
-    font-size: 12px;
-  ">
-    <div style="color: #6b7280; font-weight: 500; margin-bottom: 4px;">Address</div>
-    <div style="color: #111827; line-height: 1.4;">${speedCache.current.get(i) || "Loading..."
-                    }</div>
-  </div>
-</div>
-`
-                  )
-                  .openPopup();
-              });
-          }
-        });
-
         allArrowMarkersRef.current.push(marker);
       }
 
-      setTimeout(() => updateArrowVisibility(), 0);
+      let distanceSinceLastArrow = 0;
+      let lastPoint = data[0];
+
+      for (let i = 1; i < data.length; i++) {
+        const point = data[i];
+        const dist = L.latLng(lastPoint.latitude, lastPoint.longitude).distanceTo(
+          L.latLng(point.latitude, point.longitude)
+        );
+
+        if (dist === 0) {
+          lastPoint = point;
+          continue;
+        }
+
+        let segmentCovered = 0;
+
+        while (distanceSinceLastArrow + (dist - segmentCovered) >= 1000) {
+          const distanceToNextArrow = 1000 - distanceSinceLastArrow;
+          segmentCovered += distanceToNextArrow;
+
+          const fraction = segmentCovered / dist;
+
+          const lat = lastPoint.latitude + (point.latitude - lastPoint.latitude) * fraction;
+          const lng = lastPoint.longitude + (point.longitude - lastPoint.longitude) * fraction;
+
+          // Calculate heading/bearing between the geometry points
+          const bearing = getBearing(
+            L.latLng(lastPoint.latitude, lastPoint.longitude),
+            L.latLng(point.latitude, point.longitude)
+          );
+
+          const arrowIcon = createArrowIcon(bearing, arrowSize);
+          const marker = L.marker([lat, lng], {
+            icon: arrowIcon,
+            interactive: true,
+            zIndexOffset: -1000,
+          });
+
+          marker.addTo(arrowLayerRef.current!);
+
+          marker.bindTooltip(`Speed: ~${point.speed?.toFixed(1) || "N/A"} km/h`, {
+            permanent: false,
+            direction: "top",
+            offset: [0, -10],
+          });
+
+          // Show estimated information since it's interpolated
+          marker.on("click", () => {
+            const formattedTime = new Date(point.createdAt).toLocaleTimeString(
+              "en-GB",
+              {
+                year: "numeric",
+                month: "2-digit",
+                day: "2-digit",
+                hour: "2-digit",
+                minute: "2-digit",
+                second: "2-digit",
+                hour12: true,
+                timeZone: "UTC",
+              }
+            );
+
+            marker.bindPopup(
+              `
+<div style="
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  padding: 8px 4px;
+  min-width: 200px;
+  line-height: 1.5;
+  color: #374151;
+">
+  <div style="
+    font-size: 14px;
+    font-weight: 600;
+    color: #111827;
+    margin-bottom: 10px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #e5e7eb;
+  ">
+    Vehicle Info
+  </div>
+  
+  <div style="font-size: 12px; margin-bottom: 10px;">
+    <div style="display: grid; grid-template-columns: 60px 1fr; gap: 6px 8px;">
+      <span style="color: #6b7280; font-weight: 500;">Speed:</span>
+      <span style="color: #111827; font-weight: 600;">~${point.speed?.toFixed(1) || "N/A"} km/h</span>
+      
+      <span style="color: #6b7280; font-weight: 500;">Time:</span>
+      <span style="color: #111827;">${formattedTime}</span>
+    </div>
+  </div>
+</div>
+`
+            ).openPopup();
+          });
+
+          allArrowMarkersRef.current.push(marker);
+          distanceSinceLastArrow = 0; // Reset for the next arrow
+        }
+
+        distanceSinceLastArrow += (dist - segmentCovered);
+        lastPoint = point;
+      }
     },
-    [data, createArrowIcon, getArrowDensity, updateArrowVisibility]
+    [data, createArrowIcon]
   );
 
   const createStopIcon = (isActive: boolean) =>
@@ -420,9 +347,8 @@ const VehicleMap: React.FC<VehicleMapProps> = ({
 
   const handleZoomEnd = useCallback(() => {
     if (!mapRef.current) return;
-    const zoom = mapRef.current.getZoom();
-    // createAllArrowMarkers(zoom);
-    // updateArrowVisibility();
+    createAllArrowMarkers();
+    updateArrowVisibility();
   }, [createAllArrowMarkers, updateArrowVisibility]);
 
   const handleMoveEnd = useCallback(() => {
@@ -699,8 +625,7 @@ const VehicleMap: React.FC<VehicleMapProps> = ({
   // Create arrows when route is drawn
   useEffect(() => {
     if (isRouteDrawn && mapRef.current) {
-      const zoom = mapRef.current.getZoom();
-      // createAllArrowMarkers(zoom);
+      createAllArrowMarkers();
       updateArrowVisibility();
     }
   }, [isRouteDrawn, data, createAllArrowMarkers, updateArrowVisibility]);
