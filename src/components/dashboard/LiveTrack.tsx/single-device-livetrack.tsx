@@ -33,6 +33,7 @@ import { Geofence } from "@/interface/modal";
 import { useDistance } from "@/hooks/useDistance";
 import { reverseGeocodeMapTiler } from "@/hooks/useReverseGeocoding";
 import { useSmoothSocketSpeed } from "@/hooks/useSmoothRandomSpeed";
+import { toast } from "sonner";
 
 type UserRole = "superAdmin" | "school" | "branchGroup" | "branch" | null;
 
@@ -770,6 +771,21 @@ const SingleDeviceLiveTrack: React.FC<SingleDeviceLiveTrackProps> = ({
     const lng = geofenceCenter![1];
 
     const address = await reverseGeocodeMapTiler(lat, lng);
+
+    if (!schoolId) {
+      toast.error("Please assign admin to this vehicle");
+      return;
+    }
+
+    if (!branchId) {
+      toast.error("Please assign user to this vehicle");
+      return;
+    }
+
+    if (!routeObjId) {
+      toast.warning("Please assign a route from [Master > Routes > Add Route] first!");
+      return;
+    }
     const geofencePayload = {
       geofenceName: payload.name || payload.geofenceName || "New Geofence",
       area: {
