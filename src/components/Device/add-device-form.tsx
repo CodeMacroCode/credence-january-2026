@@ -789,12 +789,12 @@ export function AddDeviceForm({
                                 field.onChange(formatDateToZ(date));
                               }
                             }}
-                            disabled={(date) =>
-                              date < new Date(new Date().setHours(0, 0, 0, 0))
-                            }
+                            // disabled={(date) =>
+                            //   date < new Date(new Date().setHours(0, 0, 0, 0))
+                            // }
                             captionLayout="dropdown"
-                            startMonth={new Date()}
-                            endMonth={new Date(new Date().getFullYear() + 10, 11)}
+                            // startMonth={new Date()}
+                            // endMonth={new Date(new Date().getFullYear() + 10, 11)}
                           />
                         </PopoverContent>
                       </Popover>
