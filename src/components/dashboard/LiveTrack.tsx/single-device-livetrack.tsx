@@ -96,6 +96,7 @@ interface SingleDeviceLiveTrackProps {
   schoolId?: string;
   branchId?: string;
   routeObjId?: string;
+  routeName?: string;
 }
 
 // Geofence Display Layer Component with proper API structure
@@ -398,8 +399,13 @@ const SingleDeviceLiveTrack: React.FC<SingleDeviceLiveTrackProps> = ({
   schoolId,
   branchId,
   routeObjId,
+  routeName,
   height = "80vh",
 }) => {
+  console.log("routeObjId", routeObjId);
+  console.log("schoolId", schoolId);
+  console.log("branchId", branchId);
+  console.log("routeName", routeName);
   const mapRef = useRef<L.Map | null>(null);
   const smoothSpeed = useSmoothSocketSpeed(
     vehicle?.speed,
@@ -923,7 +929,7 @@ const SingleDeviceLiveTrack: React.FC<SingleDeviceLiveTrackProps> = ({
         </div>
         <div>
           Route No:{" "}
-          {vehicle?.routeNumber ? vehicle.routeNumber : "Not assigned"}
+          {routeName ? routeName : "Not assigned"}
         </div>
         <div>
           Geofences: {geofenceByRoute ? geofenceByRoute?.length : "loading..."}
@@ -1025,9 +1031,9 @@ const SingleDeviceLiveTrack: React.FC<SingleDeviceLiveTrackProps> = ({
           radius={geofenceRadius}
           onSubmit={handleGeofenceSubmit}
           onCancel={handleGeofenceCancel}
-          schoolId={vehicle?.schoolId}
-          branchId={vehicle?.branchId}
-          routeObjId={vehicle?.routeId}
+          schoolId={schoolId}
+          branchId={branchId}
+          routeObjId={routeObjId}
           role={userRole as UserRole}
         />
       )}

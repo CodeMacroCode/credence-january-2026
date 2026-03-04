@@ -1165,7 +1165,7 @@ export const getGeofenceCoumns = (
               e.stopPropagation();
               onEdit(row.original); // Use the callback
             }}
-            className="cursor-pointer bg-[#0c235c] hover:bg-[#D3A80C]"
+            className="cursor-pointer bg-[#0c235c] text-white hover:bg-[#071230] hover:text-white"
           >
             Edit
           </Button>

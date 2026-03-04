@@ -73,6 +73,10 @@ export default function DashboardClient() {
   const [selectedImei, setSelectedImei] = useState<{
     uniqueId: number;
     name: string;
+    routeObjId?: string;
+    schoolId?: string;
+    branchId?: string;
+    routeName?: string;
   }>({
     uniqueId: 0,
     name: "",
@@ -481,7 +485,14 @@ export default function DashboardClient() {
       }
 
       setOpen(true);
-      setSelectedImei({ uniqueId, name });
+      setSelectedImei({
+        uniqueId,
+        name,
+        routeObjId: (device as any)?.routeObjId || (device as any)?.routeId,
+        schoolId: (device as any)?.schoolId,
+        branchId: (device as any)?.branchId,
+        routeName: (device as any)?.routeName || (device as any)?.routeNumber
+      });
     },
     [devices, selectedDevice, userRole]
   );

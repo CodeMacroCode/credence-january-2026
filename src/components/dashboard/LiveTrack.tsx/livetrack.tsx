@@ -30,10 +30,16 @@ import SingleDeviceLiveTrack from "./single-device-livetrack";
 interface Imei {
   imei?: string;
   name?: string;
+  uniqueId?: number;
 }
 
 interface UniqueId {
   uniqueId?: number;
+  routeObjId?: string;
+  schoolId?: string;
+  branchId?: string;
+  name?: string;
+  routeName?: string;
 }
 
 interface LiveTrackProps {
@@ -184,13 +190,37 @@ export const LiveTrack = ({ open, setOpen, selectedImei }: LiveTrackProps) => {
     [setOpen, switchToAllDevices, isConnected, isAuthenticated]
   );
 
+  const routeObjId = useMemo(
+    () => (selectedImei as UniqueId)?.routeObjId || (deviceData as any)?.routeObjId || (deviceData as any)?.routeId,
+    [(selectedImei as UniqueId)?.routeObjId, deviceData]
+  );
+
+  const schoolId = useMemo(
+    () => (selectedImei as UniqueId)?.schoolId || (deviceData as any)?.schoolId,
+    [(selectedImei as UniqueId)?.schoolId, deviceData]
+  );
+
+  const branchId = useMemo(
+    () => (selectedImei as UniqueId)?.branchId || (deviceData as any)?.branchId,
+    [(selectedImei as UniqueId)?.branchId, deviceData]
+  );
+
+  const routeName = useMemo(
+    () => (selectedImei as UniqueId)?.routeName || (deviceData as any)?.routeName || (deviceData as any)?.routeNumber,
+    [(selectedImei as UniqueId)?.routeName, deviceData]
+  );
+
   const singleDeviceProps = useMemo(
     () => ({
       vehicle: deviceData,
       autoCenter: true,
       showTrail: true,
+      routeObjId,
+      schoolId,
+      branchId,
+      routeName,
     }),
-    [deviceData]
+    [deviceData, routeObjId, schoolId, branchId, routeName]
   );
 
   // Get address and loading state
