@@ -80,7 +80,7 @@ export function AddDeviceForm({
       odometer: 0,
       keyFeature: false,
       expirationdate: "",
-      
+
     },
   });
 
@@ -342,7 +342,7 @@ export function AddDeviceForm({
           average: data.average,
           odometer: data.odometer,
           keyFeature: data.keyFeature,
-          sexpirationdate: data.expirationdate,
+          expirationdate: data.expirationdate,
         };
 
         // UPDATE NEW API
