@@ -48,13 +48,13 @@ export const deviceApiService = {
   },
 
   checkRouteAssign: async (id: string) => {
-    const res = await api.get(`/deivce/already-assign-check/${id}`);
+    const res = await api.get(`/device/already-assign-check/${id}`);
     return res.data;
   },
 
   checkDriverAssign: async (driverObjId: string) => {
     const res = await api.get(
-      `/deivce/already-assign-check-to-driver/${driverObjId}`
+      `/device/already-assign-check-to-driver/${driverObjId}`
     );
     return res.data;
   },
@@ -66,7 +66,7 @@ export const deviceApiService = {
     schoolId?: string;
     branchId?: string;
   }): Promise<GetExpiredDevicesResponse> => {
-    const res = await api.get("/deivce/expired", { params });
+    const res = await api.get("/device/expired", { params });
     return res.data;
   },
 
