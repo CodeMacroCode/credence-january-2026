@@ -51,7 +51,7 @@ import { loginUser } from "@/services/userService";
 import { useAuthStore } from "@/store/authStore";
 import { useAccessStore } from "@/store/accessStore";
 import { useRouter } from "next/navigation";
-import { LogIn } from "lucide-react";
+import { LogIn, Eye, EyeOff } from "lucide-react";
 import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
 
 type branchAccess = {
@@ -75,6 +75,33 @@ interface DecodedToken {
   AssignedBranch?: Array<{ _id: string; username: string }>;
   [key: string]: any;
 }
+
+const PasswordCell = ({ password }: { password?: string }) => {
+  const [show, setShow] = React.useState(false);
+
+  return (
+    <div className="flex items-center justify-center gap-2 w-full">
+      <span className="font-mono">
+        {show ? password : "•".repeat(password?.length || 8)}
+      </span>
+
+      <button
+        type="button"
+        onClick={(e) => {
+          e.stopPropagation();
+          setShow((prev) => !prev);
+        }}
+        className="p-1 hover:bg-gray-200 rounded cursor-pointer shrink-0"
+      >
+        {show ? (
+          <EyeOff className="h-4 w-4 text-gray-700" />
+        ) : (
+          <Eye className="h-4 w-4 text-gray-700" />
+        )}
+      </button>
+    </div>
+  );
+};
 
 // Master options for dropdown
 const masterOptions = [
@@ -815,7 +842,7 @@ export default function BranchMaster() {
     { key: "mobileNo", header: "Mobile" },
     { key: "email", header: "Email" },
     { key: "username", header: "Username" },
-    { key: "password", header: "Password" },
+    // { key: "password", header: "Password" },
     { key: "subscriptionExpirationDate", header: "Expiration Date" },
     { key: "createdAt", header: "Registration Date" },
     ...(isSuperAdmin || isSchoolRole || isBranchGroup
@@ -1101,7 +1128,7 @@ export default function BranchMaster() {
     () => [
       {
         header: "User Name",
-        accessorFn: (row) => ({
+        accessorFn: (row: any) => ({
           type: "custom",
           render: () => (
             <div className="flex items-center gap-2 w-full">
@@ -1116,7 +1143,7 @@ export default function BranchMaster() {
                         handleLoginAs(row.username, row.password, row._id);
                       }}
                       disabled={loginAsLoading === row._id}
-                      className="flex-shrink-0 w-7 h-7 rounded-full bg-gray-200/80 hover:bg-gray-300 dark:bg-gray-600/60 dark:hover:bg-gray-500 flex items-center justify-center transition-all duration-200 cursor-pointer shadow-sm hover:shadow-md"
+                      className="shrink-0 w-7 h-7 rounded-full bg-gray-200/80 hover:bg-gray-300 dark:bg-gray-600/60 dark:hover:bg-gray-500 flex items-center justify-center transition-all duration-200 cursor-pointer shadow-sm hover:shadow-md"
                     >
                       {loginAsLoading === row._id ? (
                         <div className="w-3.5 h-3.5 border-2 border-gray-400 border-t-transparent rounded-full animate-spin" />
@@ -1141,7 +1168,7 @@ export default function BranchMaster() {
         ? [
           {
             header: "Admin Name",
-            accessorFn: (row) => ({
+            accessorFn: (row: any) => ({
               type: "text",
               value: row.schoolId?.schoolName ?? "",
             }),
@@ -1153,7 +1180,7 @@ export default function BranchMaster() {
 
       {
         header: "Mobile",
-        accessorFn: (row) => ({
+        accessorFn: (row: any) => ({
           type: "text",
           value: row.mobileNo ?? "",
         }),
@@ -1163,7 +1190,7 @@ export default function BranchMaster() {
 
       {
         header: "Username",
-        accessorFn: (row) => ({
+        accessorFn: (row: any) => ({
           type: "text",
           value: row.username ?? "",
         }),
@@ -1173,9 +1200,9 @@ export default function BranchMaster() {
 
       {
         header: "Password",
-        accessorFn: (row) => ({
-          type: "text",
-          value: row.password ?? "",
+        accessorFn: (row: any) => ({
+          type: "custom",
+          render: () => <PasswordCell password={row.password} />,
         }),
         meta: { flex: 1, minWidth: 150, maxWidth: 300 },
         enableHiding: true,
@@ -1183,7 +1210,7 @@ export default function BranchMaster() {
 
       {
         header: "Registration Date",
-        accessorFn: (row) => ({
+        accessorFn: (row: any) => ({
           type: "text",
           value: formatDate(row.createdAt) ?? "",
         }),
@@ -1193,7 +1220,7 @@ export default function BranchMaster() {
 
       {
         header: "Expiration Date",
-        accessorFn: (row) => ({
+        accessorFn: (row: any) => ({
           type: "text",
           value: row.subscriptionExpirationDate
             ? formatDate(row.subscriptionExpirationDate)
@@ -1217,7 +1244,7 @@ export default function BranchMaster() {
           },
           {
             header: "Action",
-            accessorFn: (row) => ({
+            accessorFn: (row: any) => ({
               type: "group",
               items: [
                 {

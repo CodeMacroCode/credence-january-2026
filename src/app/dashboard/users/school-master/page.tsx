@@ -51,6 +51,33 @@ declare module "@tanstack/react-table" {
   }
 }
 
+const PasswordCell = ({ password }: { password?: string }) => {
+  const [show, setShow] = React.useState(false);
+
+  return (
+    <div className="flex items-center justify-center gap-2">
+      <span className="font-mono">
+        {show ? password : "•".repeat(password?.length || 8)}
+      </span>
+
+      <button
+        type="button"
+        onClick={(e) => {
+          e.stopPropagation();
+          setShow((prev) => !prev);
+        }}
+        className="p-1 hover:bg-gray-200 rounded cursor-pointer shrink-0"
+      >
+        {show ? (
+          <EyeOff className="h-4 w-4 text-gray-700" />
+        ) : (
+          <Eye className="h-4 w-4 text-gray-700" />
+        )}
+      </button>
+    </div>
+  );
+};
+
 export default function SchoolMaster() {
   const queryClient = useQueryClient();
   const router = useRouter();
@@ -210,7 +237,7 @@ export default function SchoolMaster() {
   const columns: ColumnDef<School, CellContent>[] = [
     {
       header: "Admin",
-      accessorFn: (row) => ({
+      accessorFn: (row: any) => ({
         type: "custom",
         render: () => (
           <div className="flex items-center gap-2 w-full">
@@ -224,7 +251,7 @@ export default function SchoolMaster() {
                     handleLoginAs(row.username, row.password, row._id);
                   }}
                   disabled={loginAsLoading === row._id}
-                  className="flex-shrink-0 w-7 h-7 rounded-full bg-gray-200/80 hover:bg-gray-300 dark:bg-gray-600/60 dark:hover:bg-gray-500 flex items-center justify-center transition-all duration-200 cursor-pointer shadow-sm hover:shadow-md"
+                  className="shrink-0 w-7 h-7 rounded-full bg-gray-200/80 hover:bg-gray-300 dark:bg-gray-600/60 dark:hover:bg-gray-500 flex items-center justify-center transition-all duration-200 cursor-pointer shadow-sm hover:shadow-md"
                 >
                   {loginAsLoading === row._id ? (
                     <div className="w-3.5 h-3.5 border-2 border-gray-400 border-t-transparent rounded-full animate-spin" />
@@ -245,7 +272,7 @@ export default function SchoolMaster() {
     },
     {
       header: "Mobile",
-      accessorFn: (row) => ({
+      accessorFn: (row: any) => ({
         type: "text",
         value: row.mobileNo ?? "",
       }),
@@ -254,7 +281,7 @@ export default function SchoolMaster() {
     },
     {
       header: "Username",
-      accessorFn: (row) => ({
+      accessorFn: (row: any) => ({
         type: "text",
         value: row.username ?? "",
       }),
@@ -263,39 +290,15 @@ export default function SchoolMaster() {
     },
     {
       header: "Password",
-      accessorKey: "password",
-      cell: ({ row }) => {
-        const [show, setShow] = React.useState(false);
-        const password = row.original.password;
-
-        return (
-          <div className="flex items-center justify-center gap-2">
-            <span className="font-mono">
-              {show ? password : "•".repeat(password?.length || 8)}
-            </span>
-
-            <button
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                setShow((prev) => !prev);
-              }}
-              className="p-1 hover:bg-gray-200 rounded cursor-pointer"
-            >
-              {show ? (
-                <EyeOff className="h-4 w-4 text-gray-700" />
-              ) : (
-                <Eye className="h-4 w-4 text-gray-700" />
-              )}
-            </button>
-          </div>
-        );
-      },
+      accessorFn: (row: any) => ({
+        type: "custom",
+        render: () => <PasswordCell password={row.password} />,
+      }),
       meta: { flex: 1, minWidth: 150, maxWidth: 300 },
     },
     {
       header: "Assigned Company",
-      accessorFn: (row) => ({
+      accessorFn: (row: any) => ({
         type: "text",
         value: (row as any).assignedCompany ?? "",
       }),
@@ -304,7 +307,7 @@ export default function SchoolMaster() {
     },
     {
       header: "Registration Date",
-      accessorFn: (row) => ({
+      accessorFn: (row: any) => ({
         type: "text",
         value: formatDate(row.createdAt) ?? "",
       }),
@@ -313,7 +316,7 @@ export default function SchoolMaster() {
     },
     {
       header: "Action",
-      accessorFn: (row: School) => ({
+      accessorFn: (row: any) => ({
         type: "group",
         items: [
           {
