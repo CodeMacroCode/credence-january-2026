@@ -35,6 +35,9 @@ export const VALID_VEHICLE_CATEGORIES = [
   "TRUCK",
   "SCOOTY",
   "TEMPO",
+  "POLICE CAR",
+  "POLICE VAN",
+  "POLICE BIKE"
 ];
 
 export const getValidDeviceCategory = (category?: string): string => {

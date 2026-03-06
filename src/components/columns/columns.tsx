@@ -683,7 +683,7 @@ export const getLiveVehicleColumns = (userRole?: string): ColumnDef<LiveTrack>[]
       }
 
       // Inline computation instead of useMemo (hooks cannot be used in cell renderers)
-      const validCategory = getValidDeviceCategory(row.original.category);
+      const validCategory = getValidDeviceCategory(row.original.category); // to add new category go to "@/components/statusIconMap" and add new category in VALID_VEHICLE_CATEGORIES
       const statusToImageUrl: Record<string, string> = {
         running: `/${validCategory}/side-view/green.svg`,
         idle: `/${validCategory}/side-view/yellow.svg`,

@@ -930,28 +930,32 @@ export default function UserAccessPage() {
             // Inline component WITH hooks allowed here
             const PasswordView = () => {
               const [show, setShow] = React.useState(false);
+              const { decodedToken } = useAuthStore();
+              const isSuperSupport = decodedToken?.username === "supersupport";
               const password = row.password || "N/A";
 
               return (
                 <div className="flex items-center justify-center gap-2">
                   <span className="font-mono">
-                    {show ? password : "•".repeat(password?.length || 8)}
+                    {show && !isSuperSupport ? password : "•".repeat(password?.length || 8)}
                   </span>
 
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setShow((prev) => !prev);
-                    }}
-                    className="p-1 hover:bg-gray-200 rounded cursor-pointer"
-                  >
-                    {show ? (
-                      <EyeOff className="h-4 w-4 text-gray-700" />
-                    ) : (
-                      <Eye className="h-4 w-4 text-gray-700" />
-                    )}
-                  </button>
+                  {!isSuperSupport && (
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setShow((prev) => !prev);
+                      }}
+                      className="p-1 hover:bg-gray-200 rounded cursor-pointer"
+                    >
+                      {show ? (
+                        <EyeOff className="h-4 w-4 text-gray-700" />
+                      ) : (
+                        <Eye className="h-4 w-4 text-gray-700" />
+                      )}
+                    </button>
+                  )}
                 </div>
               );
             };

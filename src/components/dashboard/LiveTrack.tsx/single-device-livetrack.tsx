@@ -773,12 +773,12 @@ const SingleDeviceLiveTrack: React.FC<SingleDeviceLiveTrackProps> = ({
     const address = await reverseGeocodeMapTiler(lat, lng);
 
     if (!schoolId) {
-      toast.error("Please assign admin to this vehicle");
+      toast.warning("Please assign admin to this vehicle");
       return;
     }
 
     if (!branchId) {
-      toast.error("Please assign user to this vehicle");
+      toast.warning("Please assign user to this vehicle");
       return;
     }
 

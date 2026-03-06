@@ -79,7 +79,7 @@ const TripReportPage: React.FC = () => {
 
   // Column definitions
   const columns = GetTripReportColumns();
-  
+
   // Export hook
   const { exportToPDF, exportToExcel } = useExport();
 
@@ -241,8 +241,8 @@ const TripReportPage: React.FC = () => {
         const startCoordinates = `${item.startLatitude}, ${item.startLongitude}`;
         const endCoordinates = `${item.endLatitude}, ${item.endLongitude}`;
         // parseFloat handles strings like "4.10 KM" by extracting the numeric part
-        const distanceNum = typeof item.distance === 'string' 
-          ? parseFloat(item.distance) 
+        const distanceNum = typeof item.distance === 'string'
+          ? parseFloat(item.distance)
           : Number(item.distance);
         const distance = !isNaN(distanceNum) ? distanceNum.toFixed(2) : "0.00";
         const maxSpeed = item.maxSpeed != null ? `${item.maxSpeed} km/h` : "0 km/h";
@@ -362,8 +362,7 @@ const TripReportPage: React.FC = () => {
     emptyMessage: isFetchingTripReport
       ? "Loading report data..."
       : totalTripReport === 0
-      ? "No data available for the selected filters"
-      : "Wait for it....🫣",
+        ? "Wait for it....🫣" : "No data available for the selected filters",
     pageSizeOptions: [5, 10, 20, 30, 50, 100, "All"],
     enableSorting: true,
     showSerialNumber: true,

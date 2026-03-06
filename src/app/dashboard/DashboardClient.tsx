@@ -4,18 +4,16 @@ import { ColumnVisibilitySelector } from "@/components/column-visibility-selecto
 import VehicleMap from "@/components/dashboard/VehicleMap";
 import ResponseLoader from "@/components/ResponseLoader";
 import {
-  // ColumnDef,
   CustomTableServerSidePagination,
 } from "@/components/ui/customTable(serverSidePagination)";
 import { Input } from "@/components/ui/input";
 import { useLiveDeviceData } from "@/hooks/livetrack/useLiveDeviceData";
 import { useReverseGeocode } from "@/hooks/useReverseGeocoding";
 import { DeviceData } from "@/types/socket";
-import { ChevronsLeft, ChevronsRight, Locate } from "lucide-react";
+import { ChevronsLeft, ChevronsRight } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState, useRef, startTransition } from "react";
 import { LiveTrack } from "@/components/dashboard/LiveTrack.tsx/livetrack";
 import { BottomDrawer } from "@/components/dashboard/bottom-drawer";
-// import SubscriptionExpiry from "@/components/dashboard/SubscriptionExpiry/SubscriptionExpiry";
 import { getLiveVehicleColumns } from "@/components/columns/columns";
 import { RouteTimeline } from "@/components/dashboard/route/route-timeline";
 import { useSubscriptionExpiry } from "@/hooks/subscription/useSubscription";
@@ -156,6 +154,8 @@ export default function DashboardClient() {
   const { decodedToken } = useAuthStore();
   const rawRole = (decodedToken?.role || "").toLowerCase();
 
+  const isSuperSupport = decodedToken?.username === process.env.NEXT_PUBLIC_SUPPORT_USERNAME;
+
   const isSrpfUser = decodedToken?.id === process.env.NEXT_PUBLIC_SRPF_OBJECT_ID;
 
   const userRole = useMemo(() => {
@@ -241,6 +241,12 @@ export default function DashboardClient() {
   }, []);
 
   // Combined useEffect for cleanup and subscription popup logic
+  useEffect(() => {
+    if (isSuperSupport) {
+      setViewState("tableExpanded");
+    }
+  }, [isSuperSupport]);
+
   useEffect(() => {
     // Check localStorage to see if popup has been shown before
     const hasPopupBeenShown = localStorage.getItem(SUBSCRIPTION_POPUP_KEY);
@@ -443,6 +449,8 @@ export default function DashboardClient() {
 
   const handleDeviceSelection = useCallback(
     (device: DeviceData) => {
+      if (isSuperSupport) return;
+
       // Check if device is expired
       const isExpired = device.expired;
       const isSuperAdmin = userRole === "superadmin";
@@ -465,7 +473,7 @@ export default function DashboardClient() {
         );
       }
     },
-    [queueForGeocoding, userRole]
+    [queueForGeocoding, userRole, isSuperSupport]
   );
 
   // Skill: rerender-defer-reads — Wrap in useCallback for stable reference
@@ -890,7 +898,7 @@ export default function DashboardClient() {
               </section>
 
               {/* Arrow Controls - hidden on mobile */}
-              {!["tableExpanded", "mapExpanded"].includes(viewState) && (
+              {!["tableExpanded", "mapExpanded"].includes(viewState) && !isSuperSupport && (
                 <div className="hidden lg:flex flex-col justify-center items-center space-y-2 z-50 absolute top-1/2 right-[48.5%]">
                   <button
                     onClick={handleExpandMap}
@@ -923,7 +931,7 @@ export default function DashboardClient() {
               )}
 
               {/* Collapse Button when Table is Expanded - Moved here to remain visible */}
-              {viewState === "tableExpanded" && (
+              {viewState === "tableExpanded" && !isSuperSupport && (
                 <div className="hidden lg:flex flex-col justify-center items-center space-y-2 z-50 absolute top-1/2 right-2">
                   <button
                     onClick={handleExpandMap}
@@ -937,7 +945,7 @@ export default function DashboardClient() {
 
               {/* Right Side - Map */}
               <section className={`${getMapClass} rounded-lg overflow-hidden min-h-[300px] lg:min-h-0 relative`}>
-                {viewState !== "tableExpanded" && (
+                {viewState !== "tableExpanded" && !isSuperSupport && (
                   <>
                     <VehicleMap
                       vehicles={mapDevices}
@@ -960,18 +968,22 @@ export default function DashboardClient() {
         </div>
 
         {/* Drawer */}
-        <div className="lg:hidden">
-          {/* Drawer only for mobile if needed, or keeping it for both but controlling visibility */}
-          <BottomDrawer {...bottomDrawerProps} />
-        </div>
-        <div className="hidden lg:block">
-          <BottomDrawer
-            {...bottomDrawerProps}
-            onOpenRouteTimeline={(uniqueId, deviceName, routeObjId) =>
-              handleOpenRouteTimeline(uniqueId, deviceName, routeObjId)
-            }
-          />
-        </div>
+        {!isSuperSupport && (
+          <>
+            <div className="lg:hidden">
+              {/* Drawer only for mobile if needed, or keeping it for both but controlling visibility */}
+              <BottomDrawer {...bottomDrawerProps} />
+            </div>
+            <div className="hidden lg:block">
+              <BottomDrawer
+                {...bottomDrawerProps}
+                onOpenRouteTimeline={(uniqueId, deviceName, routeObjId) =>
+                  handleOpenRouteTimeline(uniqueId, deviceName, routeObjId)
+                }
+              />
+            </div>
+          </>
+        )}
 
 
         <LiveTrack open={open} setOpen={setOpen} selectedImei={selectedImei} />
