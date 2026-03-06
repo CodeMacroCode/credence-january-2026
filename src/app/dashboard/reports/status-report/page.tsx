@@ -12,7 +12,7 @@ import { getStatusReportColumns } from "@/components/columns/columns";
 import { useQueryClient } from "@tanstack/react-query";
 import { reverseGeocodeMapTiler } from "@/hooks/useReverseGeocoding";
 import { useExport } from "@/hooks/useExport";
-import {  StatusReport } from "@/interface/modal";
+import { StatusReport } from "@/interface/modal";
 import { api } from "@/services/apiService";
 import DownloadProgress from "@/components/DownloadProgress";
 import { useStatusReport } from "@/hooks/reports/useStatusReport";
@@ -283,8 +283,8 @@ const StatusReportPage: React.FC = () => {
     emptyMessage: isFetchingStatusReport
       ? "Loading report data..."
       : totalStatusReport === 0
-      ? "No data available for the selected filters"
-      : "Wait for it....🫣",
+        ? "No data available for the selected filters"
+        : "Wait for it....🫣",
     pageSizeOptions: [5, 10, 20, 30, 50, 100, 200, 500, "All"],
     enableSorting: true,
     showSerialNumber: true,
@@ -292,7 +292,7 @@ const StatusReportPage: React.FC = () => {
     enableVirtualization: true,
     estimatedRowHeight: 50,
     overscan: 10,
-    maxHeight: "600px",
+    maxHeight: "calc(100dvh - 400px)",
   });
 
   return (
