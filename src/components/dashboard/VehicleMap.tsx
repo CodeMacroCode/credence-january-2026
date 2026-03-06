@@ -84,7 +84,7 @@ const VehicleMarker = React.memo(
       };
       return statusToImageUrl[vehicle.state] || statusToImageUrl.inactive;
     }, [vehicle.category, vehicle.state]);
-
+    console.log(imageUrl)
 
     // Memoize icon with proper sizing
     const vehicleIcon = useMemo(() => {
@@ -118,21 +118,6 @@ const VehicleMarker = React.memo(
     const handleClick = useCallback(() => {
       onClick?.(vehicle);
     }, [vehicle, onClick]);
-
-    // Memoize formatted date
-    const formattedLastUpdate = useMemo(() => {
-      const utcDate = new Date(vehicle.lastUpdate);
-      const istDate = new Date(utcDate.getTime() + 5.5 * 60 * 60 * 1000);
-      const day = istDate.getUTCDate().toString().padStart(2, "0");
-      const month = (istDate.getUTCMonth() + 1).toString().padStart(2, "0");
-      const year = istDate.getUTCFullYear();
-      const hours = istDate.getUTCHours();
-      const minutes = istDate.getUTCMinutes().toString().padStart(2, "0");
-      const seconds = istDate.getUTCSeconds().toString().padStart(2, "0");
-      const hour12 = hours % 12 || 12;
-      const ampm = hours >= 12 ? "PM" : "AM";
-      return `${day} /${month}/${year}, ${hour12}:${minutes}:${seconds} ${ampm} `;
-    }, [vehicle.lastUpdate]);
 
     // Memoize status info
     const statusInfo = useMemo(() => {
