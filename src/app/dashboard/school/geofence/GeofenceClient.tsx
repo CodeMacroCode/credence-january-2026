@@ -18,7 +18,6 @@ import type { Branch, Geofence, Route, School } from "@/interface/modal";
 import { useGeofence } from "@/hooks/useGeofence";
 import { getGeofenceCoumns } from "@/components/columns/columns";
 import { jwtDecode } from "jwt-decode";
-import Cookies from "js-cookie";
 import { Combobox } from "@/components/ui/combobox";
 import { SearchBar } from "@/components/search-bar/SearchBarPagination";
 import { useDebounce } from "@/hooks/useDebounce";
@@ -286,6 +285,7 @@ export default function GeofenceClient() {
       showSerialNumber: true,
       enableMultiSelect: true,
       getRowId: (row) => row._id,
+      maxHeight: "calc(100dvh - 250px)",
     }
   );
 
