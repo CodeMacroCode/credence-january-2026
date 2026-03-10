@@ -130,72 +130,84 @@ const TripReportPage: React.FC = () => {
     return coordPattern.test(address.trim());
   };
 
-  // Process rows in small chunks to avoid 429
-  const enrichTripReportWithAddress = async (
-    rows: TripReport[],
-    onProgress?: (index: number) => void
-  ): Promise<TripReport[]> => {
-    const result: TripReport[] = [];
-    const CONCURRENCY_LIMIT = 3; // Reduced concurrency to be safe
+// Enrich trip report rows with reverse geocoded addresses, processing in batches to avoid UI blocking
+  const enrichTripReportIncrementally = async (rows: TripReport[]) => {
+  const CONCURRENCY_LIMIT = 3;
 
-    for (let i = 0; i < rows.length; i += CONCURRENCY_LIMIT) {
-      const chunk = rows.slice(i, i + CONCURRENCY_LIMIT);
-      const enrichedChunk = await Promise.all(
-        chunk.map(async (row, idx) => {
-          let startAddress = row.startAddress || "-";
-          let endAddress = row.endAddress || "-";
+  for (let i = 0; i < rows.length; i += CONCURRENCY_LIMIT) {
+    const chunk = rows.slice(i, i + CONCURRENCY_LIMIT);
 
-          const needsStartAddress = isCoordinateAddress(row.startAddress);
-          if (needsStartAddress && row.startLatitude && row.startLongitude) {
-            try {
-              startAddress = await reverseGeocodeMapTiler(
+    const enrichedChunk = await Promise.all(
+      chunk.map(async (row) => {
+        let startAddress = row.startAddress || "-";
+        let endAddress = row.endAddress || "-";
+
+        const needsStartAddress = isCoordinateAddress(row.startAddress);
+        if (needsStartAddress && row.startLatitude && row.startLongitude) {
+          try {
+            startAddress =
+              (await reverseGeocodeMapTiler(
                 Number(row.startLatitude),
                 Number(row.startLongitude)
-              ) || row.startAddress || "-";
-            } catch (err) {
-              console.error("Failed to fetch start address:", err);
-            }
+              )) || row.startAddress || "-";
+          } catch (err) {
+            console.error("Failed to fetch start address:", err);
           }
+        }
 
-          const needsEndAddress = isCoordinateAddress(row.endAddress);
-          if (needsEndAddress && row.endLatitude && row.endLongitude) {
-            try {
-              endAddress = await reverseGeocodeMapTiler(
+        const needsEndAddress = isCoordinateAddress(row.endAddress);
+        if (needsEndAddress && row.endLatitude && row.endLongitude) {
+          try {
+            endAddress =
+              (await reverseGeocodeMapTiler(
                 Number(row.endLatitude),
                 Number(row.endLongitude)
-              ) || row.endAddress || "-";
-            } catch (err) {
-              console.error("Failed to fetch end address:", err);
-            }
+              )) || row.endAddress || "-";
+          } catch (err) {
+            console.error("Failed to fetch end address:", err);
           }
+        }
 
-          if (onProgress) onProgress(i + idx);
+        return {
+          _id: row._id,
+          startAddress,
+          endAddress,
+        };
+      })
+    );
 
-          return { ...row, startAddress, endAddress };
-        })
-      );
-      result.push(...enrichedChunk);
-    }
-    return result;
-  };
+    // sirf updated rows patch karo
+    setTableData((prev) =>
+      prev.map((item) => {
+        const updated = enrichedChunk.find((x) => x._id === item._id);
+        return updated
+          ? {
+              ...item,
+              startAddress: updated.startAddress,
+              endAddress: updated.endAddress,
+            }
+          : item;
+      })
+    );
+  }
+};
 
-  // Effect to enrich data with addresses when tripReport changes
   useEffect(() => {
-    if (!tripReport?.length) {
-      if (tableData.length !== 0) setTableData([]);
-      return;
-    }
-    const currentHash = JSON.stringify(tripReport);
-    if (lastProcessedRef.current === currentHash) return;
-    lastProcessedRef.current = currentHash;
+  if (!tripReport?.length) {
+    setTableData([]);
+    return;
+  }
 
-    const enrich = async () => {
-      const enriched = await enrichTripReportWithAddress(tripReport);
-      setTableData(enriched);
-    };
+  const currentHash = JSON.stringify(tripReport);
+  if (lastProcessedRef.current === currentHash) return;
+  lastProcessedRef.current = currentHash;
 
-    enrich();
-  }, [tripReport]);
+  // Step 1: immediately render backend data
+  setTableData(tripReport);
+
+  // Step 2: background me address fetch karo
+  enrichTripReportIncrementally(tripReport);
+}, [tripReport]);
 
   // Fetch trip report data for export (all data)
   const fetchTripReportForExport = async (): Promise<TripReport[]> => {
