@@ -1829,8 +1829,17 @@ export const GetTripReportColumns = (): ColumnDef<TripReport>[] => [
   {
     header: "Max Speed",
     accessorKey: "maxSpeed",
+    cell: ({ getValue }) => {
+      const value = getValue<number | string>();
+      return `${value != null ? Math.round(Number(value)) : 0} km/h`;
+    },
+  },
+  {
+    header: "Avg Speed",
+    accessorKey: "avgSpeed",
     cell: ({ getValue }) => `${getValue<number>()} km/h`,
   },
+
 ];
 
 export const getRouteReportColumns = (): ColumnDef<GeofenceAlerts>[] => [
