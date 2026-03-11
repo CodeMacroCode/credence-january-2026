@@ -408,7 +408,7 @@ export function Combobox({
         </Button>
       </PopoverTrigger>
       <PopoverContent
-        className={cn(width, "p-0 z-[9999]")}
+        className={cn(width, "p-0 z-9999")}
         onWheel={(e) => e.stopPropagation()}
         onTouchMove={(e) => e.stopPropagation()}
         side="bottom"
@@ -421,7 +421,7 @@ export function Combobox({
           filter={(value, search) => {
             if (onSearchChange) return 1;
 
-            const item = items.find((item) => item.value === value);
+            const item = items.find((item) => item.value.toLowerCase() === value.toLowerCase());
             if (!item) return 0;
 
             const searchLower = search?.toLowerCase();

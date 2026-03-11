@@ -1373,7 +1373,7 @@ export default function BranchMaster() {
                     </DialogHeader>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div className="grid gap-2">
-                        <Label htmlFor="branchName">User Name *</Label>
+                        <Label htmlFor="branchName">Name *</Label>
                         <Input
                           id="branchName"
                           name="branchName"
@@ -1390,12 +1390,10 @@ export default function BranchMaster() {
                             items={schoolOptions}
                             value={school}
                             onValueChange={setSchool}
-                            placeholder="Search admin..."
+                            placeholder="Select admin..."
                             searchPlaceholder="Search admin..."
                             emptyMessage="No admin found."
                             width="w-full"
-                            onSearchChange={setSchoolSearch}
-                            searchValue={schoolSearch}
                           />
                         </div>
                       )}
@@ -1478,6 +1476,7 @@ export default function BranchMaster() {
                         placeholderText="Select expiration date"
                         className="w-full"
                       /> */}
+                      <Label htmlFor="expirationDate">Expiration Date *</Label>
                         <ExpirationDatePicker
                           date={selectedDate}
                           onDateChange={setSelectedDate}
