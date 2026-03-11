@@ -113,7 +113,7 @@ export const RouteTimeline: React.FC<RouteTimelineProps> = ({
               </div>
             ) : stops.length > 0 ? (
               <>
-                {/* START & END POINTS */}
+                {/* START & END POINTS
                 {(startPoint || endPoint) && (
                   <div className="mb-4 space-y-2">
                     {startPoint && (
@@ -150,7 +150,7 @@ export const RouteTimeline: React.FC<RouteTimelineProps> = ({
                       </div>
                     )}
                   </div>
-                )}
+                )} */}
                 <BusStopTimeline
                   stops={stops}
                   currentStopIndex={currentStopIndex}

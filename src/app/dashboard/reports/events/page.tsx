@@ -775,7 +775,7 @@ const AlertsAndEventsReportPage: React.FC = () => {
     enableVirtualization: true,
     estimatedRowHeight: 50,
     overscan: 5,
-    maxHeight: "calc(100dvh - 300px)",
+    maxHeight: "calc(100dvh - 350px)",
   });
 
   return (

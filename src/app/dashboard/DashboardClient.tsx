@@ -996,7 +996,7 @@ export default function DashboardClient() {
         />
 
         {/* Subscription Expiry Popup - Fixed to bottom-right corner */}
-        {showSubscriptionPopup && (
+        {showSubscriptionPopup && (expiredBranches.totalExpiringIn30DaysCount > 0 || expiredBranches.totalExpiredCount > 0) && (
           <SubscriptionExpiry
             isOpen={showSubscriptionPopup}
             onClose={handleCloseSubscriptionPopup}
