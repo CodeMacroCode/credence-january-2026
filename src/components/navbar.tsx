@@ -13,7 +13,10 @@ import {
 import { ProfileDropdown } from "@/components/ProfileDropdown";
 import { useNotificationStore } from "@/store/notificationStore";
 import { NotificationSheet } from "./NotificationDropdown";
-import { Menu, X } from "lucide-react";
+import {
+  Menu,
+  X
+} from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -40,11 +43,9 @@ export function Navbar() {
   const navSections = [
     "Dashboard",
     "Master",
-    // "Admin",
-    // "Users",
     "Reports",
-    "Maintenance",
     "Support",
+    "Maintenance",
   ];
 
   const handleNavClick = React.useCallback(
@@ -127,24 +128,35 @@ export function Navbar() {
         )}
       </div>
 
-      <div className="hidden md:flex flex-1 justify-center items-center relative z-9999">
+      <div className="hidden md:flex flex-1 justify-center items-center relative z-9999 px-4 lg:px-10">
         <NavigationMenu>
-          <NavigationMenuList className="flex-wrap justify-center gap-1 lg:gap-2">
-            {navSections.map((section) => (
-              <NavigationMenuItem key={section}>
-                <NavigationMenuLink
-                  asChild
-                  className="text-xs lg:text-sm px-2 lg:px-3 py-1.5 lg:py-2 whitespace-nowrap font-semibold hover:font-bold transition-colors duration-200 focus:font-bold hover:bg-blue-500/20 rounded-md text-white hover:text-white"
-                >
-                  <Link
-                    href={navigationMap[section] || "#"}
-                    onClick={() => handleNavClick(section)}
-                  >
-                    {section}
-                  </Link>
-                </NavigationMenuLink>
-              </NavigationMenuItem>
-            ))}
+          <NavigationMenuList className="flex-wrap justify-center gap-2 lg:gap-6">
+            {navSections.map((section, index) => {
+              return (
+                <React.Fragment key={section}>
+                  <NavigationMenuItem>
+                    <NavigationMenuLink
+                      asChild
+                      className="text-xs lg:text-sm px-2 lg:px-4 py-1.5 lg:py-2 whitespace-nowrap font-semibold hover:font-bold transition-colors duration-200 focus:font-bold hover:bg-blue-500/20 rounded-md text-white hover:text-white"
+                    >
+                      <Link
+                        href={navigationMap[section] || "#"}
+                        onClick={() => handleNavClick(section)}
+                        className="flex items-center gap-2"
+                      >
+                        {section}
+                      </Link>
+                    </NavigationMenuLink>
+                  </NavigationMenuItem>
+                  {index < navSections.length - 1 && (
+                    <div
+                      className="h-8 w-px bg-white/10 mx-1 lg:mx-2 self-center"
+                      aria-hidden="true"
+                    />
+                  )}
+                </React.Fragment>
+              );
+            })}
           </NavigationMenuList>
         </NavigationMenu>
       </div>
