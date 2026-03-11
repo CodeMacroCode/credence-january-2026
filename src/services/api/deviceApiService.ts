@@ -76,7 +76,7 @@ export const deviceApiService = {
   },
 
   createSubscriptionOrder: async (payload: { uniqueId: string; years: number }) => {
-    const res = await api.post("https://psychotropic-kary-bolographically.ngrok-free.dev/api/subscription/create-order", payload);
+    const res = await api.post(`/subscription/create-order`, payload);
     return res.data;
   },
 };

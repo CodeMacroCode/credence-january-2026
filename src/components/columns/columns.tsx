@@ -191,37 +191,37 @@ export const getRouteColumns = (
       header: "User",
       accessorKey: "branchId.branchName",
     },
-    {
-      id: "firstGeofence",
-      header: "First Stop",
-      accessorFn: (row: Route) => row.startPointGeoId?.geofenceName ?? "—",
-    },
-    {
-      id: "firstGeofenceAddress",
-      header: "First Stop Address",
-      accessorFn: (row: Route) => row.startPointGeoId?.address ?? "—",
-      meta: {
-        wrapConfig: { wrap: "wrap", maxWidth: "260px" },
-      },
-    },
-    {
-      id: "lastGeofence",
-      header: "last stop",
-      accessorFn: (row: Route) => row.endPointGeoId?.geofenceName ?? "—",
-    },
-    {
-      id: "lastGeofenceAddress",
-      header: "last stop address",
-      accessorFn: (row: Route) => row.endPointGeoId?.address ?? "—",
-      meta: {
-        wrapConfig: { wrap: "wrap", maxWidth: "260px" },
-      },
-    },
-    {
-      header: "Route Completion Time",
-      accessorFn: (row: Route) =>
-        `${row.routeCompletionTime ? `${row.routeCompletionTime} Min` : "—"}`,
-    },
+    // {
+    //   id: "firstGeofence",
+    //   header: "First Stop",
+    //   accessorFn: (row: Route) => row.startPointGeoId?.geofenceName ?? "—",
+    // },
+    // {
+    //   id: "firstGeofenceAddress",
+    //   header: "First Stop Address",
+    //   accessorFn: (row: Route) => row.startPointGeoId?.address ?? "—",
+    //   meta: {
+    //     wrapConfig: { wrap: "wrap", maxWidth: "260px" },
+    //   },
+    // },
+    // {
+    //   id: "lastGeofence",
+    //   header: "last stop",
+    //   accessorFn: (row: Route) => row.endPointGeoId?.geofenceName ?? "—",
+    // },
+    // {
+    //   id: "lastGeofenceAddress",
+    //   header: "last stop address",
+    //   accessorFn: (row: Route) => row.endPointGeoId?.address ?? "—",
+    //   meta: {
+    //     wrapConfig: { wrap: "wrap", maxWidth: "260px" },
+    //   },
+    // },
+    // {
+    //   header: "Route Completion Time",
+    //   accessorFn: (row: Route) =>
+    //     `${row.routeCompletionTime ? `${row.routeCompletionTime} Min` : "—"}`,
+    // },
     {
       header: "Action",
       cell: ({ row }) => {
