@@ -404,7 +404,7 @@ const DevicesPage = () => {
     enableVirtualization: true,
     estimatedRowHeight: 50,
     overscan: 5,
-    maxHeight: "calc(100dvh - 300px)",
+    maxHeight: "calc(100dvh - 260px)",
   });
 
   return (
