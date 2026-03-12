@@ -210,6 +210,14 @@ export const useReport = (
     placeholderData: keepPreviousData,
   });
 
+  const geofenceAlertsPayload = {
+    page: pagination.pageIndex + 1,
+    limit: pagination.pageSize,
+    uniqueIds: parseUniqueIds(filters?.uniqueId),
+    from: filters?.from,
+    to: filters?.to,
+  };
+
   const getGeofenceAlertsReportQuery = useQuery({
     queryKey: [
       "geofence-alerts-report",
@@ -222,18 +230,11 @@ export const useReport = (
     ],
 
     queryFn: () =>
-      reportService.getGeofenceAlertsReport({
-        page: pagination.pageIndex + 1,
-        limit: pagination.pageSize,
-        uniqueId: filters?.uniqueId,
-        period: filters?.period || "Custom",
-        from: filters?.from,
-        to: filters?.to,
-      }),
+      reportService.getGeofenceAlertsReport(geofenceAlertsPayload),
     enabled:
       hasGenerated &&
       reportType === "geofence-alerts" &&
-      !!filters?.uniqueId &&
+      parseUniqueIds(filters?.uniqueId).length > 0 &&
       !!filters?.from &&
       !!filters?.to,
     staleTime: 10 * 60 * 1000,
@@ -379,6 +380,36 @@ export const useReport = (
     refetchOnWindowFocus: false,
     retry: false,
   });
+  // Flatten nested geofence event data: { uniqueId: { date: events[] } } → flat array
+  const flattenGeofenceData = (data: any) => {
+    if (!data || typeof data !== "object") return [];
+    const flat: any[] = [];
+    for (const uniqueId of Object.keys(data)) {
+      const dateMap = data[uniqueId];
+      if (!dateMap || typeof dateMap !== "object") continue;
+      for (const date of Object.keys(dateMap)) {
+        const events = dateMap[date];
+        if (!Array.isArray(events)) continue;
+        for (const event of events) {
+          flat.push({
+            uniqueId: event.uniqueId,
+            date,
+            geofenceName: event.geofenceName,
+            address: event.address,
+            eventType: event.eventType,
+            geoType: event.geoType,
+            timestamp: event.timestamp,
+            createdAt: event.createdAt,
+            center: event.area?.center
+              ? `${event.area.center[0]}, ${event.area.center[1]}`
+              : "-",
+            radius: event.area?.radius ?? 0,
+          });
+        }
+      }
+    }
+    return flat;
+  };
 
   return {
     statusReport: getStatusQuery.data?.data || [],
@@ -386,7 +417,7 @@ export const useReport = (
     idleReport: getIdleReportQuery.data?.data || [],
     distanceReport: getDistanceReportQuery.data?.data || [],
     alertsAndEventsReport: getAertsAndEventsReportQuery.data?.data || [],
-    geofenceAlertsReport: getGeofenceAlertsReportQuery.data?.data || [],
+    geofenceAlertsReport: flattenGeofenceData(getGeofenceAlertsReportQuery.data?.data),
     tripReport: getTripReportQuery.data?.data || [],
     travelSummaryReport: getTravelSummaryReportQuery.data?.reportData || [],
     routeReport: getRouteReportQuery.data?.data || [],

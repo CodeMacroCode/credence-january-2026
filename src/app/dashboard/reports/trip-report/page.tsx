@@ -373,8 +373,7 @@ const TripReportPage: React.FC = () => {
     onColumnVisibilityChange: setColumnVisibility,
     emptyMessage: isFetchingTripReport
       ? "Loading report data..."
-      : totalTripReport === 0
-        ? "Wait for it....🫣" : "No data available for the selected filters",
+      : "No data available for the selected filters",
     pageSizeOptions: [5, 10, 20, 30, 50, 100, "All"],
     enableSorting: true,
     showSerialNumber: true,

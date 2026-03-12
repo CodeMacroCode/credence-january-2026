@@ -1,4 +1,4 @@
-type VehicleStatus = "Ignition On" | "Ignition Off" | "Idle" | "Overspeed";
+export type VehicleStatus = "Ignition On" | "Ignition Off" | "Idle" | "Overspeed";
 
 export interface StatusIconConfig {
   src: string;

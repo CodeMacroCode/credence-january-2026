@@ -1,4 +1,9 @@
-import { ColumnDef } from "@tanstack/react-table";
+import {
+  type VisibilityState,
+  type PaginationState,
+  type SortingState,
+  type ColumnDef,
+} from "@tanstack/react-table";
 import { SubscriptionConfigData } from "@/services/api/subscriptionConfigService";
 import {
   AlertsAndEventsReport,
@@ -7,6 +12,9 @@ import {
   Driver,
   Geofence,
   GeofenceAlerts,
+  GeofenceEventFlat,
+  GeofenceExpandedRow,
+  GeofenceGroup,
   IdleReport,
   LiveTrack,
   Model,
@@ -18,12 +26,13 @@ import {
   Supervisor,
   TripReport,
 } from "@/interface/modal";
+import { FaPlus, FaMinus } from "react-icons/fa";
 import { CellContent } from "@/components/ui/CustomTable";
 import { Eye, EyeOff, Locate, WifiOff } from "lucide-react";
 import React, { useMemo } from "react";
 import { Button } from "../ui/button";
 import Image from "next/image";
-import { statusIconMap, getValidDeviceCategory } from "@/components/statusIconMap";
+import { statusIconMap, getValidDeviceCategory, type VehicleStatus } from "@/components/statusIconMap";
 import {
   Tooltip,
   TooltipContent,
@@ -1706,16 +1715,148 @@ export const GetAlertsAndEventsReportColumns =
     { header: "Created At", accessorKey: "createdAt" },
   ];
 
-export const GetGeofenceAlertsReportColumns =
-  (): ColumnDef<GeofenceAlerts>[] => [
-    { header: "Vehicle No", accessorKey: "name" },
+// Custom expansion column for summary view
+export const GetGeofenceSummaryColumns = (
+  expandedRows: Set<string>,
+  toggleRowExpansion: (rowId: string, rowData: GeofenceGroup) => void
+): ColumnDef<GeofenceExpandedRow>[] => [
+    {
+      id: "expand",
+      header: "",
+      size: 50,
+      cell: ({ row }: { row: { original: GeofenceExpandedRow } }) => {
+        // Don't show expand button for detail/empty/loading rows
+        const data = row.original;
+        if (
+          "isDetailTable" in data ||
+          "isEmpty" in data ||
+          "isLoading" in data
+        ) {
+          return null;
+        }
+
+        const isExpanded = expandedRows.has(data.id);
+        const hasEvents = data.events?.length > 0;
+
+        if (!hasEvents) return null;
+
+        return (
+          <div className="flex justify-center">
+            <button
+              onClick={() => toggleRowExpansion(data.id, data)}
+              className="p-1 hover:bg-gray-100 rounded transition-colors cursor-pointer"
+              aria-label={isExpanded ? "Collapse row" : "Expand row"}
+            >
+              <span
+                className={`inline-flex items-center justify-center transition-all duration-300 ease-in-out
+      ${isExpanded ? "rotate-180 scale-110" : "rotate-0 scale-100"}`}
+              >
+                {isExpanded ? (
+                  <FaMinus className="text-red-500 text-sm transition-opacity duration-200" />
+                ) : (
+                  <FaPlus className="text-green-500 text-sm transition-opacity duration-200" />
+                )}
+              </span>
+            </button>
+          </div>
+        );
+      },
+      enableSorting: false,
+    },
+    {
+      header: "SN",
+      accessorKey: "sn",
+      size: 80,
+      cell: ({ row }: { row: { original: GeofenceExpandedRow } }) => {
+        if ("sn" in row.original) return row.original.sn;
+        return null;
+      },
+    },
+    {
+      id: "vehicleNumber",
+      header: "Vehicle Name",
+      accessorKey: "vehicleName",
+      cell: ({ row }: { row: { original: GeofenceExpandedRow } }) => {
+        if ("vehicleName" in row.original) return row.original.vehicleName;
+        return null;
+      },
+    },
+    {
+      header: "Total Events",
+      accessorKey: "eventCount",
+      cell: ({ row }: { row: { original: GeofenceExpandedRow } }) => {
+        if ("eventCount" in row.original) return row.original.eventCount;
+        return null;
+      },
+    },
+  ];
+
+export const GetGeofenceDetailColumns =
+  (): ColumnDef<GeofenceEventFlat>[] => [
+    { header: "Date", accessorKey: "date" },
     { header: "Geofence Name", accessorKey: "geofenceName" },
-    { header: "Location", accessorKey: "location" },
-    { header: "Coordinates", accessorKey: "coordinate" },
-    { header: "In Time", accessorKey: "inTime" },
-    { header: "Out Time", accessorKey: "outTime" },
-    { header: "Halt Time", accessorKey: "haltTime" },
-    // { header: "Created At", accessorKey: "createdAt" },
+    {
+      header: "Address",
+      accessorKey: "address",
+      meta: {
+        wrapConfig: { wrap: "wrap", maxWidth: "260px" },
+      },
+    },
+    {
+      header: "Event Type",
+      accessorKey: "eventType",
+      cell: ({ getValue }: { getValue: () => any }) => {
+        const value = getValue();
+        return (
+          <span
+            className={`px-2 py-1 rounded text-xs font-medium ${value === "ENTER"
+                ? "bg-green-100 text-green-700"
+                : "bg-red-100 text-red-700"
+              }`}
+          >
+            {value}
+          </span>
+        );
+      },
+    },
+    { header: "Geo Type", accessorKey: "geoType" },
+    {
+      header: "Timestamp",
+      accessorKey: "createdAt",
+      cell: ({ getValue }: { getValue: <T>() => T }) => {
+        const value = getValue<string>();
+        if (!value) return "-";
+        return new Date(value).toLocaleString("en-GB", {
+          day: "2-digit",
+          month: "2-digit",
+          year: "numeric",
+          hour: "2-digit",
+          minute: "2-digit",
+          second: "2-digit",
+          hour12: true,
+          timeZone: "UTC",
+        });
+      },
+    },
+    {
+      header: "Coordinates",
+      accessorKey: "center",
+      cell: ({ getValue }: { getValue: <T>() => T }) => {
+        const value = getValue<string>();
+        if (!value || value === "-") return "-";
+        return (
+          <a
+            href={`https://www.google.com/maps?q=${value}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-blue-600 underline hover:text-blue-800"
+          >
+            {value}
+          </a>
+        );
+      },
+    },
+    { header: "Radius (m)", accessorKey: "radius" },
   ];
 
 export const GetTripReportColumns = (): ColumnDef<TripReport>[] => [

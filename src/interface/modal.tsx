@@ -417,21 +417,77 @@ export interface GetAlertsAndEventsReportResponse {
 
 export interface GeofenceAlerts {
   uniqueId: string;
-  name: string;
+  geofenceId: string;
   geofenceName: string;
-  location: string;
-  coordinate: string;
-  inTime: string;
-  outTime: string;
-  haltTime: string;
+  area: {
+    center: [number, number];
+    radius: number;
+  };
+  address: string;
+  eventType: "ENTER" | "EXIT";
+  geoType: string;
+  timestamp: string;
   createdAt: string;
 }
 
+export interface GeofenceEventFlat {
+  [key: string]: any;
+  uniqueId: string;
+  vehicleName?: string;
+  date: string;
+  geofenceName: string;
+  address: string;
+  eventType: "ENTER" | "EXIT";
+  geoType: string;
+  timestamp: string;
+  createdAt: string;
+  center: string;
+  radius: number;
+}
+
+export interface GeofenceGroup {
+  [key: string]: any;
+  id: string; // for row tracking
+  uniqueId: string;
+  vehicleName: string;
+  eventCount: number;
+  events: GeofenceEventFlat[];
+  sn?: number;
+}
+
+export type GeofenceExpandedRow =
+  | (GeofenceGroup & { isDetailTable?: false; isEmpty?: false; isLoading?: false })
+  | {
+      id: string;
+      isDetailTable: true;
+      detailData: GeofenceEventFlat[];
+      name?: string; // for the title in nested table
+      vehicleName?: string;
+      uniqueId?: string;
+    }
+  | {
+      id: string;
+      isEmpty: true;
+      name?: string;
+      vehicleName?: string;
+      uniqueId?: string;
+    }
+  | {
+      id: string;
+      isLoading: true;
+      name?: string;
+      vehicleName?: string;
+      uniqueId?: string;
+    };
+
 export interface GetGeofenceAlertsResponse {
+  success: boolean;
+  message: string;
+  data: Record<string, Record<string, GeofenceAlerts[]>>;
   total: number;
   page: number;
   limit: number;
-  data: GeofenceAlerts[];
+  totalPages: number;
 }
 
 export interface TripReport {

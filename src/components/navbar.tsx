@@ -150,7 +150,7 @@ export function Navbar() {
                   </NavigationMenuItem>
                   {index < navSections.length - 1 && (
                     <div
-                      className="h-8 w-px bg-white/10 mx-1 lg:mx-2 self-center"
+                      className="h-8 w-px bg-white/50 mx-1 lg:mx-2 self-center"
                       aria-hidden="true"
                     />
                   )}
