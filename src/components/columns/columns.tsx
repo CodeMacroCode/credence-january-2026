@@ -804,6 +804,17 @@ export const getLiveVehicleColumns = (userRole?: string): ColumnDef<LiveTrack>[]
     enableSorting: true
   },
   {
+    id: "totalKm",
+    header: "Total Km",
+    accessorFn: (row: any) => {
+      if (row.expired && userRole !== "superadmin") return "-";
+      return row.totalKm ?? "N/A"
+    },
+    meta: { flex: 1, minWidth: 100, maxWidth: 200 },
+    enableHiding: true,
+    enableSorting: false
+  },
+  {
     id: "vehicleLoad",
     header: "Vehicle Load",
     cell: ({ row }: any) => {
