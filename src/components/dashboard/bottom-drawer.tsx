@@ -11,6 +11,9 @@ import {
 import { useRouter } from "next/navigation";
 import { useDistance } from "@/hooks/useDistance";
 import { uniqueId } from "lodash";
+import { useState } from "react";
+import { api } from "@/services/apiService";
+import toast from "react-hot-toast";
 
 interface BottomDrawerProps {
   isDrawerOpen: boolean;
@@ -38,6 +41,8 @@ export const BottomDrawer = ({
   userRole,
 }: BottomDrawerProps) => {
   const router = useRouter();
+  const [isSettingOdometer, setIsSettingOdometer] = useState(false);
+
   const handleHistoryClick = (uniqueId: number, deviceCategory?: string) => {
     let url = "/dashboard/reports/history-report?uniqueId=" + uniqueId;
     if (deviceCategory) {
@@ -47,6 +52,32 @@ export const BottomDrawer = ({
   };
 
   const { distance, isLoading } = useDistance(selectedDevice?.uniqueId);
+
+  const handleSetOdometer = async () => {
+    if (!selectedDevice?.uniqueId) return;
+
+    const input = window.prompt("Enter odometer value (in km):", "0");
+    if (input === null) return; // user cancelled
+
+    const totalKm = parseFloat(input);
+    if (isNaN(totalKm) || totalKm < 0) {
+      toast.error("Please enter a valid positive number");
+      return;
+    }
+
+    setIsSettingOdometer(true);
+    try {
+      await api.put("/set-manual-odometer", {
+        uniqueId: String(selectedDevice.uniqueId),
+        totalKm,
+      });
+      toast.success("Odometer set successfully");
+    } catch (error: any) {
+      toast.error(error?.response?.data?.message || "Failed to set odometer");
+    } finally {
+      setIsSettingOdometer(false);
+    }
+  };
 
 
   const isExpired = selectedDevice?.expired;
@@ -144,6 +175,17 @@ export const BottomDrawer = ({
                   }
                 >
                   Timeline
+                </button>
+                <button
+                  className={`rounded-sm mr-1 text-black border border-black px-2 py-1 transition-colors duration-200 cursor-pointer ${
+                    isSettingOdometer
+                      ? "opacity-50 cursor-not-allowed"
+                      : "hover:bg-black hover:text-white"
+                  }`}
+                  disabled={isSettingOdometer}
+                  onClick={handleSetOdometer}
+                >
+                  {isSettingOdometer ? "Setting..." : "Set Odometer"}
                 </button>
                 <DrawerClose
                   className="rounded-sm text-white border border-black px-2 py-1 bg-black cursor-pointer"

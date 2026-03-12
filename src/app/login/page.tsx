@@ -294,11 +294,11 @@ export default function LoginPage() {
 
             <div className="text-center text-sm text-white pt-6 font-medium">
               By continuing, you agree to our{" "}
-              <Link href="https://www.parentseye.in/terms" className="text-[#f56e28] font-semibold hover:underline">
+              <Link href="https://credencetracker.com/tandc" className="text-[#f56e28] font-semibold hover:underline">
                 Terms of Service
               </Link>{" "}
               and{" "}
-              <Link href="https://www.parentseye.in/privacy" className="text-[#f56e28] font-semibold hover:underline">
+              <Link href="https://credencetracker.com/claim" className="text-[#f56e28] font-semibold hover:underline">
                 Privacy Policy
               </Link>.
             </div>
