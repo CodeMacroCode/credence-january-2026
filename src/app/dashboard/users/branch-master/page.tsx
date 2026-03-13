@@ -301,24 +301,22 @@ const BranchEditDialog = ({
 
             {/* Mobile Number */}
             <div className="grid gap-2">
-              <Label htmlFor="edit-mobileNo">Mobile Number *</Label>
+              <Label htmlFor="edit-mobileNo">Mobile Number</Label>
               <Input
                 id="edit-mobileNo"
                 value={formData.mobileNo || ""}
                 onChange={(e) => handleFieldChange("mobileNo", e.target.value)}
-                required
               />
             </div>
 
             {/* Email */}
             <div className="grid gap-2">
-              <Label htmlFor="edit-email">Email *</Label>
+              <Label htmlFor="edit-email">Email</Label>
               <Input
                 id="edit-email"
                 type="email"
                 value={formData.email || ""}
                 onChange={(e) => handleFieldChange("email", e.target.value)}
-                required
               />
             </div>
 
@@ -1421,18 +1419,17 @@ export default function BranchMaster() {
                       )}
 
                       <div className="grid gap-2">
-                        <Label htmlFor="email">Email *</Label>
+                        <Label htmlFor="email">Email</Label>
                         <Input
                           id="email"
                           name="email"
                           type="email"
                           placeholder="Enter email address"
-                          required
                         />
                       </div>
 
                       <div className="grid gap-2">
-                        <Label htmlFor="branchMobile">Mobile No *</Label>
+                        <Label htmlFor="branchMobile">Mobile No</Label>
                         <Input
                           id="branchMobile"
                           name="branchMobile"
@@ -1441,7 +1438,6 @@ export default function BranchMaster() {
                           pattern="[0-9]{10}"
                           maxLength={10}
                           autoComplete="tel"
-                          required
                         />
                       </div>
 
