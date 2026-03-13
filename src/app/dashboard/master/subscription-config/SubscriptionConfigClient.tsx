@@ -12,6 +12,8 @@ import { subscriptionConfigService, SubscriptionConfigData } from "@/services/ap
 import { Switch } from "@/components/ui/switch";
 import { CustomTable } from "@/components/ui/CustomTable";
 import { getSubscriptionConfigColumns } from "@/components/columns/columns";
+import { useModelDropdown, DropdownItem } from "@/hooks/useDropdown";
+import { Combobox } from "@/components/ui/combobox";
 
 export default function SubscriptionConfigClient() {
     const [isAdding, setIsAdding] = useState(false);
@@ -20,6 +22,8 @@ export default function SubscriptionConfigClient() {
     const [newYearlyAmount, setNewYearlyAmount] = useState("");
     const [newNoRenewalNeeded, setNewNoRenewalNeeded] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
+
+    const { data: models } = useModelDropdown();
 
     // Fetch configurations
     const { data: response, isLoading, refetch } = useQuery({
@@ -124,12 +128,17 @@ export default function SubscriptionConfigClient() {
                             </div>
                             <div>
                                 <Label htmlFor="modelName">Model Name</Label>
-                                <Input
-                                    id="modelName"
+                                <Combobox
+                                    items={models?.map((item: DropdownItem) => ({
+                                        value: item.modelName || "",
+                                        label: item.modelName || "",
+                                    })) || []}
                                     value={newModelName}
-                                    onChange={(e) => setNewModelName(e.target.value)}
-                                    placeholder="e.g., S106"
-                                    disabled={!!editingId} // Disable model name edit since it's the identifier for DELETE
+                                    onValueChange={(val) => setNewModelName(val || "")}
+                                    placeholder="Select Model"
+                                    searchPlaceholder="Search models..."
+                                    width="w-full"
+                                    disabled={!!editingId}
                                 />
                             </div>
                             {!newNoRenewalNeeded && (
