@@ -13,10 +13,7 @@ import {
 import { ProfileDropdown } from "@/components/ProfileDropdown";
 import { useNotificationStore } from "@/store/notificationStore";
 import { NotificationSheet } from "./NotificationDropdown";
-import {
-  Menu,
-  X
-} from "lucide-react";
+import { Menu, X } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -29,17 +26,32 @@ export function Navbar() {
   const setActiveSection = useNavigationStore(
     (state) => state.setActiveSection
   );
+
   const { setOpen, setOpenMobile, isMobile, state } = useSidebar();
   const { notifications } = useNotificationStore();
-  const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
-  const token = localStorage.getItem("token");
 
-  const navigationMap: Record<string, string> = {
-    Dashboard: "/dashboard",
-    Maintenance: `https://maintenance.credencetracker.com/#/dashboard?token=${encodeURIComponent(token || "")}`,
-    Geofence: "/dashboard/school/geofence",
-    Notifications: "/dashboard/users/notification",
-  };
+  const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
+  const [token, setToken] = React.useState<string | null>(null);
+
+  /**
+   * ✅ Access localStorage only on client
+   */
+  React.useEffect(() => {
+    const storedToken = localStorage.getItem("token");
+    setToken(storedToken);
+  }, []);
+
+  const navigationMap: Record<string, string> = React.useMemo(
+    () => ({
+      Dashboard: "/dashboard",
+      Maintenance: `https://maintenance.credencetracker.com/#/dashboard?token=${encodeURIComponent(
+        token || ""
+      )}`,
+      Geofence: "/dashboard/school/geofence",
+      Notifications: "/dashboard/users/notification",
+    }),
+    [token]
+  );
 
   const navSections = [
     "Dashboard",
@@ -52,16 +64,14 @@ export function Navbar() {
   const handleNavClick = React.useCallback(
     (section: string) => {
       setMobileMenuOpen(false);
-      if (section === "Dashboard") {
-        setActiveSection(section);
-        setOpenMobile(false);
-        setOpen(false);
-      } else if (section === "Maintenance") {
+
+      if (section === "Dashboard" || section === "Maintenance") {
         setActiveSection(section);
         setOpenMobile(false);
         setOpen(false);
       } else {
         setActiveSection(section);
+
         if (isMobile) {
           setOpenMobile(true);
         } else {
@@ -74,7 +84,8 @@ export function Navbar() {
 
   return (
     <div className="w-full h-14 md:h-16 flex items-center relative px-2 sm:px-4 bg-primary border-b border-blue-600/20">
-      {/* Mobile Menu Button - visible only on small screens */}
+      
+      {/* Mobile Menu */}
       <div className="md:hidden flex items-center z-9999">
         <DropdownMenu open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
           <DropdownMenuTrigger asChild>
@@ -89,6 +100,7 @@ export function Navbar() {
               )}
             </button>
           </DropdownMenuTrigger>
+
           <DropdownMenuContent
             align="start"
             className="w-48 bg-primary border-blue-600/20"
@@ -111,7 +123,7 @@ export function Navbar() {
         </DropdownMenu>
       </div>
 
-      {/* Desktop nav links - hidden on mobile */}
+      {/* Desktop Logo */}
       <div className="hidden md:flex items-center mr-4 z-9999">
         {state === "collapsed" && (
           <div className="animate-in fade-in slide-in-from-left-5 duration-300 ml-12">
@@ -121,7 +133,7 @@ export function Navbar() {
               src="/logo.png"
               alt="Logo"
               priority
-              unoptimized={true} // Match sidebar usage
+              unoptimized
               className="h-10 w-auto object-contain cursor-pointer"
               onClick={() => handleNavClick("Dashboard")}
             />
@@ -129,43 +141,43 @@ export function Navbar() {
         )}
       </div>
 
+      {/* Desktop Navigation */}
       <div className="hidden md:flex flex-1 justify-center items-center relative z-9999 px-4 lg:px-10">
         <NavigationMenu>
           <NavigationMenuList className="flex-wrap justify-center gap-2 lg:gap-6">
-            {navSections.map((section, index) => {
-              return (
-                <React.Fragment key={section}>
-                  <NavigationMenuItem>
-                    <NavigationMenuLink
-                      asChild
-                      className="text-xs lg:text-sm px-2 lg:px-4 py-1.5 lg:py-2 whitespace-nowrap font-semibold hover:font-bold transition-colors duration-200 focus:font-bold hover:bg-blue-500/20 rounded-md text-white hover:text-white"
+            {navSections.map((section, index) => (
+              <React.Fragment key={section}>
+                <NavigationMenuItem>
+                  <NavigationMenuLink
+                    asChild
+                    className="text-xs lg:text-sm px-2 lg:px-4 py-1.5 lg:py-2 whitespace-nowrap font-semibold hover:font-bold transition-colors duration-200 focus:font-bold hover:bg-blue-500/20 rounded-md text-white hover:text-white"
+                  >
+                    <Link
+                      href={navigationMap[section] || "#"}
+                      onClick={() => handleNavClick(section)}
+                      className="flex items-center gap-2"
                     >
-                      <Link
-                        href={navigationMap[section] || "#"}
-                        onClick={() => handleNavClick(section)}
-                        className="flex items-center gap-2"
-                      >
-                        {section}
-                      </Link>
-                    </NavigationMenuLink>
-                  </NavigationMenuItem>
-                  {index < navSections.length - 1 && (
-                    <div
-                      className="h-8 w-px bg-white/50 mx-1 lg:mx-2 self-center"
-                      aria-hidden="true"
-                    />
-                  )}
-                </React.Fragment>
-              );
-            })}
+                      {section}
+                    </Link>
+                  </NavigationMenuLink>
+                </NavigationMenuItem>
+
+                {index < navSections.length - 1 && (
+                  <div
+                    className="h-8 w-px bg-white/50 mx-1 lg:mx-2 self-center"
+                    aria-hidden="true"
+                  />
+                )}
+              </React.Fragment>
+            ))}
           </NavigationMenuList>
         </NavigationMenu>
       </div>
 
-      {/* Mobile spacer for centering */}
+      {/* Mobile spacer */}
       <div className="flex-1 md:hidden" />
 
-      {/* Right: Profile dropdown positioned at the right edge */}
+      {/* Right Section */}
       <div className="flex items-center gap-2 sm:gap-4 z-9999">
         <NotificationSheet />
         <ProfileDropdown />
