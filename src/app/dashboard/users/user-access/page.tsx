@@ -1187,14 +1187,6 @@ export default function UserAccessPage() {
                 <DialogTitle>Add User Group</DialogTitle>
               </DialogHeader>
               <div className="grid gap-3">
-                <Label htmlFor="username">User Name</Label>
-                <Input
-                  id="username"
-                  name="username"
-                  placeholder="Enter username"
-                  required
-                />
-
                 <Label htmlFor="branchGroupName">User Group Name</Label>
                 <Input
                   id="branchGroupName"
@@ -1202,7 +1194,13 @@ export default function UserAccessPage() {
                   placeholder="Enter user group name"
                   required
                 />
-
+                <Label htmlFor="username">User Name</Label>
+                <Input
+                  id="username"
+                  name="username"
+                  placeholder="Enter username"
+                  required
+                />
                 <Label htmlFor="password">Password</Label>
                 <Input
                   id="password"
