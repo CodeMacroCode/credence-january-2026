@@ -32,10 +32,11 @@ export function Navbar() {
   const { setOpen, setOpenMobile, isMobile, state } = useSidebar();
   const { notifications } = useNotificationStore();
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
+  const token = localStorage.getItem("token");
 
   const navigationMap: Record<string, string> = {
     Dashboard: "/dashboard",
-    Maintenance: "https://maintenance.credencetracker.com/#/login",
+    Maintenance: `https://maintenance.credencetracker.com/#/dashboard?token=${encodeURIComponent(token || "")}`,
     Geofence: "/dashboard/school/geofence",
     Notifications: "/dashboard/users/notification",
   };
