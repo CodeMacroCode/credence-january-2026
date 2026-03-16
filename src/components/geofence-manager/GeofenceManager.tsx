@@ -324,15 +324,28 @@ const GeofenceManager: React.FC<GeofenceManagerProps> = ({
       setSelectedSchool(null);
       setSelectedBranch(null);
       setSelectedRoute(null);
-      setBranchId(undefined);
       setTempGeofence(null);
       setCurrentCoords({ lat: 21.1286677, lng: 79.1038211 });
+
+      // Restore token-based IDs for roles that don't manually select
+      if (role === "branch") {
+        setBranchId(tokenBranchId);
+        setSchoolId(tokenSchoolId);
+      } else if (role === "school") {
+        setBranchId(undefined);
+        setSchoolId(tokenSchoolId);
+      } else if (role === "branchGroup") {
+        setBranchId(tokenBranchGroupId);
+      } else {
+        setBranchId(undefined);
+        setSchoolId(undefined);
+      }
 
       if (map.current) {
         map.current.setView([21.1286677, 79.1038211], 12);
       }
     }
-  }, [mode]);
+  }, [mode, role, tokenBranchId, tokenSchoolId, tokenBranchGroupId]);
 
   // Initialize map
   useEffect(() => {
@@ -663,8 +676,8 @@ const GeofenceManager: React.FC<GeofenceManagerProps> = ({
         latitude: lat,
         longitude: lng,
         radius: tempGeofence.radius || currentRadius,
-        schoolId: selectedSchool?._id,
-        branchId: selectedBranch?._id,
+        schoolId: selectedSchool?._id || schoolId,
+        branchId: selectedBranch?._id || branchId,
         routeObjId: selectedRoute?._id,
       };
 
