@@ -51,6 +51,7 @@ interface Props {
   branches: Branch[];
   isSatellite?: boolean;
   toggleSatelliteView?: () => void;
+  branchId?: string;
 }
 
 
@@ -82,16 +83,21 @@ const GeofenceConfigurationPanel: React.FC<Props> = ({
   branches,
   isSatellite,
   toggleSatelliteView,
+  branchId,
 }) => {
   const editRowData = useGeofenceStore((state) => state.rowData);
 
   const lastInitializedId = useRef<string | null>(null);
   const routeInitialized = useRef<boolean>(false);
 
+  // Use branchId from prop (covers branch role with token) or from selected branch
+  const effectiveBranchId = branchId || selectedBranch?._id;
+
   const { data: routesData = [] } = useRouteDropdown(
-    selectedBranch?._id,
-    !!selectedBranch?._id
+    effectiveBranchId,
+    !!effectiveBranchId
   );
+  const routes = Array.isArray(routesData) ? routesData : [];
 
   const schoolItems = useMemo(
     () =>
@@ -113,12 +119,12 @@ const GeofenceConfigurationPanel: React.FC<Props> = ({
 
   const routeItems = useMemo(
     () =>
-      routesData.map((route) => ({
+      routes.map((route) => ({
         label:
           (route.routeNumber || route.name)?.trim() || `Route ${route._id}`,
         value: route._id,
       })),
-    [routesData]
+    [routes]
   );
 
   // Main initialization - only depends on editRowData._id
@@ -156,38 +162,25 @@ const GeofenceConfigurationPanel: React.FC<Props> = ({
 
 
 
-      // School
-      if (editRowData.schoolId) {
-        // console.log("Looking for school with ID:", editRowData.schoolId);
+      // School - only look up if role has access to the school dropdown
+      if (editRowData.schoolId && role === "superAdmin") {
         const matchingSchool = schools.find(
           (s) => s._id === editRowData.schoolId
         );
         if (matchingSchool) {
-          // console.log("✅ Found school:", matchingSchool.schoolName);
           handleSchoolSelect(matchingSchool);
         } else {
-          // console.error(
-          //   "❌ School NOT found! Available IDs:",
-          //   schools.map((s) => s._id)
-          // );
           toast.error("❌ Admin NOT found!");
         }
       }
 
-      // Branch
-      if (editRowData.branchId) {
-        // console.log("Looking for branch with ID:", editRowData.branchId);
+      // Branch - only look up if role has access to the branch dropdown
+      if (editRowData.branchId && ["superAdmin", "branchGroup", "school"].includes(role)) {
         const matchingBranch = branches.find(
           (b) => b._id === editRowData.branchId
         );
         if (matchingBranch) {
-          // console.log("✅ Found branch:", matchingBranch.branchName);
           handleBranchSelect(matchingBranch);
-        } else {
-          // console.error(
-          //   "❌ Branch NOT found! Available IDs:",
-          //   branches.map((b) => b._id)
-          // );
         }
       }
     }
@@ -199,7 +192,7 @@ const GeofenceConfigurationPanel: React.FC<Props> = ({
       editRowData &&
       editRowData._id === lastInitializedId.current &&
       editRowData.routeObjId &&
-      routesData.length > 0 &&
+      routes.length > 0 &&
       handleRouteSelect &&
       !routeInitialized.current
     ) {
@@ -211,7 +204,7 @@ const GeofenceConfigurationPanel: React.FC<Props> = ({
       //   routesData.map((r) => ({ id: r._id, name: r.routeNumber || r.name }))
       // );
 
-      const matchingRoute = routesData.find(
+      const matchingRoute = routes.find(
         (r) => r._id === editRowData.routeObjId
       );
 
@@ -220,7 +213,7 @@ const GeofenceConfigurationPanel: React.FC<Props> = ({
         //   "✅ Found route:",
         //   matchingRoute.routeNumber || matchingRoute.name
         // );
-        handleRouteSelect(matchingRoute);
+        handleRouteSelect(matchingRoute as unknown as Route);
         routeInitialized.current = true;
       } else {
         // console.error(
@@ -296,14 +289,14 @@ const GeofenceConfigurationPanel: React.FC<Props> = ({
                 items={routeItems}
                 value={selectedRoute?._id}
                 onValueChange={(value) => {
-                  const route = routesData.find((r) => r._id === value) || null;
-                  handleRouteSelect(route);
+                  const route = routes.find((r) => r._id === value) || null;
+                  handleRouteSelect(route as unknown as Route | null);
                 }}
                 placeholder="Select route"
                 searchPlaceholder="Search admin..."
                 emptyMessage="No route found"
                 width="w-[140px]"
-                disabled={!selectedBranch}
+                disabled={!effectiveBranchId}
               />
             </div>
           )}

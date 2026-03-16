@@ -97,6 +97,8 @@ export default function SchoolMaster() {
     React.useState<VisibilityState>({});
   const { exportToPDF, exportToExcel } = useExport();
   const [loginAsLoading, setLoginAsLoading] = useState<string | null>(null);
+  const [showAddPassword, setShowAddPassword] = useState(false);
+  const [showEditPassword, setShowEditPassword] = useState(false);
 
   // Handle "Login As" - superAdmin logs in as a school admin
   const handleLoginAs = async (username: string, password: string, id: string) => {
@@ -709,14 +711,28 @@ export default function SchoolMaster() {
                   </div>
 
                   <div className="grid gap-2">
-                    <Label htmlFor="password">Password</Label>
-                    <Input
-                      id="password"
-                      name="password"
-                      type="text"
-                      placeholder="Enter password"
-                      required
-                    />
+                    <Label htmlFor="password">Password *</Label>
+                    <div className="relative">
+                      <Input
+                        id="password"
+                        name="password"
+                        type={showAddPassword ? "text" : "password"}
+                        placeholder="Enter password"
+                        className="pr-10"
+                        required
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowAddPassword(!showAddPassword)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 focus:outline-none"
+                      >
+                        {showAddPassword ? (
+                          <EyeOff className="h-4 w-4" />
+                        ) : (
+                          <Eye className="h-4 w-4" />
+                        )}
+                      </button>
+                    </div>
                   </div>
 
                   <div className="grid gap-2">
@@ -923,16 +939,30 @@ export default function SchoolMaster() {
                     />
                   </div>
 
-                  <div className="grid gap-2">
+                   <div className="grid gap-2">
                     <Label htmlFor="editPassword">Password *</Label>
-                    <Input
-                      id="editPassword"
-                      name="editPassword"
-                      type="text"
-                      defaultValue={editTarget.password}
-                      placeholder="Enter password"
-                      required
-                    />
+                    <div className="relative">
+                      <Input
+                        id="editPassword"
+                        name="editPassword"
+                        type={showEditPassword ? "text" : "password"}
+                        defaultValue={editTarget.password}
+                        placeholder="Enter password"
+                        className="pr-10"
+                        required
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowEditPassword(!showEditPassword)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 focus:outline-none"
+                      >
+                        {showEditPassword ? (
+                          <EyeOff className="h-4 w-4" />
+                        ) : (
+                          <Eye className="h-4 w-4" />
+                        )}
+                      </button>
+                    </div>
                   </div>
 
                   <div className="grid gap-2">

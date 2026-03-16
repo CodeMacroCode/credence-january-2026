@@ -52,7 +52,7 @@ export const useDeviceDropdown = (
   branchId?: string,
   shouldFetch: boolean = true
 ) => {
-  return useQuery<DropdownResponse<DropdownItem>>({
+  return useQuery({
     queryKey: ["device-dropdown", branchId],
     queryFn: () => dropdownService.getDevices(branchId),
     enabled: !!branchId,
@@ -66,7 +66,7 @@ export const useDeviceDropdownWithUniqueId = (
   branchId?: string,
   shouldFetch: boolean = true
 ) => {
-  return useQuery<DropdownResponse<DropdownItem>>({
+  return useQuery({
     queryKey: ["device-dropdown-uniqueId", branchId],
     queryFn: () => dropdownService.getDevicesWithUniqueId(branchId),
     enabled: !!branchId,
@@ -79,7 +79,7 @@ export const useDeviceDropdownWithUniqueId = (
 export const useDeviceDropdownWithUniqueIdForHistory = (
   shouldFetch: boolean = true
 ) => {
-  return useQuery<DropdownResponse<DropdownItem>>({
+  return useQuery({
     queryKey: ["device-dropdown-uniqueId"],
     queryFn: () => dropdownService.getDevicesWithUniqueId(),
     select: (res) => res.data.data,
@@ -92,12 +92,11 @@ export const useRouteDropdown = (
   branchId?: string,
   shouldFetch: boolean = true
 ) => {
-  // console.log("Fetching routes for branchId:", branchId);
-  return useQuery<DropdownResponse<DropdownItem>>({
+  return useQuery({
     queryKey: ["route-dropdown", branchId],
     queryFn: async () => await dropdownService.getRoutes(branchId),
     enabled: !!branchId && shouldFetch,
-    select: (res) => res.data.data,
+    select: (res) => res.data.data as DropdownItem[],
     refetchOnWindowFocus: false,
     retry: false,
   });
@@ -123,10 +122,9 @@ export const useParentDropdown = (
       return res.data as DropdownResponse<DropdownItem>;
     },
     getNextPageParam: (lastPage) => {
-      if (lastPage.page < lastPage.totalPages) {
-        return lastPage.page + 1;
+      if ((lastPage.page ?? 0) < (lastPage.totalPages ?? 0)) {
+        return (lastPage.page ?? 0) + 1;
       }
-
       return undefined;
     },
     refetchOnWindowFocus: false,
@@ -155,8 +153,8 @@ export const useGeofenceDropdown = (
     },
 
     getNextPageParam: (lastPage) => {
-      if (lastPage.page < lastPage.totalPages) {
-        return lastPage.page + 1;
+      if ((lastPage.page ?? 0) < (lastPage.totalPages ?? 0)) {
+        return (lastPage.page ?? 0) + 1;
       } else {
         return undefined;
       }
@@ -209,8 +207,8 @@ export const useDriverDropdown = (
     },
 
     getNextPageParam: (lastPage) => {
-      if (lastPage.page < lastPage.totalPages) {
-        return lastPage.page + 1;
+      if ((lastPage.page ?? 0) < (lastPage.totalPages ?? 0)) {
+        return (lastPage.page ?? 0) + 1;
       } else {
         return undefined;
       }

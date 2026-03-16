@@ -186,6 +186,7 @@ const BranchEditDialog = ({
       ? new Date(data.subscriptionExpirationDate)
       : null
   );
+  const [showPassword, setShowPassword] = useState(false);
 
   // Permissions state for edit form
   const [selectedMasterPermissions, setSelectedMasterPermissions] = useState<string[]>([]);
@@ -334,12 +335,27 @@ const BranchEditDialog = ({
             {/* Password */}
             <div className="grid gap-2">
               <Label htmlFor="edit-password">Password *</Label>
-              <Input
-                id="edit-password"
-                value={formData.password || ""}
-                onChange={(e) => handleFieldChange("password", e.target.value)}
-                required
-              />
+              <div className="relative">
+                <Input
+                  id="edit-password"
+                  type={showPassword ? "text" : "password"}
+                  value={formData.password || ""}
+                  onChange={(e) => handleFieldChange("password", e.target.value)}
+                  className="pr-10"
+                  required
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 focus:outline-none"
+                >
+                  {showPassword ? (
+                    <EyeOff className="h-4 w-4" />
+                  ) : (
+                    <Eye className="h-4 w-4" />
+                  )}
+                </button>
+              </div>
             </div>
 
             {/* Expiration Date */}
@@ -483,6 +499,7 @@ export default function BranchMaster() {
   const [school, setSchool] = useState<string>("");
   const [schoolSearch, setSchoolSearch] = useState("");
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
+  const [showAddPassword, setShowAddPassword] = useState(false);
   const [isVerificationDialogOpen, setIsVerificationDialogOpen] =
     useState(false);
   const [isVerified, setIsVerified] = useState(false);
@@ -1209,7 +1226,6 @@ export default function BranchMaster() {
         meta: { flex: 1, minWidth: 150, maxWidth: 300 },
         enableHiding: true,
       },
-
       {
         header: "Registration Date",
         accessorFn: (row: any) => ({
@@ -1454,13 +1470,27 @@ export default function BranchMaster() {
 
                       <div className="grid gap-2">
                         <Label htmlFor="password">Password *</Label>
-                        <Input
-                          id="password"
-                          name="password"
-                          type="text"
-                          placeholder="Enter password"
-                          required
-                        />
+                        <div className="relative">
+                          <Input
+                            id="password"
+                            name="password"
+                            type={showAddPassword ? "text" : "password"}
+                            placeholder="Enter password"
+                            className="pr-10"
+                            required
+                          />
+                          <button
+                            type="button"
+                            onClick={() => setShowAddPassword(!showAddPassword)}
+                            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 focus:outline-none"
+                          >
+                            {showAddPassword ? (
+                              <EyeOff className="h-4 w-4" />
+                            ) : (
+                              <Eye className="h-4 w-4" />
+                            )}
+                          </button>
+                        </div>
                       </div>
 
                       {/* DatePicker for Expiration Date */}

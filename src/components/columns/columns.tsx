@@ -777,6 +777,19 @@ export const getLiveVehicleColumns = (userRole?: string): ColumnDef<LiveTrack>[]
     enableSorting: true,
   },
   {
+    id: "routeName",
+    header: "Route Name",
+    accessorFn: (row: any) => row.routeName ?? "N/A",
+    meta: {
+      wrapConfig: {
+        wrap: "break-word",
+        maxWidth: "200px",
+      },
+    },
+    enableHiding: true,
+    enableSorting: true,
+  },
+  {
     id: "since",
     header: "State Since",
     cell: ({ row }: any) => {
@@ -1133,6 +1146,20 @@ export const getGeofenceCoumns = (
       enableHiding: false,
       enableSorting: false,
       meta: { wrapConfig: { wrap: "wrap", minWidth: "360px" } },
+    },
+    {
+      id: "area",
+      header: "Co-ordinates",
+      accessorFn: (row) => row.area?.center[0] + ", " + row.area?.center[1] || "N/A",
+      enableHiding: true,
+      enableSorting: true,
+    },
+    {
+      id: "route",
+      header: "Route Name",
+      accessorFn: (row) => row.route?.routeNumber || "N/A",
+      enableHiding: true,
+      enableSorting: true,
     },
     {
       id: "schoolName",

@@ -163,7 +163,7 @@ const GeofenceManager: React.FC<GeofenceManagerProps> = ({
 
   // Determine when to fetch branches based on role
   const shouldFetchBranches = useMemo(() => {
-    if (role === "branch") return false;
+    if (role === "branch") return true; // fetch to find and auto-select the branch object
     if (role === "branchGroup") return true;
     if (role === "school") return !!schoolId;
     if (role === "superAdmin") return !!schoolId;
@@ -173,14 +173,28 @@ const GeofenceManager: React.FC<GeofenceManagerProps> = ({
   // Determine schoolId parameter for branch dropdown
   const branchDropdownSchoolId = useMemo(() => {
     if (role === "branchGroup") return undefined;
+    if (role === "branch") return tokenSchoolId; // use school from token
     return schoolId;
-  }, [role, schoolId]);
+  }, [role, schoolId, tokenSchoolId]);
 
   const { data: branches = [] } = useBranchDropdown(
     branchDropdownSchoolId,
     shouldFetchBranches,
     role === "branchGroup"
   );
+
+  // Auto-select school and branch for 'branch' role using token data
+  useEffect(() => {
+    if (role !== "branch" || !tokenBranchId || !tokenSchoolId) return;
+    if (branches.length === 0) return;
+
+    const branch = branches.find((b: Branch) => b._id === tokenBranchId);
+    if (branch && !selectedBranch) {
+      setSelectedBranch(branch);
+      setBranchId(branch._id);
+      setSchoolId(tokenSchoolId);
+    }
+  }, [role, tokenBranchId, tokenSchoolId, branches, selectedBranch]);
 
   // Route data with proper dependencies
   // const { data: routeData } = useInfiniteRouteData({
@@ -227,84 +241,69 @@ const GeofenceManager: React.FC<GeofenceManagerProps> = ({
     }
   }, [mode, currentCoords.lat, currentCoords.lng]);
 
-  // Populate form with initial data when in edit mode
+  // Populate map/form with initial data - runs as soon as initialData is available
   useEffect(() => {
-    if (
-      mode === "edit" &&
-      initialData &&
-      schools.length > 0 &&
-      branches.length > 0
-    ) {
-      let lat, lng;
-      if (initialData.area?.center && initialData.area.center.length >= 2) {
-        [lat, lng] = initialData.area.center;
-      } else {
-        lat = 21.1286677;
-        lng = 79.1038211;
+    if (mode !== "edit" || !initialData) return;
+
+    let lat, lng;
+    if (initialData.area?.center && initialData.area.center.length >= 2) {
+      [lat, lng] = initialData.area.center;
+    } else {
+      lat = 21.1286677;
+      lng = 79.1038211;
+    }
+
+    setCurrentCoords({ lat, lng });
+
+    if (initialData.geofenceName) {
+      setCurrentGeofenceName(initialData.geofenceName);
+    }
+
+    if (initialData.area?.radius) {
+      setCurrentRadius(initialData.area.radius);
+    }
+
+    setTempGeofence({
+      type: "radius",
+      geofenceName: initialData.geofenceName,
+      name: initialData.geofenceName,
+      coordinates: [[lng, lat]],
+      radius: initialData.area.radius,
+    });
+
+    // Set address
+    if (initialData.address) {
+      setLocationSearchQuery(initialData.address);
+    } else {
+      reverseGeocode(lat, lng).then(setLocationSearchQuery);
+    }
+  }, [mode, initialData]);
+
+  // Set school/branch selections in edit mode (runs when dropdown data is ready)
+  useEffect(() => {
+    if (mode !== "edit" || !initialData) return;
+
+    // Set school/branch/route
+    if (geofenceSchoolId) {
+      setSelectedSchool(geofenceSchoolId);
+      setSchoolId(geofenceSchoolId._id);
+    } else if (initialData.schoolId && schools.length > 0) {
+      const school = schools.find((s) => s._id === initialData.schoolId);
+      if (school) {
+        setSelectedSchool(school);
+        setSchoolId(school._id);
       }
+    }
 
-      setCurrentCoords({ lat, lng });
-
-      if (initialData.geofenceName) {
-        setCurrentGeofenceName(initialData.geofenceName);
+    if (geofenceBranchId) {
+      setSelectedBranch(geofenceBranchId);
+      setBranchId(geofenceBranchId._id);
+    } else if (initialData.branchId && branches.length > 0) {
+      const branch = branches.find((b) => b._id === initialData.branchId);
+      if (branch) {
+        setSelectedBranch(branch);
+        setBranchId(branch._id);
       }
-
-      if (initialData.area?.radius) {
-        setCurrentRadius(initialData.area.radius);
-      }
-
-      setTempGeofence({
-        type: "radius",
-        geofenceName: initialData.geofenceName,
-        name: initialData.geofenceName,
-        coordinates: [[lng, lat]],
-        radius: initialData.area.radius,
-      });
-
-      // Set address
-      if (initialData.address) {
-        setLocationSearchQuery(initialData.address);
-      } else {
-        reverseGeocode(lat, lng).then(setLocationSearchQuery);
-      }
-
-      // console.log("object", initialData);
-
-      // Handle time fields - REMOVED
-
-      // Set school/branch/route
-      if (geofenceSchoolId) {
-        setSelectedSchool(geofenceSchoolId);
-        setSchoolId(geofenceSchoolId._id);
-      } else if (initialData.schoolId) {
-        const school = schools.find((s) => s._id === initialData.schoolId);
-        if (school) {
-          setSelectedSchool(school);
-          setSchoolId(school._id);
-        }
-      }
-
-      if (geofenceBranchId) {
-        setSelectedBranch(geofenceBranchId);
-        setBranchId(geofenceBranchId._id);
-      } else if (initialData.branchId) {
-        const branch = branches.find((b) => b._id === initialData.branchId);
-        if (branch) {
-          setSelectedBranch(branch);
-          setBranchId(branch._id);
-        }
-      }
-
-      // if (geofenceRouteId) {
-      //   setSelectedRoute(geofenceRouteId);
-      // } else if (initialData.routeObjId && routeData?.pages?.[0]?.data) {
-      //   const route = routeData.pages[0].data.find(
-      //     (r) => r._id === initialData.routeObjId
-      //   );
-      //   if (route) {
-      //     setSelectedRoute(route);
-      //   }
-      // }
     }
   }, [
     mode,
@@ -314,8 +313,8 @@ const GeofenceManager: React.FC<GeofenceManagerProps> = ({
     geofenceRouteId,
     schools,
     branches,
-    // routeData,
   ]);
+
 
   // Clear form when switching to add mode
   useEffect(() => {
@@ -780,6 +779,7 @@ const GeofenceManager: React.FC<GeofenceManagerProps> = ({
         tempGeofence={tempGeofence}
         isSatellite={isSatellite}
         toggleSatelliteView={toggleSatelliteView}
+        branchId={branchId}
       />
     </div>
   );

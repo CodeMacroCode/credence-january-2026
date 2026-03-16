@@ -485,6 +485,8 @@ export default function UserAccessPage() {
   };
 
   const [loginAsLoading, setLoginAsLoading] = useState<string | null>(null);
+  const [showAddPassword, setShowAddPassword] = useState(false);
+  const [showEditPassword, setShowEditPassword] = useState(false);
 
   // Handle "Login" - superAdmin logs in as a group user
   const handleLoginAs = async (username: string, password: string, id: string) => {
@@ -1202,13 +1204,27 @@ export default function UserAccessPage() {
                   required
                 />
                 <Label htmlFor="password">Password</Label>
-                <Input
-                  id="password"
-                  name="password"
-                  type="password"
-                  placeholder="Enter password"
-                  required
-                />
+                <div className="relative">
+                  <Input
+                    id="password"
+                    name="password"
+                    type={showAddPassword ? "text" : "password"}
+                    placeholder="Enter password"
+                    className="pr-10"
+                    required
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowAddPassword(!showAddPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 focus:outline-none"
+                  >
+                    {showAddPassword ? (
+                      <EyeOff className="h-4 w-4" />
+                    ) : (
+                      <Eye className="h-4 w-4" />
+                    )}
+                  </button>
+                </div>
 
                 <Label htmlFor="mobileNo">Mobile No</Label>
                 <Input
@@ -1355,13 +1371,27 @@ export default function UserAccessPage() {
                 />
 
                 <Label htmlFor="edit-password">Password</Label>
-                <Input
-                  id="edit-password"
-                  name="password"
-                  type="password"
-                  defaultValue={editTarget.password}
-                  required
-                />
+                <div className="relative">
+                  <Input
+                    id="edit-password"
+                    name="password"
+                    type={showEditPassword ? "text" : "password"}
+                    defaultValue={editTarget.password}
+                    className="pr-10"
+                    required
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowEditPassword(!showEditPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 focus:outline-none"
+                  >
+                    {showEditPassword ? (
+                      <EyeOff className="h-4 w-4" />
+                    ) : (
+                      <Eye className="h-4 w-4" />
+                    )}
+                  </button>
+                </div>
 
                 <Label htmlFor="edit-mobileNo">Mobile No</Label>
                 <Input
