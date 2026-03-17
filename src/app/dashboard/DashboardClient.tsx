@@ -299,7 +299,7 @@ export default function DashboardClient() {
     authRequestRef.current = true;
     authRequestTimeoutRef.current = setTimeout(() => {
       updateFilters({ page: filters.page, limit: filters.limit });
-    }, 1000);
+    }, 0);
 
     return () => {
       if (authRequestTimeoutRef.current) {
@@ -570,17 +570,17 @@ export default function DashboardClient() {
     pageSizeOptions: [5, dynamicPageSize, 20, 30, 50, 100, 500, "All"],
     enableSorting: true,
     showSerialNumber: true,
-    onRowClick: handleDeviceSelection,
+    onRowClick: handleDeviceSelection as any,
     selectedRowId: selectedVehicleId,
-    getRowId: (row: DeviceData) => row.deviceId,
+    getRowId: (row: any) => row.deviceId,
     selectedRowClassName:
       "bg-blue-100 hover:bg-blue-200 border-l-4 border-blue-500",
     // Enable virtualization
     enableVirtualization: true,
-    estimatedRowHeight: 20,
-    overscan: 5,
+    estimatedRowHeight: 50,
+    overscan: devices && devices.length > 1000 ? 15 : 10,
     maxHeight: "var(--table-max-height)",
-    getRowClassName: (row: DeviceData) => {
+    getRowClassName: (row: any) => {
       if (row.expired && userRole !== "superadmin") {
         return "bg-gray-400/40 relative cursor-not-allowed after:content-['Subscription_Expired'] after:absolute after:inset-0 after:flex after:items-center after:justify-start after:pl-[500px] after:text-red-700 after:font-bold after:text-xl after:opacity-80 after:uppercase after:tracking-wider after:pointer-events-none";
       }
@@ -621,7 +621,7 @@ export default function DashboardClient() {
     <>
       <style jsx>{`
         .dashboard-container {
-          --table-max-height: none;
+          --table-max-height: calc(100dvh - 200px);
         }
         @media (min-width: 1024px) {
           .dashboard-container {
@@ -798,7 +798,7 @@ export default function DashboardClient() {
                       {/* Clear Filters Button */}
                       <Button
                         variant="ghost"
-                        className="w-full justify-start cursor-pointer text-muted-foreground hover:text-foreground cursor-pointer"
+                        className="w-full justify-start text-muted-foreground hover:text-foreground cursor-pointer"
                         onClick={() =>
                           updateFilters({
                             schoolId:
@@ -900,31 +900,31 @@ export default function DashboardClient() {
               {/* Arrow Controls - hidden on mobile */}
               {!["tableExpanded", "mapExpanded"].includes(viewState) && !isSuperSupport && (
                 <div className="hidden lg:flex flex-col justify-center items-center space-y-2 z-50 absolute top-1/2 right-[48.5%]">
-                  <button
-                    onClick={handleExpandMap}
-                    className={`p-2 rounded-full border border-gray-300 hover:bg-primary transition-all duration-200 cursor-pointer shadow-lg hover:shadow-xl hover:-translate-y-0.5 [animation-duration:_300ms] [animation:_fadeIn_300ms_ease-in_forwards] ${viewState === "mapExpanded"
-                      ? "bg-blue-100 "
-                      : "bg-white text-gray-600"
-                      }`}
-                    title={
-                      viewState === "mapExpanded" ? "Show both" : "Expand map"
-                    }
-                  >
+                    <button
+                      onClick={handleExpandMap}
+                      className={`p-2 rounded-full border border-gray-300 hover:bg-primary transition-all duration-200 cursor-pointer shadow-lg hover:shadow-xl hover:-translate-y-0.5 animation-duration-[300ms] animate-[fadeIn_300ms_ease-in_forwards] ${viewState === "mapExpanded"
+                        ? "bg-blue-100 "
+                        : "bg-white text-gray-600"
+                        }`}
+                      title={
+                        viewState === "mapExpanded" ? "Show both" : "Expand map"
+                      }
+                    >
                     <ChevronsLeft className="w-4 h-4 hover:text-white" />
                   </button>
 
-                  <button
-                    onClick={handleExpandTable}
-                    className={`p-2 rounded-full border border-gray-300 hover:bg-primary transition-all duration-200 cursor-pointer shadow-lg hover:shadow-xl hover:-translate-y-0.5  [animation-duration:_500ms] [animation:_fadeIn_300ms_ease-in_forwards] ${viewState === "tableExpanded"
-                      ? "bg-blue-100"
-                      : "bg-white text-gray-600"
-                      }`}
-                    title={
-                      viewState === "tableExpanded"
-                        ? "Show both"
-                        : "Expand table"
-                    }
-                  >
+                    <button
+                      onClick={handleExpandTable}
+                      className={`p-2 rounded-full border border-gray-300 hover:bg-primary transition-all duration-200 cursor-pointer shadow-lg hover:shadow-xl hover:-translate-y-0.5  animation-duration-[500ms] animate-[fadeIn_300ms_ease-in_forwards] ${viewState === "tableExpanded"
+                        ? "bg-blue-100"
+                        : "bg-white text-gray-600"
+                        }`}
+                      title={
+                        viewState === "tableExpanded"
+                          ? "Show both"
+                          : "Expand table"
+                      }
+                    >
                     <ChevronsRight className="w-4 h-4 hover:text-white" />
                   </button>
                 </div>

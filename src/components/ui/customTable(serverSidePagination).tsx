@@ -282,8 +282,8 @@ export function CustomTableServerSidePagination<
 
   // Adaptive overscan: increase for larger datasets for smoother scrolling
   const adaptiveOverscan = useMemo(() => {
-    if (data.length > 10000) return 15;
-    if (data.length > 1000) return 10;
+    if (data.length > 5000) return 25;
+    if (data.length > 1000) return 15;
     return overscan;
   }, [data.length, overscan]);
 
@@ -324,7 +324,10 @@ export function CustomTableServerSidePagination<
           <div
             ref={tableContainerRef}
             className="overflow-scroll relative"
-            style={{ maxHeight }}
+            style={{ 
+              maxHeight: maxHeight === "none" ? "calc(100vh - 300px)" : maxHeight,
+              minHeight: "200px" 
+            }}
           >
             <Table>
               <TableHeader className="sticky top-0 bg-[#0c235c] z-20">
@@ -374,7 +377,7 @@ export function CustomTableServerSidePagination<
               </TableHeader>
               {loading ? (
                 <TableBody>
-                  {Array.from({ length: pagination.pageSize }).map(
+                  {Array.from({ length: Math.min(pagination.pageSize, 20) }).map(
                     (_, index) => (
                       <TableRow key={index}>
                         {tableColumns.map((_, colIndex) => (

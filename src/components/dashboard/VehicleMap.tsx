@@ -530,7 +530,6 @@ const VehicleMap: React.FC<VehicleMapProps> = ({
   const [isInitialLoad, setIsInitialLoad] = useState(true);
   const [shouldFitBounds, setShouldFitBounds] = useState(false);
   const [internalMapType, setInternalMapType] = useState<"roadmap" | "satellite">(mapType);
-
   // Filter valid vehicles with memoization
   const validVehicles = useMemo(() => {
     return vehicles.filter(
@@ -543,6 +542,23 @@ const VehicleMap: React.FC<VehicleMapProps> = ({
         Math.abs(vehicle.longitude) <= 180
     );
   }, [vehicles]);
+
+  const [renderedCount, setRenderedCount] = useState(500); // Progressive rendering initial count
+
+  // Progressive rendering for large datasets
+  useEffect(() => {
+    if (validVehicles.length > renderedCount) {
+      const timer = setTimeout(() => {
+        setRenderedCount((prev) => Math.min(prev + 1000, validVehicles.length));
+      }, 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [validVehicles.length, renderedCount]);
+
+  // Reset rendered count when vehicles fundamentally change (e.g. filter change)
+  useEffect(() => {
+    setRenderedCount(500);
+  }, [vehicles.length]);
 
   // Calculate map center efficiently
   const mapCenter = useMemo(() => {
@@ -591,7 +607,8 @@ const VehicleMap: React.FC<VehicleMapProps> = ({
 
   // Render markers with or without clustering - optimized for 50K+ vehicles
   const renderMarkers = useMemo(() => {
-    const markers = validVehicles.map((vehicle) => (
+    const visibleVehicles = validVehicles.slice(0, renderedCount);
+    const markers = visibleVehicles.map((vehicle) => (
       <VehicleMarker
         key={`${vehicle.deviceId}-${vehicle?.uniqueId}`}
         vehicle={vehicle}
@@ -601,22 +618,22 @@ const VehicleMap: React.FC<VehicleMapProps> = ({
     ));
 
     // Use clustering for better performance with large datasets
-    if (clusterMarkers && validVehicles.length > 10) {
+    if (clusterMarkers && visibleVehicles.length > 10) {
       // Dynamically adjust cluster radius based on dataset size
-      const dynamicRadius = validVehicles.length > 10000 ? 150 : validVehicles.length > 1000 ? 120 : 80;
+      const dynamicRadius = visibleVehicles.length > 10000 ? 150 : visibleVehicles.length > 1000 ? 120 : 80;
 
       return (
         <MarkerClusterGroup
           chunkedLoading
-          chunkDelay={50}
-          chunkInterval={100}
+          chunkDelay={100} // Increased delay to keep UI responsive
+          chunkInterval={200} // Increased interval
           iconCreateFunction={createClusterCustomIcon}
           maxClusterRadius={dynamicRadius}
           spiderfyOnMaxZoom={true}
           showCoverageOnHover={false}
           disableClusteringAtZoom={18}   // Keep clusters active until very close zoom
           removeOutsideVisibleBounds={true}
-          animate={validVehicles.length <= 5000}  // Disable animation for large datasets
+          animate={visibleVehicles.length <= 2000}  // Disable animation earlier for better performance
           zoomToBoundsOnClick={true}
         >
           {markers}
@@ -625,7 +642,7 @@ const VehicleMap: React.FC<VehicleMapProps> = ({
     }
 
     return markers;
-  }, [validVehicles, handleVehicleClick, selectedVehicleId, clusterMarkers]);
+  }, [validVehicles, handleVehicleClick, selectedVehicleId, clusterMarkers, renderedCount]);
 
   return (
     <div className="vehicle-map-container" style={{ height, width: "100%", position: "relative" }}>
