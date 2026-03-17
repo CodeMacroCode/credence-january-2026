@@ -1529,7 +1529,7 @@ export const getStatusReportColumns = (): ColumnDef<StatusReport>[] => [
   {
     header: "Distance (km)",
     accessorFn: (row) =>
-      row.distance ? row.distance.toFixed(2) : "0.00",
+      row.distance ? row.distance : 0.00,
   },
   {
     header: "Max Speed",
