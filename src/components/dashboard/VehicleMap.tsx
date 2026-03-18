@@ -31,9 +31,12 @@ interface VehicleMapProps {
   fitBoundsTrigger?: number;
   mapType?: "roadmap" | "satellite";
   showMapTypeSelector?: boolean;
+  // Action button callbacks
+  onLiveTrack?: (uniqueId: number, name: string) => void;
+  onHistory?: (uniqueId: number, deviceCategory?: string) => void;
+  onOpenRouteTimeline?: (uniqueId: number, deviceName: string, routeObjId?: string) => void;
+  userRole?: string;
 }
-
-// ... existing code ...
 
 
 
@@ -66,10 +69,18 @@ const VehicleMarker = React.memo(
     vehicle,
     onClick,
     isSelected,
+    onLiveTrack,
+    onHistory,
+    onOpenRouteTimeline,
+    userRole,
   }: {
     vehicle: VehicleData;
     onClick?: (vehicle: VehicleData) => void;
     isSelected?: boolean;
+    onLiveTrack?: (uniqueId: number, name: string) => void;
+    onHistory?: (uniqueId: number, deviceCategory?: string) => void;
+    onOpenRouteTimeline?: (uniqueId: number, deviceName: string, routeObjId?: string) => void;
+    userRole?: string;
   }) => {
     // Memoize image URL
     const imageUrl = useMemo(() => {
@@ -84,7 +95,6 @@ const VehicleMarker = React.memo(
       };
       return statusToImageUrl[vehicle.state] || statusToImageUrl.inactive;
     }, [vehicle.category, vehicle.state]);
-    console.log(imageUrl)
 
     // Memoize icon with proper sizing
     const vehicleIcon = useMemo(() => {
@@ -132,50 +142,59 @@ const VehicleMarker = React.memo(
       return statusMap[vehicle.state] || statusMap.noData;
     }, [vehicle.state]);
 
+    const isExpired = (vehicle as any).expired;
+    const isSuperAdmin = userRole === "superadmin";
+    const canTrack = !isExpired || isSuperAdmin;
+    const streetViewUrl = `https://www.google.com/maps?layer=c&cbll=${vehicle.latitude},${vehicle.longitude}`;
+
     return (
       <Marker
         position={[vehicle.latitude, vehicle.longitude]}
         icon={vehicleIcon}
-        eventHandlers={{
-          click: handleClick,
-        }}
+        eventHandlers={{ click: handleClick }}
       >
-        <Popup maxWidth={290} className="vehicle-popup" maxHeight={300}>
-          <div className="vehicle-popup-content">
-            <div className="vehicle-header">
-              <h3 className="vehicle-name">{vehicle.name}</h3>
-              <span
-                className="status-badge"
-                style={{ backgroundColor: statusInfo.color }}
-              >
-                {statusInfo.text}
-              </span>
+        <Popup minWidth={280} maxWidth={320} className="vehicle-popup" maxHeight={420}>
+          <div className="popup-card">
+            {/* ---- Header ---- */}
+            <div className="popup-card-header">
+              <div className="popup-card-title-group">
+                <h3 className="popup-card-title">{vehicle.name}</h3>
+                <div className="popup-card-subtitle">IMEI: {vehicle.uniqueId} · {vehicle.category}</div>
+              </div>
             </div>
 
-            <div className="vehicle-details scrollable-details">
-              <div className="detail-row">
-                <span className="label">Speed:</span>
-                <span className="value">{vehicle.speed.toFixed(2)} km/h</span>
+            {/* ---- Status Banner ---- */}
+            <div
+              className="popup-status-banner"
+              style={{ background: `linear-gradient(135deg, ${statusInfo.color}18 0%, ${statusInfo.color}08 100%)`, border: `1px solid ${statusInfo.color}25` }}
+            >
+              <span className="popup-status-dot" style={{ background: statusInfo.color }}>
+                {statusInfo.text === "Running" ? "▶" : statusInfo.text === "Stopped" ? "■" : statusInfo.text === "Idle" ? "⏸" : "●"}
+              </span>
+              {statusInfo.text} · {vehicle.speed.toFixed(1)} km/h
+            </div>
+
+            {/* ---- Detail Grid ---- */}
+            <div className="popup-detail-grid">
+              <div className="popup-detail-item">
+                <span className="popup-label">Speed</span>
+                <span className="popup-value">{vehicle.speed.toFixed(2)} km/h</span>
               </div>
-              <div className="detail-row">
-                <span className="label">Speed Limit:</span>
-                <span className="value">{vehicle.speedLimit}</span>
+              <div className="popup-detail-item">
+                <span className="popup-label">Speed Limit</span>
+                <span className="popup-value">{vehicle.speedLimit}</span>
               </div>
-              <div className="detail-row">
-                <span className="label">Category:</span>
-                <span className="value">{vehicle.category}</span>
+              <div className="popup-detail-item">
+                <span className="popup-label">Today&apos;s Km</span>
+                <span className="popup-value">{vehicle.todayKm} km</span>
               </div>
-              <div className="detail-row">
-                <span className="label">Mileage:</span>
-                <span className="value">{vehicle.mileage}</span>
+              <div className="popup-detail-item">
+                <span className="popup-label">Mileage</span>
+                <span className="popup-value">{vehicle.mileage}</span>
               </div>
-              <div className="detail-row">
-                <span className="label">Fuel Consumption:</span>
-                <span className="value">{vehicle.fuelConsumption} L</span>
-              </div>
-              <div className="detail-row">
-                <span className="label">Last Update:</span>
-                <span className="value">
+              <div className="popup-detail-item">
+                <span className="popup-label">Last Update</span>
+                <span className="popup-value">
                   {vehicle?.lastUpdate
                     ? new Date(vehicle.lastUpdate).toLocaleString("en-GB", {
                       day: "2-digit",
@@ -183,41 +202,73 @@ const VehicleMarker = React.memo(
                       year: "numeric",
                       hour: "2-digit",
                       minute: "2-digit",
-                      second: "2-digit",
                       hour12: true,
                       timeZone: "UTC",
                     })
                     : "N/A"}
                 </span>
               </div>
-
-              <div className="detail-row">
-                <span className="label">Since:</span>
-                <span className="value">
-                  {calculateTimeSince(vehicle.lastUpdate)}
+              <div className="popup-detail-item">
+                <span className="popup-label">Since</span>
+                <span className="popup-value">{calculateTimeSince(vehicle.lastUpdate)}</span>
+              </div>
+              <div className="popup-detail-item">
+                <span className="popup-label">Network</span>
+                <span className={`popup-value ${vehicle.gsmSignal ? "status-online" : "status-offline"}`}>
+                  {vehicle.gsmSignal ? "● Online" : "● Offline"}
                 </span>
               </div>
-              <div className="detail-row">
-                <span className="label">Today's Distance:</span>
-                <span className="value">
-                  {vehicle.todayKm} km
-                </span>
-              </div>
-              <div className="detail-row">
-                <span className="label">Network:</span>
-                <span
-                  className={`value ${vehicle.gsmSignal ? "online" : "offline"
-                    } `}
-                >
-                  {vehicle.gsmSignal ? "Online" : "Offline"}
-                </span>
+              <div className="popup-detail-item">
+                <span className="popup-label">Fuel</span>
+                <span className="popup-value">{vehicle.fuelConsumption} L</span>
               </div>
             </div>
 
-            <div className="vehicle-coordinates">
-              <small>
-                📍 {vehicle.latitude.toFixed(6)}, {vehicle.longitude.toFixed(6)}
-              </small>
+            {/* ---- Coordinates Card ---- */}
+            <div className="popup-coords-card">
+              📍 {vehicle.latitude.toFixed(6)}, {vehicle.longitude.toFixed(6)}
+            </div>
+
+            {/* ---- Action Buttons ---- */}
+            <div className="popup-actions">
+              <button
+                className={`popup-action-btn primary${!canTrack ? " disabled" : ""}`}
+                disabled={!canTrack}
+                onClick={() => canTrack && onLiveTrack?.(Number(vehicle.uniqueId), vehicle.name)}
+                title={!canTrack ? "Subscription expired" : "Open live tracking"}
+              >
+                <span className="btn-icon">🎯</span>
+                {isExpired && !isSuperAdmin ? "Expired" : "Live Track"}
+              </button>
+
+              <button
+                className="popup-action-btn"
+                onClick={() => onHistory?.(Number(vehicle.uniqueId), (vehicle as any).deviceCategory || vehicle.category)}
+                title="View history report"
+              >
+                <span className="btn-icon">📋</span>
+                History
+              </button>
+
+              <button
+                className="popup-action-btn"
+                onClick={() => onOpenRouteTimeline?.(Number(vehicle.uniqueId), vehicle.name, (vehicle as any).routeId)}
+                title="View route timeline"
+              >
+                <span className="btn-icon">🗓</span>
+                Timeline
+              </button>
+
+              <a
+                className="popup-action-btn"
+                href={streetViewUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                title="Open in Google Street View"
+              >
+                <span className="btn-icon">🌐</span>
+                Street View
+              </a>
             </div>
           </div>
         </Popup>
@@ -525,11 +576,29 @@ const VehicleMap: React.FC<VehicleMapProps> = ({
   fitBoundsTrigger = 0,
   mapType = "roadmap",
   showMapTypeSelector = true,
+  onLiveTrack,
+  onHistory,
+  onOpenRouteTimeline,
+  userRole,
 }) => {
   const mapRef = useRef<L.Map | null>(null);
   const [isInitialLoad, setIsInitialLoad] = useState(true);
   const [shouldFitBounds, setShouldFitBounds] = useState(false);
   const [internalMapType, setInternalMapType] = useState<"roadmap" | "satellite">(mapType);
+  const [showTrafficLayer, setShowTrafficLayer] = useState(false);
+
+  // Compute tile URL combining map type + traffic overlay
+  // lyrs codes: m=roadmap, y=hybrid(satellite+labels), traffic=traffic overlay
+  const tileUrl = useMemo(() => {
+    if (internalMapType === "satellite") {
+      return showTrafficLayer
+        ? "https://{s}.google.com/vt/lyrs=y,traffic&x={x}&y={y}&z={z}"
+        : "https://{s}.google.com/vt/lyrs=y&x={x}&y={y}&z={z}";
+    }
+    return showTrafficLayer
+      ? "https://{s}.google.com/vt/lyrs=m,traffic&x={x}&y={y}&z={z}"
+      : "https://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}";
+  }, [internalMapType, showTrafficLayer]);
   // Filter valid vehicles with memoization
   const validVehicles = useMemo(() => {
     return vehicles.filter(
@@ -614,6 +683,10 @@ const VehicleMap: React.FC<VehicleMapProps> = ({
         vehicle={vehicle}
         onClick={handleVehicleClick}
         isSelected={selectedVehicleId === vehicle.deviceId}
+        onLiveTrack={onLiveTrack}
+        onHistory={onHistory}
+        onOpenRouteTimeline={onOpenRouteTimeline}
+        userRole={userRole}
       />
     ));
 
@@ -642,7 +715,7 @@ const VehicleMap: React.FC<VehicleMapProps> = ({
     }
 
     return markers;
-  }, [validVehicles, handleVehicleClick, selectedVehicleId, clusterMarkers, renderedCount]);
+  }, [validVehicles, handleVehicleClick, selectedVehicleId, clusterMarkers, renderedCount, onLiveTrack, onHistory, onOpenRouteTimeline, userRole]);
 
   return (
     <div className="vehicle-map-container" style={{ height, width: "100%", position: "relative" }}>
@@ -655,8 +728,10 @@ const VehicleMap: React.FC<VehicleMapProps> = ({
         zoomControl={true}
         attributionControl={false}
       >
+        {/* Single tile layer — URL encodes both map type and traffic overlay */}
         <TileLayer
-          url={`https://{s}.google.com/vt/lyrs=${internalMapType === "satellite" ? "y" : "m"}&x={x}&y={y}&z={z}`}
+          key={tileUrl}
+          url={tileUrl}
           subdomains={["mt0", "mt1", "mt2", "mt3"]}
           maxZoom={19}
         />
@@ -682,7 +757,8 @@ const VehicleMap: React.FC<VehicleMapProps> = ({
       </MapContainer>
 
       {showMapTypeSelector && (
-        <div className="absolute top-4 right-4 z-1000 hidden lg:block">
+        <div className="absolute top-4 right-4 z-1000 hidden lg:flex flex-col gap-2">
+          {/* Satellite / Roadmap toggle */}
           <button
             onClick={() => setInternalMapType((prev) => (prev === "roadmap" ? "satellite" : "roadmap"))}
             className="p-2 rounded-full border border-gray-300 bg-white text-gray-600 hover:bg-gray-100 transition-all duration-200 cursor-pointer shadow-lg hover:shadow-xl hover:-translate-y-0.5 flex items-center justify-center"
@@ -694,6 +770,23 @@ const VehicleMap: React.FC<VehicleMapProps> = ({
             ) : (
               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-map"><path d="M14.106 5.553a2 2 0 0 0 1.788 0l3.659-1.83A1 1 0 0 1 21 4.619v12.764a1 1 0 0 1-.553.894l-4.553 2.277a2 2 0 0 1-1.788 0l-4.212-2.106a2 2 0 0 0-1.788 0l-3.659 1.83A1 1 0 0 1 3 19.381V6.618a1 1 0 0 1 .553-.894l4.553-2.277a2 2 0 0 1 1.788 0z" /><path d="M15 5.764v15" /><path d="M9 3.236v15" /></svg>
             )}
+          </button>
+
+          {/* Traffic layer toggle */}
+          <button
+            onClick={() => setShowTrafficLayer((prev) => !prev)}
+            className={`p-2 rounded-full border transition-all duration-200 cursor-pointer shadow-lg hover:shadow-xl hover:-translate-y-0.5 flex items-center justify-center ${showTrafficLayer
+              ? "bg-orange-500 border-orange-400 text-white"
+              : "bg-white border-gray-300 text-gray-600 hover:bg-gray-100"
+              }`}
+            title={showTrafficLayer ? "Hide Traffic" : "Show Traffic"}
+            aria-label={showTrafficLayer ? "Hide Traffic" : "Show Traffic"}
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="12" cy="7" r="2" />
+              <circle cx="12" cy="12" r="2" />
+              <circle cx="12" cy="17" r="2" />
+            </svg>
           </button>
         </div>
       )}

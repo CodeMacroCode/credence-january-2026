@@ -958,6 +958,14 @@ export default function DashboardClient() {
                       onVehicleSelect={setSelectedVehicleId}
                       fitBoundsTrigger={fitBoundsTrigger}
                       showMapTypeSelector={!open && !isDrawerOpen}
+                      onLiveTrack={handleOpenLiveTrack}
+                      onHistory={(uniqueId, deviceCategory) => {
+                        let url = "/dashboard/reports/history-report?uniqueId=" + uniqueId;
+                        if (deviceCategory) url += "&deviceCategory=" + deviceCategory;
+                        router.push(url);
+                      }}
+                      onOpenRouteTimeline={handleOpenRouteTimeline}
+                      userRole={userRole}
                     />
                   </>
                 )}
