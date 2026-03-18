@@ -9,7 +9,7 @@ export const deviceSchema = z.object({
   routeObjId: z.string().optional(),
   category: z.string().min(1, "Category is required"),
   model: z.string().min(1, "Model is required"),
-  driverObjId: z.string().optional(),
+  driverObjIds: z.array(z.string()).optional(),
   speed: z.coerce.number().optional(),
   average: z.coerce.number().optional(),
   odometer: z.coerce.number().min(0, "Odometer cannot be negative").optional(),

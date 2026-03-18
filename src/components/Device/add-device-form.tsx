@@ -71,10 +71,9 @@ export function AddDeviceForm({
       sim: "",
       schoolId: "",
       branchId: "",
-      routeObjId: "",
       category: "",
       model: "",
-      driverObjId: "",
+      driverObjIds: [],
       speed: 0,
       average: 0,
       odometer: 0,
@@ -144,14 +143,14 @@ export function AddDeviceForm({
     if (selectedSchoolId && !isEditMode) {
       setValue("branchId", "");
       setValue("routeObjId", "");
-      setValue("driverObjId", "");
+      setValue("driverObjIds", []);
     }
   }, [selectedSchoolId, setValue, isEditMode]);
 
   useEffect(() => {
     if (selectedBranchId && !isEditMode) {
       setValue("routeObjId", "");
-      setValue("driverObjId", "");
+      setValue("driverObjIds", []);
     }
   }, [selectedBranchId, setValue, isEditMode]);
 
@@ -168,7 +167,7 @@ export function AddDeviceForm({
         routeObjId: editData.routeObjId?._id || "",
         category: editData.category || "",
         model: editData.model || "",
-        driverObjId: editData.driverObjId?._id || "",
+        driverObjIds: editData.driverObjIds?.map((d: any) => d._id) || (editData.driverObjId ? [editData.driverObjId._id] : []) || [],
         speed: editData.speed || 0,
         average: editData.average || 0,
         odometer: editData.odometer || 0,
@@ -185,7 +184,7 @@ export function AddDeviceForm({
         routeObjId: "",
         category: "",
         model: "",
-        driverObjId: "",
+        driverObjIds: [],
         speed: 0,
         average: 0,
         odometer: 0,
@@ -237,49 +236,47 @@ export function AddDeviceForm({
   const categoryItems = transformToComboboxItems(categories, "category");
   const modelItems = transformToComboboxItems(models, "model");
 
-  // Transform driverObjId data from infinite query pages + add edit driverObjId if exists
+  // Transform driverObjIds data from infinite query pages + add edit driverObjIds if exists
   const driverItems: ComboboxItem[] = useMemo(() => {
     const drivers = driversData
       ? driversData.pages.flatMap((page) =>
-        (page.data || []).map((driverObjId: DropdownItem) => ({
-          value: driverObjId._id || "",
-          label: driverObjId.driverName || "Unknown driverObjId",
+        (page.data || []).map((driver: DropdownItem) => ({
+          value: driver._id || "",
+          label: driver.driverName || "Unknown driver",
         }))
       )
       : [];
 
-    if (isEditMode && editData?.driverObjId?._id) {
-      const driverExists = drivers.some(
-        (d) => d.value === editData.driverObjId._id
-      );
-
-      if (!driverExists) {
-        drivers.unshift({
-          value: editData.driverObjId._id,
-          label: editData.driverObjId.driverName || "Selected driverObjId",
-        });
-      }
+    if (isEditMode) {
+      const editDrivers = editData?.driverObjIds || (editData?.driverObjId ? [editData.driverObjId] : []);
+      
+      editDrivers.forEach((d: any) => {
+        if (d && d._id) {
+          const driverExists = drivers.some((existing) => existing.value === d._id);
+          if (!driverExists) {
+            drivers.unshift({
+              value: d._id,
+              label: d.driverName || "Selected driver",
+            });
+          }
+        }
+      });
     }
 
     return drivers;
-  }, [driversData, isEditMode, editData?.driverObjId]);
+  }, [driversData, isEditMode, editData?.driverObjIds, editData?.driverObjId]);
 
   // Submit handler
   const onSubmit: SubmitHandler<DeviceFormData> = async (data) => {
     console.log("Submitted data:", data);
     try {
       const routeId = data?.routeObjId || editData?.routeObjId?._id;
-      const driverId = data?.driverObjId || editData?.driverObjId?._id;
 
       // -------------------------------------------------------
       // 1️⃣ CHECK IF VALUES CHANGED (only in edit mode)
       // -------------------------------------------------------
       const routeChanged = isEditMode
         ? data.routeObjId !== editData?.routeObjId?._id
-        : true; // Always check in create mode
-
-      const driverChanged = isEditMode
-        ? data.driverObjId !== editData?.driverObjId?._id
         : true; // Always check in create mode
 
       // -------------------------------------------------------
@@ -305,22 +302,22 @@ export function AddDeviceForm({
       // -------------------------------------------------------
       // 3️⃣ CHECK driverObjId ASSIGNMENT (only if changed)
       // -------------------------------------------------------
-      if (driverId && driverChanged) {
-        const check = await deviceApiService.checkDriverAssign(driverId);
-        console.log("❌ [DriverCheck] response:", check);
+      // if (driverId && driverChanged) {
+      //   const check = await deviceApiService.checkDriverAssign(driverId);
+      //   console.log("❌ [DriverCheck] response:", check);
 
-        if (check?.assigned) {
-          console.log("⛔ driverObjId is already assigned to another device.");
-          const confirmed = confirm(
-            `${check.message}. Do you still want to continue?`
-          );
+      //   if (check?.assigned) {
+      //     console.log("⛔ driverObjId is already assigned to another device.");
+      //     const confirmed = confirm(
+      //       `${check.message}. Do you still want to continue?`
+      //     );
 
-          if (!confirmed) {
-            console.log("⛔ User cancelled driverObjId assignment.");
-            return; // Stop submit
-          }
-        }
-      }
+      //     if (!confirmed) {
+      //       console.log("⛔ User cancelled driverObjId assignment.");
+      //       return; // Stop submit
+      //     }
+      //   }
+      // }
 
       // -------------------------------------------------------
       // 4️⃣ IF NOT CANCELLED → Continue with CREATE or UPDATE
@@ -337,7 +334,7 @@ export function AddDeviceForm({
           routeObjId: data.routeObjId || undefined,
           category: data.category,
           model: data.model,
-          driverObjId: data.driverObjId || undefined,
+          driverObjIds: data.driverObjIds && data.driverObjIds.length > 0 ? data.driverObjIds : undefined,
           speed: data.speed,
           average: data.average,
           odometer: data.odometer,
@@ -387,7 +384,7 @@ export function AddDeviceForm({
           category: data.category,
           model: data.model,
           deviceId: oldApiResponse.id,
-          driverObjId: data.driverObjId || undefined,
+          driverObjIds: data.driverObjIds && data.driverObjIds.length > 0 ? data.driverObjIds : undefined,
           speed: data.speed,
           average: data.average,
           odometer: data.odometer,
@@ -590,13 +587,14 @@ export function AddDeviceForm({
             <div className="space-y-2">
               <Label>Driver</Label>
               <Controller
-                name="driverObjId"
+                name="driverObjIds"
                 control={control}
                 render={({ field }) => (
                   <Combobox
                     items={driverItems}
-                    value={field.value}
-                    onValueChange={field.onChange}
+                    multiple={true}
+                    selectedValues={field.value || []}
+                    onSelectedValuesChange={field.onChange}
                     placeholder={
                       !selectedBranchId
                         ? "Select user first"

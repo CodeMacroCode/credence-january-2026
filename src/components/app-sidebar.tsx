@@ -46,7 +46,7 @@ import {
 } from "lucide-react";
 import { GiGps, GiReceiveMoney } from "react-icons/gi";
 import Image from "next/image";
-import { MdOutlineLocalPolice } from "react-icons/md";
+import { MdDriveEta, MdDriveFileMoveRtl, MdOutlineLocalPolice } from "react-icons/md";
 import { LiaMoneyBillAlt } from "react-icons/lia";
 
 type UserRole = "superAdmin" | "school" | "branchGroup" | "branch" | null;
@@ -91,6 +91,7 @@ const iconMap: Record<string, React.ElementType> = {
   "Subscription Config": GiReceiveMoney,
   "Custom Subscription Config": GiReceiveMoney,
   Billing: LiaMoneyBillAlt,
+  Driver: MdDriveEta,
 };
 
 // Access permission mapping for Master section
@@ -165,7 +166,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 url: "/dashboard/school/geofence",
               },
               {
-                title: "Driver Approve",
+                title: "Driver",
                 url: "/dashboard/users/driver-approve",
               },
               // { title: "Notification", url: "/dashboard/users/notification" },
@@ -184,6 +185,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               {
                 title: "User Master",
                 url: "/dashboard/users/branch-master",
+              },
+              {
+                title: "Driver",
+                url: "/dashboard/users/driver-approve",
               },
               // {
               //   // title: "Student Details",
@@ -209,6 +214,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           } else {
             return [
               { title: "Device", url: "/dashboard/users/add-device" },
+              {
+                title: "Driver",
+                url: "/dashboard/users/driver-approve",
+              },
               // {
               //   // title: "Student Details",
               //   url: "/dashboard/school/student-details",

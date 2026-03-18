@@ -1,5 +1,5 @@
 import api from "@/lib/axios";
-import { GetGeofenceResponse } from "@/interface/modal";
+import { GetGeofenceResponse, Geofence } from "@/interface/modal";
 
 export const geofenceService = {
   getGeofence: async (
@@ -14,6 +14,15 @@ export const geofenceService = {
       params,
     });
     return res.data;
+  },
+
+  getGeofencesForDashboard: async (): Promise<Geofence[]> => {
+    const res = await api.get("/geofencetodashboard");
+    // API may return { data: [...] } or a plain array
+    const payload = res.data;
+    if (Array.isArray(payload)) return payload;
+    if (payload?.data && Array.isArray(payload.data)) return payload.data;
+    return [];
   },
 
   createGeofence: async (payload: any) => {

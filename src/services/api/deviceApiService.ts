@@ -70,8 +70,8 @@ export const deviceApiService = {
     return res.data;
   },
 
-  updateExpirationDate: async (uniqueId: string, payload: { expirationdate: string; password?: string }) => {
-    const res = await api.put(`/device/expiration/${uniqueId}`, payload);
+  updateExpirationDate: async (uniqueIds: string[], payload: { expirationdate: string; password?: string }) => {
+    const res = await api.put(`/devices/expiration`, { ...payload, uniqueIds });
     return res.data;
   },
 

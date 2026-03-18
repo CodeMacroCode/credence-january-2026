@@ -292,7 +292,7 @@ export const BottomDrawer = ({
                     <p className="ml-8">
                       {isLoading
                         ? "Loading..."
-                        : `${(distance as any)?.fuelConsumption ? (distance as any)?.fuelConsumption : 0}` +
+                        : `${selectedDevice?.fuelConsumption ? selectedDevice?.fuelConsumption : 0}` +
                         " Litre"}
                     </p>
                   </div>

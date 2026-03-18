@@ -150,3 +150,17 @@ export const useGeofenceByUniqueId = (uniqueId: string) => {
     error: geofenceByUniqueId.error,
   };
 };
+
+export const useGeofenceDashboard = (enabled = true) => {
+  const query = useQuery({
+    queryKey: ["geofence-dashboard"],
+    queryFn: () => geofenceService.getGeofencesForDashboard(),
+    enabled,
+    staleTime: 5 * 60 * 1000, // 5 minutes — geofences don't change often
+  });
+
+  return {
+    geofences: Array.isArray(query.data) ? query.data : [],
+    isLoading: query.isLoading,
+  };
+};

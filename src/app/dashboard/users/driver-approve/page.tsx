@@ -214,16 +214,16 @@ export default function Driver() {
                     createDriver(data);
                 } else {
                     try {
-                        const check = await driverService.checkAlreadyAssign(
-                            data?.routeObjId
-                        );
+                        // const check = await driverService.checkAlreadyAssign(
+                        //     data?.routeObjId
+                        // );
 
-                        if (check?.assigned) {
-                            const userConfirmed = confirm(
-                                `${check.message}. Do you still want to continue?`
-                            );
-                            if (!userConfirmed) return;
-                        }
+                        // if (check?.assigned) {
+                        //     const userConfirmed = confirm(
+                        //         `${check.message}. Do you still want to continue?`
+                        //     );
+                        //     if (!userConfirmed) return;
+                        // }
                         createDriver(data);
                     } catch (err: any) {
                         toast.error(err?.message || "Create failed");
@@ -267,67 +267,8 @@ export default function Driver() {
 
     // ---------------- Table columns ----------------
     const columns = useMemo(() => {
-        const cols = [...getDriverColumns(handleEdit, handleDelete)];
-        cols.splice(cols.length - 1, 0, {
-            header: "Registration Status",
-            cell: ({ row }) => {
-                const { isApproved, _id } = row.original;
-
-                const StatusSegmentedControl = () => {
-                    const [status, setStatus] = useState(isApproved);
-
-                    const handleStatusChange = (newStaus) => {
-                        setStatus(newStaus);
-                        approveDriver({
-                            id: _id,
-                            isApproved: newStaus,
-                        });
-                    };
-
-                    const statuses = [
-                        {
-                            value: "Approved",
-                            label: "Approved",
-                            color: "bg-green-100 text-green-700 border-green-300",
-                        },
-                        {
-                            value: "Rejected",
-                            label: "Rejected",
-                            color: "bg-red-100 text-red-700 border-red-300",
-                        },
-                    ];
-
-                    return (
-                        <div className="inline-flex rounded-md border border-gray-200 bg-gray-50 p-1">
-                            {statuses.map(({ value, label, color }) => (
-                                <button
-                                    key={value}
-                                    onClick={() => handleStatusChange(value)}
-                                    disabled={isApproveLoading}
-                                    className={`
-                  px-3 py-1 text-xs font-medium rounded transition-all duration-200
-                  ${status === value
-                                            ? color
-                                            : "bg-transparent text-gray-600 hover:bg-gray-100"
-                                        }
-                  ${isApproveLoading
-                                            ? "opacity-50 cursor-not-allowed"
-                                            : "cursor-pointer"
-                                        }
-                `}
-                                >
-                                    {label}
-                                </button>
-                            ))}
-                        </div>
-                    );
-                };
-
-                return <StatusSegmentedControl />;
-            },
-        });
-        return cols;
-    }, [handleDelete, handleEdit, isApproveLoading, approveDriver]);
+        return getDriverColumns(handleEdit, handleDelete);
+    }, [handleDelete, handleEdit, isApproveLoading]);
 
     // ---------------- Table ----------------
     const { table, tableElement } = CustomTableServerSidePagination({

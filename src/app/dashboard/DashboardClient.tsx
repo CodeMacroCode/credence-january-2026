@@ -966,6 +966,7 @@ export default function DashboardClient() {
                       }}
                       onOpenRouteTimeline={handleOpenRouteTimeline}
                       userRole={userRole}
+                      showGeofences={userRole !== "superadmin"}
                     />
                   </>
                 )}

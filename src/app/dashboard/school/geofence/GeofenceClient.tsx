@@ -10,7 +10,7 @@ import {
   DialogContent,
   DialogClose,
 } from "@/components/ui/dialog";
-import { X, Trash2, FilterX } from "lucide-react";
+import { X, Trash2, FilterX, Download } from "lucide-react";
 import { DialogTitle } from "@radix-ui/react-dialog";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { CustomTableServerSidePagination } from "@/components/ui/customTable(serverSidePagination)";
@@ -24,6 +24,15 @@ import { useDebounce } from "@/hooks/useDebounce";
 import { useBranchDropdown, useSchoolDropdown } from "@/hooks/useDropdown";
 import { ColumnVisibilitySelector } from "@/components/column-visibility-selector";
 import { useGeofenceStore } from "@/store/geofenceStore";
+import { useExport } from "@/hooks/useExport";
+import DownloadProgress from "@/components/DownloadProgress";
+import { geofenceService } from "@/services/api/geofenceSerevice";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 type DecodedToken = {
   role: string;
@@ -55,6 +64,12 @@ export default function GeofenceClient() {
   const [selectedGeofence, setSelectedGeofence] = useState<Geofence | null>(
     null
   );
+
+  // Export state
+  const [isDownloading, setIsDownloading] = useState(false);
+  const [downloadProgress, setDownloadProgress] = useState(0);
+  const [downloadLabel, setDownloadLabel] = useState("");
+  const { exportToPDF, exportToExcel } = useExport();
 
   // Filter states - only set when user explicitly selects from dropdown
   const [filterSchoolId, setFilterSchoolId] = useState<string>();
@@ -267,6 +282,97 @@ export default function GeofenceClient() {
     [handleEdit, handleDelete]
   );
 
+  // ---- Export logic ----
+  const exportColumns = [
+    { key: "geofenceName", header: "Geofence Name" },
+    { key: "coordinates", header: "Coordinates" },
+    { key: "radius", header: "Radius (m)" },
+    { key: "address", header: "Address" },
+    { key: "routeNumber", header: "Route" },
+    { key: "schoolName", header: "Admin" },
+    { key: "branchName", header: "User" },
+  ];
+
+  const updateProgress = (percent: number, label: string) => {
+    setDownloadProgress(percent);
+    setDownloadLabel(label);
+  };
+
+  const fetchAllGeofences = async () => {
+    const res = await geofenceService.getGeofence({
+      page: 1,
+      limit: "all",
+      search: filters.search,
+      branchId: filters.branchId,
+      schoolId: filters.schoolId,
+    });
+    return res.data ?? [];
+  };
+
+  const prepareExportData = (data: Geofence[]) => {
+    return data.map((item) => ({
+      geofenceName: item.geofenceName || "",
+      coordinates: item.area?.center
+        ? `${item.area.center[0]}, ${item.area.center[1]}`
+        : "",
+      radius: item.area?.radius ?? "",
+      address: item.address || "",
+      routeNumber: (item.route as any)?.routeNumber || "",
+      schoolName: (item.school as any)?.schoolName || "",
+      branchName: (item.branch as any)?.branchName || "",
+    }));
+  };
+
+  const handleExportExcel = async () => {
+    try {
+      setIsDownloading(true);
+      updateProgress(10, "Fetching geofences");
+      const allData = await fetchAllGeofences();
+
+      updateProgress(60, "Preparing data");
+      const prepared = prepareExportData(allData);
+
+      updateProgress(85, "Generating Excel");
+      exportToExcel(prepared, exportColumns, { title: "Geofences" });
+
+      updateProgress(100, "Download complete");
+    } catch (err) {
+      console.error(err);
+      alert("Failed to export Excel");
+    } finally {
+      setTimeout(() => {
+        setIsDownloading(false);
+        setDownloadProgress(0);
+        setDownloadLabel("");
+      }, 500);
+    }
+  };
+
+  const handleExportPDF = async () => {
+    try {
+      setIsDownloading(true);
+      updateProgress(10, "Fetching geofences");
+      const allData = await fetchAllGeofences();
+
+      updateProgress(60, "Preparing data");
+      const prepared = prepareExportData(allData);
+
+      updateProgress(85, "Generating PDF");
+      await exportToPDF(prepared, exportColumns, { title: "Geofences" });
+
+      updateProgress(100, "Download complete");
+    } catch (err) {
+      console.error(err);
+      alert("Failed to export PDF");
+    } finally {
+      setTimeout(() => {
+        setIsDownloading(false);
+        setDownloadProgress(0);
+        setDownloadLabel("");
+      }, 500);
+    }
+  };
+
   const { tableElement, selectedRows, table } = CustomTableServerSidePagination(
     {
       data: geofence || [],
@@ -280,7 +386,7 @@ export default function GeofenceClient() {
       columnVisibility,
       onColumnVisibilityChange: setColumnVisibility,
       emptyMessage: "No geofence found",
-      pageSizeOptions: [5, 10, 20, 30, 50],
+      pageSizeOptions: [5, 10, 20, 30, 50, "all"], //All
       enableSorting: true,
       showSerialNumber: true,
       enableMultiSelect: true,
@@ -291,6 +397,12 @@ export default function GeofenceClient() {
 
   return (
     <div className="flex flex-col h-full">
+      <DownloadProgress
+        open={isDownloading}
+        progress={downloadProgress}
+        label={downloadLabel}
+      />
+
       <header>
         <Dialog open={open} onOpenChange={handleDialogChange}>
           <div className="flex items-center justify-between">
@@ -299,8 +411,8 @@ export default function GeofenceClient() {
             <Button
               variant="destructive"
               className={`cursor-pointer flex items-center gap-2 ${selectedRows.length > 0
-                  ? "bg-red-500 hover:bg-red-600 text-white"
-                  : "cursor-not-allowed opacity-50"
+                ? "bg-red-500 hover:bg-red-600 text-white"
+                : "cursor-not-allowed opacity-50"
                 }`}
               onClick={() => handleBulkDelete(selectedRows)}
               disabled={isDeleteLoading || selectedRows.length === 0}
@@ -409,7 +521,25 @@ export default function GeofenceClient() {
           </div>
         </div>
 
-        <div>
+        <div className="flex gap-2">
+          {/* Export Dropdown */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" className="cursor-pointer flex items-center gap-2">
+                <Download className="h-4 w-4" />
+                Export
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={handleExportExcel} className="cursor-pointer">
+                Export as Excel
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={handleExportPDF} className="cursor-pointer">
+                Export as PDF
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+
           <Dialog>
             <DialogTrigger asChild>
               <Button className="cursor-pointer text-white" onClick={handleAddGeofence}>

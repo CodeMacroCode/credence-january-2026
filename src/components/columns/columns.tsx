@@ -1318,7 +1318,7 @@ export const getDriverColumns = (
               e.stopPropagation();
               onEdit(row.original); // Use the callback
             }}
-            className="cursor-pointer bg-[#0c235c] hover:bg-[#D3A80C]"
+            className="cursor-pointer bg-[#0c235c] text-white hover:bg-[#0C235C] hover:text-white"
           >
             Edit
           </Button>

@@ -10,7 +10,7 @@ import { Combobox } from "@/components/ui/combobox";
 import { useBranchDropdown, useSchoolDropdown } from "@/hooks/useDropdown";
 import { useAuthStore } from "@/store/authStore";
 import { ColumnVisibilitySelector } from "@/components/column-visibility-selector";
-import { AlertCircle, CalendarClock, RefreshCcw, Search, Loader2 } from "lucide-react";
+import { AlertCircle, CalendarClock, RefreshCcw, Search, Loader2, CheckSquare } from "lucide-react";
 import { PaginationState } from "@tanstack/react-table";
 import ResponseLoader from "@/components/ResponseLoader";
 import { getRenewalColumns } from "@/components/columns/columns";
@@ -35,7 +35,7 @@ export default function RenewalClient() {
     const [sorting, setSorting] = useState([]);
 
     // Manual Renewal State
-    const [selectedDevice, setSelectedDevice] = useState<any>(null);
+    const [selectedUniqueIds, setSelectedUniqueIds] = useState<string[]>([]);
     const [isRenewalModalOpen, setIsRenewalModalOpen] = useState(false);
     const [renewalDate, setRenewalDate] = useState("2026-12-31T23:59:59.000Z");
     const [renewalPassword, setRenewalPassword] = useState("");
@@ -91,7 +91,7 @@ export default function RenewalClient() {
     }, [data, activeTab]);
 
     const handleManualRenewal = (device: any) => {
-        setSelectedDevice(device);
+        setSelectedUniqueIds([device.uniqueId]);
         setRenewalDate("2026-12-31T23:59:59.000Z");
         setRenewalPassword("");
         setIsRenewalModalOpen(true);
@@ -182,7 +182,7 @@ export default function RenewalClient() {
 
     // Handlers
     const submitManualRenewal = async () => {
-        if (!selectedDevice || !renewalPassword || !renewalDate) {
+        if (!selectedUniqueIds.length || !renewalPassword || !renewalDate) {
             toast.error("Please provide expiration date and password.");
             return;
         }
@@ -192,9 +192,11 @@ export default function RenewalClient() {
                 expirationdate: renewalDate,
                 password: renewalPassword
             };
-            await deviceApiService.updateExpirationDate(selectedDevice.uniqueId, payload);
-            toast.success("Expiration date updated successfully.");
+            await deviceApiService.updateExpirationDate(selectedUniqueIds, payload);
+            toast.success(`Expiration date updated successfully for ${selectedUniqueIds.length} device(s).`);
             setIsRenewalModalOpen(false);
+            setSelectedUniqueIds([]);
+            table.resetRowSelection();
             refetch();
         } catch (error: any) {
             toast.error(error?.response?.data?.message || "Failed to update expiration date");
@@ -214,7 +216,7 @@ export default function RenewalClient() {
         refetch();
     };
 
-    const { table, tableElement } = CustomTableServerSidePagination({
+    const { table, selectedRows, tableElement } = CustomTableServerSidePagination({
         data: tableData,
         columns,
         pagination,
@@ -227,13 +229,22 @@ export default function RenewalClient() {
         pageSizeOptions: [10, 20, 30, 50, 100, "All"],
         showSerialNumber: true,
         enableSorting: true,
-        enableMultiSelect: false,
+        enableMultiSelect: true,
+        getRowId: (row: any) => row.uniqueId,
         // Enable virtualization
         enableVirtualization: true,
         estimatedRowHeight: 50,
         overscan: 5,
         maxHeight: "calc(100vh - 430px)",
     });
+
+    const handleBulkManualRenewal = () => {
+        if (selectedRows.length === 0) return;
+        setSelectedUniqueIds(selectedRows as string[]);
+        setRenewalDate("2026-12-31T23:59:59.000Z");
+        setRenewalPassword("");
+        setIsRenewalModalOpen(true);
+    };
 
     return (
         <div className="h-full flex flex-col space-y-4 p-4 bg-gray-50/50 overflow-hidden">
@@ -345,9 +356,22 @@ export default function RenewalClient() {
                             {activeTab === "expired" ? "Expired Vehicles List" : "Vehicles Expiring Soon"}
                         </h2>
                     </div>
-                    <span className="text-sm text-gray-500">
-                        Page {pagination.pageIndex + 1} of {Math.ceil(totalCount / pagination.pageSize)}
-                    </span>
+                    <div className="flex items-center gap-3">
+                        {userRole === "superadmin" && (
+                            <Button
+                                variant="default"
+                                size="sm"
+                                className="text-white cursor-pointer"
+                                onClick={handleBulkManualRenewal}
+                                disabled={selectedRows.length === 0}
+                            >
+                                Manual Renewal ({selectedRows.length})
+                            </Button>
+                        )}
+                        <span className="text-sm text-gray-500">
+                            Page {pagination.pageIndex + 1} of {Math.ceil(totalCount / pagination.pageSize)}
+                        </span>
+                    </div>
                 </div>
 
                 <div className="flex-1 min-h-0">
@@ -361,7 +385,10 @@ export default function RenewalClient() {
                     <DialogHeader>
                         <DialogTitle>Manual Renewal</DialogTitle>
                         <DialogDescription>
-                            Renew subscription for {selectedDevice?.name || "Device"} ({selectedDevice?.uniqueId})
+                            {selectedUniqueIds.length === 1
+                                ? `Renew subscription for device (${selectedUniqueIds[0]})`
+                                : `Renew subscription for ${selectedUniqueIds.length} selected devices`
+                            }
                         </DialogDescription>
                     </DialogHeader>
 

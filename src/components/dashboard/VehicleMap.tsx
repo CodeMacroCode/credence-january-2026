@@ -6,13 +6,17 @@ import React, {
   useState,
   useLayoutEffect,
 } from "react";
-import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
+import { MapContainer, TileLayer, Marker, Popup, useMap, Circle } from "react-leaflet";
 import MarkerClusterGroup from "react-leaflet-cluster";
 import L from "leaflet";
 import { getValidDeviceCategory } from "@/components/statusIconMap";
 import "leaflet/dist/leaflet.css";
 import "./VehicleMap.css";
 import { calculateTimeSince } from "@/util/calculateTimeSince";
+import { Satellite, Radius } from "lucide-react";
+import { LiaTrafficLightSolid } from "react-icons/lia";
+import { useGeofenceDashboard } from "@/hooks/useGeofence";
+import { Geofence } from "@/interface/modal";
 
 // Types based on your socket response
 import { AllDeviceData as VehicleData } from "@/types/socket";
@@ -36,9 +40,56 @@ interface VehicleMapProps {
   onHistory?: (uniqueId: number, deviceCategory?: string) => void;
   onOpenRouteTimeline?: (uniqueId: number, deviceName: string, routeObjId?: string) => void;
   userRole?: string;
+  showGeofences?: boolean;
 }
 
 
+// ---- Geofence overlay layer ----
+const GeofenceLayer = () => {
+  const { geofences } = useGeofenceDashboard();
+
+  return (
+    <>
+      {geofences.map((geo: Geofence) => {
+        const [lat, lng] = geo.area?.center ?? [null, null];
+        const radius = geo.area?.radius;
+        if (!lat || !lng || !radius) return null;
+
+        return (
+          <Circle
+            key={geo._id}
+            center={[lat, lng]}
+            radius={radius}
+            pathOptions={{
+              color: "#10b981",
+              fillColor: "#10b981",
+              fillOpacity: 0.15,
+              weight: 2,
+              dashArray: "5 5",
+              opacity: 0.8,
+            }}
+          >
+            <Popup className="geofence-popup">
+              <div style={{ fontFamily: "inherit", minWidth: 160 }}>
+                <div style={{ fontWeight: 700, fontSize: 13, marginBottom: 4, color: "#4c1d95" }}>
+                  🔵 {geo.geofenceName}
+                </div>
+                {geo.address && (
+                  <div style={{ fontSize: 11, color: "#6b7280", marginBottom: 4 }}>
+                    📍 {geo.address}
+                  </div>
+                )}
+                <div style={{ fontSize: 11, color: "#374151" }}>
+                  Radius: <strong>{radius}m</strong>
+                </div>
+              </div>
+            </Popup>
+          </Circle>
+        );
+      })}
+    </>
+  );
+};
 
 // Custom cluster icon creator
 const createClusterCustomIcon = (cluster: any) => {
@@ -580,12 +631,14 @@ const VehicleMap: React.FC<VehicleMapProps> = ({
   onHistory,
   onOpenRouteTimeline,
   userRole,
+  showGeofences = false,
 }) => {
   const mapRef = useRef<L.Map | null>(null);
   const [isInitialLoad, setIsInitialLoad] = useState(true);
   const [shouldFitBounds, setShouldFitBounds] = useState(false);
   const [internalMapType, setInternalMapType] = useState<"roadmap" | "satellite">(mapType);
   const [showTrafficLayer, setShowTrafficLayer] = useState(false);
+  const [isGeofenceVisible, setIsGeofenceVisible] = useState(true);
 
   // Compute tile URL combining map type + traffic overlay
   // lyrs codes: m=roadmap, y=hybrid(satellite+labels), traffic=traffic overlay
@@ -754,6 +807,9 @@ const VehicleMap: React.FC<VehicleMapProps> = ({
         />
 
         {renderMarkers}
+
+        {/* Geofence overlay — hidden for superAdmin and togglable */}
+        {showGeofences && isGeofenceVisible && <GeofenceLayer />}
       </MapContainer>
 
       {showMapTypeSelector && (
@@ -761,33 +817,43 @@ const VehicleMap: React.FC<VehicleMapProps> = ({
           {/* Satellite / Roadmap toggle */}
           <button
             onClick={() => setInternalMapType((prev) => (prev === "roadmap" ? "satellite" : "roadmap"))}
-            className="p-2 rounded-full border border-gray-300 bg-white text-gray-600 hover:bg-gray-100 transition-all duration-200 cursor-pointer shadow-lg hover:shadow-xl hover:-translate-y-0.5 flex items-center justify-center"
+            className={`p-3 rounded-lg shadow-lg transition-all duration-200 cursor-pointer ${internalMapType === "satellite"
+              ? "bg-blue-500 text-white hover:bg-blue-600"
+              : "bg-white text-gray-700 hover:bg-gray-100"
+              }`}
             title={internalMapType === "roadmap" ? "Switch to Satellite" : "Switch to Map"}
             aria-label={internalMapType === "roadmap" ? "Switch to Satellite" : "Switch to Map"}
           >
-            {internalMapType === "roadmap" ? (
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-satellite"><path d="M13 7 9 3 5 7l4 4" /><path d="m17 11 4 4-4 4-4-4" /><path d="m8 12 4 4 6-6-4-4Z" /></svg>
-            ) : (
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-map"><path d="M14.106 5.553a2 2 0 0 0 1.788 0l3.659-1.83A1 1 0 0 1 21 4.619v12.764a1 1 0 0 1-.553.894l-4.553 2.277a2 2 0 0 1-1.788 0l-4.212-2.106a2 2 0 0 0-1.788 0l-3.659 1.83A1 1 0 0 1 3 19.381V6.618a1 1 0 0 1 .553-.894l4.553-2.277a2 2 0 0 1 1.788 0z" /><path d="M15 5.764v15" /><path d="M9 3.236v15" /></svg>
-            )}
+            <Satellite size={20} />
           </button>
 
           {/* Traffic layer toggle */}
           <button
             onClick={() => setShowTrafficLayer((prev) => !prev)}
-            className={`p-2 rounded-full border transition-all duration-200 cursor-pointer shadow-lg hover:shadow-xl hover:-translate-y-0.5 flex items-center justify-center ${showTrafficLayer
-              ? "bg-orange-500 border-orange-400 text-white"
-              : "bg-white border-gray-300 text-gray-600 hover:bg-gray-100"
+            className={`p-3 rounded-lg shadow-lg transition-all duration-200 cursor-pointer ${showTrafficLayer
+              ? "bg-orange-500 text-white hover:bg-orange-600"
+              : "bg-gray-700 text-white hover:bg-gray-900"
               }`}
             title={showTrafficLayer ? "Hide Traffic" : "Show Traffic"}
             aria-label={showTrafficLayer ? "Hide Traffic" : "Show Traffic"}
           >
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <circle cx="12" cy="7" r="2" />
-              <circle cx="12" cy="12" r="2" />
-              <circle cx="12" cy="17" r="2" />
-            </svg>
+            <LiaTrafficLightSolid className="w-5 h-5" />
           </button>
+
+          {/* Geofence toggle */}
+          {showGeofences && (
+            <button
+              onClick={() => setIsGeofenceVisible((prev) => !prev)}
+              className={`p-3 rounded-lg shadow-lg transition-all duration-200 cursor-pointer ${isGeofenceVisible
+                ? "bg-green-500 text-white hover:bg-green-600"
+                : "bg-white text-gray-700 hover:bg-gray-100"
+                }`}
+              title={isGeofenceVisible ? "Hide Geofences" : "Show Geofences"}
+              aria-label={isGeofenceVisible ? "Hide Geofences" : "Show Geofences"}
+            >
+              <Radius size={20} />
+            </button>
+          )}
         </div>
       )}
 
