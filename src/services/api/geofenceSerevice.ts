@@ -21,6 +21,11 @@ export const geofenceService = {
     return res.data;
   },
 
+  createMultipleGeofence: async (payload: any) => {
+    const res = await api.post("/geofence/multiple", payload);
+    return res.data;
+  },
+
   updateGeofence: async (id: string, payload: any) => {
     const res = await api.put(`/geofence/${id}`, payload);
     return res.data;

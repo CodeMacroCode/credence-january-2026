@@ -62,6 +62,22 @@ export const useGeofence = (
     },
   });
 
+  const createMultipleGeofenceMutation = useMutation({
+    mutationFn: geofenceService.createMultipleGeofence,
+    onSuccess: () => {
+      toast.success("Geofence created successfully");
+      queryClient.invalidateQueries({
+        queryKey: ["geofence"],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["geofence-by-uniqueId"],
+      });
+    },
+    onError: (err: any) => {
+      toast.error(err.message || "Failed to create geofence");
+    },
+  });
+
   const updateGeofenceMutation = useMutation({
     mutationFn: ({ id, payload }: any) =>
       geofenceService.updateGeofence(id, payload),
@@ -95,6 +111,7 @@ export const useGeofence = (
     total: getGeofenceQuery.data?.total || 0,
 
     createGeofence: createGeofenceMutation.mutate,
+    createMultipleGeofence: createMultipleGeofenceMutation.mutate,
     updateGeofence: updateGeofenceMutation.mutate,
     deleteGeofence: deleteGeofenceMutation.mutate,
 

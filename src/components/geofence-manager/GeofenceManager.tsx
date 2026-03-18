@@ -48,7 +48,7 @@ interface GeofenceData {
   };
   schoolId?: string;
   branchId?: string;
-  routeObjId?: string;
+  routeObjId?: string | string[];
 }
 
 type DecodedToken = {
@@ -103,7 +103,7 @@ const GeofenceManager: React.FC<GeofenceManagerProps> = ({
 
   const [selectedSchool, setSelectedSchool] = useState<School | null>(null);
   const [selectedBranch, setSelectedBranch] = useState<Branch | null>(null);
-  const [selectedRoute, setSelectedRoute] = useState<Route | null>(null);
+  const [selectedRoutes, setSelectedRoutes] = useState<Route[]>([]);
 
   const [debouncedQuery, setDebouncedQuery] = useState("");
 
@@ -204,7 +204,7 @@ const GeofenceManager: React.FC<GeofenceManagerProps> = ({
   // });
 
   // Use the useGeofence hook for mutations
-  const { createGeofence, updateGeofence, isCreateLoading, isUpdateLoading } =
+  const { createGeofence, createMultipleGeofence, updateGeofence, isCreateLoading, isUpdateLoading } =
     useGeofence({ pageIndex: 0, pageSize: 10 }, [], {});
 
   // Reverse geocoding function
@@ -323,7 +323,7 @@ const GeofenceManager: React.FC<GeofenceManagerProps> = ({
       setCurrentRadius(100);
       setSelectedSchool(null);
       setSelectedBranch(null);
-      setSelectedRoute(null);
+      setSelectedRoutes([]);
       setTempGeofence(null);
       setCurrentCoords({ lat: 21.1286677, lng: 79.1038211 });
 
@@ -640,7 +640,7 @@ const GeofenceManager: React.FC<GeofenceManagerProps> = ({
     if (mode === "add") {
       setSelectedBranch(null);
       setBranchId(undefined);
-      setSelectedRoute(null);
+      setSelectedRoutes([]);
     }
   };
 
@@ -649,12 +649,30 @@ const GeofenceManager: React.FC<GeofenceManagerProps> = ({
     setBranchId(branch?._id);
 
     if (mode === "add") {
-      setSelectedRoute(null);
+      setSelectedRoutes([]);
     }
   };
 
-  const handleRouteSelect = (route: Route | null) => {
-    setSelectedRoute(route);
+  const handleRouteSelect = (route: Route | Route[] | null) => {
+    if (!route) return;
+
+    if (Array.isArray(route)) {
+      setSelectedRoutes(route);
+      return;
+    }
+
+    if (mode === "add") {
+      setSelectedRoutes((prev) => {
+        const isSelected = prev.some((r) => r._id === route._id);
+        if (isSelected) {
+          return prev.filter((r) => r._id !== route._id);
+        } else {
+          return [...prev, route];
+        }
+      });
+    } else {
+      setSelectedRoutes([route]);
+    }
   };
 
 
@@ -678,7 +696,7 @@ const GeofenceManager: React.FC<GeofenceManagerProps> = ({
         radius: tempGeofence.radius || currentRadius,
         schoolId: selectedSchool?._id || schoolId,
         branchId: selectedBranch?._id || branchId,
-        routeObjId: selectedRoute?._id,
+        routeObjId: selectedRoutes.map((r) => r._id),
       };
 
 
@@ -704,12 +722,12 @@ const GeofenceManager: React.FC<GeofenceManagerProps> = ({
         },
         schoolId: parsed.data.schoolId,
         branchId: parsed.data.branchId,
-        routeObjId: selectedRoute?._id,
+        routeObjIds: selectedRoutes.map((r) => r._id),
         address,
       };
 
       if (mode === "add") {
-        createGeofence(savedGeofence, {
+        createMultipleGeofence(savedGeofence, {
           onSuccess: () => {
             setTempGeofence(null);
             onSuccess?.();
@@ -770,8 +788,9 @@ const GeofenceManager: React.FC<GeofenceManagerProps> = ({
         handleSchoolSelect={handleSchoolSelect}
         selectedBranch={selectedBranch}
         handleBranchSelect={handleBranchSelect}
-        selectedRoute={selectedRoute}
+        selectedRoutes={selectedRoutes}
         handleRouteSelect={handleRouteSelect}
+        mode={mode}
         role={role}
         schools={schools}
         branches={branches}

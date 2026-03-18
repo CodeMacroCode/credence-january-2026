@@ -40,8 +40,9 @@ interface Props {
   saveGeofences: () => void;
   isLoading: boolean;
   tempGeofence: any;
-  selectedRoute: Route | null;
-  handleRouteSelect?: (route: Route | null) => void;
+  selectedRoutes: Route[];
+  handleRouteSelect?: (route: Route | Route[] | null) => void;
+  mode: "add" | "edit";
   selectedSchool: School | null;
   handleSchoolSelect: (school: School | null) => void;
   selectedBranch: Branch | null;
@@ -60,9 +61,10 @@ const GeofenceConfigurationPanel: React.FC<Props> = ({
   handleRouteSelect,
   handleBranchSelect,
   handleSchoolSelect,
-  selectedRoute,
+  selectedRoutes,
   selectedSchool,
   selectedBranch,
+  mode,
   locationSearchQuery,
   setLocationSearchQuery,
   searchResults,
@@ -209,10 +211,6 @@ const GeofenceConfigurationPanel: React.FC<Props> = ({
       );
 
       if (matchingRoute) {
-        // console.log(
-        //   "✅ Found route:",
-        //   matchingRoute.routeNumber || matchingRoute.name
-        // );
         handleRouteSelect(matchingRoute as unknown as Route);
         routeInitialized.current = true;
       } else {
@@ -237,7 +235,7 @@ const GeofenceConfigurationPanel: React.FC<Props> = ({
 
 
   return (
-    <Card className="absolute top-14 right-4 w-auto min-w-[500px] max-w-[60vw] z-[1000]">
+    <Card className="absolute top-14 right-4 w-auto min-w-[500px] max-w-[60vw] z-1000">
       <CardContent className=" space-y-4">
         <h2 className="text-lg font-semibold">Configuration</h2>
         <div className="flex justify-around items-center">
@@ -287,16 +285,28 @@ const GeofenceConfigurationPanel: React.FC<Props> = ({
               <Label>Route</Label>
               <Combobox
                 items={routeItems}
-                value={selectedRoute?._id}
+                multiple={mode === "add"}
+                value={selectedRoutes[0]?._id}
+                selectedValues={selectedRoutes.map((r) => r._id)}
                 onValueChange={(value) => {
-                  const route = routes.find((r) => r._id === value) || null;
-                  handleRouteSelect(route as unknown as Route | null);
+                   if (mode === "edit") {
+                     const route = routes.find((r) => r._id === value) || null;
+                     handleRouteSelect(route as unknown as Route | null);
+                   }
                 }}
-                placeholder="Select route"
-                searchPlaceholder="Search admin..."
+                onSelectedValuesChange={(values) => {
+                  if (mode === "add") {
+                    const selected = routes.filter(r => values.includes(r._id));
+                    handleRouteSelect(selected as unknown as Route[]);
+                  }
+                }}
+                placeholder={mode === "add" ? "Select routes" : "Select route"}
+                searchPlaceholder="Search route..."
                 emptyMessage="No route found"
                 width="w-[140px]"
                 disabled={!effectiveBranchId}
+                showBadges={true}
+                maxBadges={1}
               />
             </div>
           )}
