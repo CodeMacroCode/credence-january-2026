@@ -284,6 +284,7 @@ export default function GeofenceClient() {
 
   // ---- Export logic ----
   const exportColumns = [
+    { key: "vehicleNumber", header: "Vehicle Number" },
     { key: "geofenceName", header: "Geofence Name" },
     { key: "coordinates", header: "Coordinates" },
     { key: "radius", header: "Radius (m)" },
@@ -301,7 +302,7 @@ export default function GeofenceClient() {
   const fetchAllGeofences = async () => {
     const res = await geofenceService.getGeofence({
       page: 1,
-      limit: "all",
+      limit: total,
       search: filters.search,
       branchId: filters.branchId,
       schoolId: filters.schoolId,
@@ -311,6 +312,10 @@ export default function GeofenceClient() {
 
   const prepareExportData = (data: Geofence[]) => {
     return data.map((item) => ({
+      vehicleNumber:
+        (item.route as any)?.device?.name ||
+        (item.route as any)?.deviceObjId?.name ||
+        "N/A",
       geofenceName: item.geofenceName || "",
       coordinates: item.area?.center
         ? `${item.area.center[0]}, ${item.area.center[1]}`
@@ -386,7 +391,7 @@ export default function GeofenceClient() {
       columnVisibility,
       onColumnVisibilityChange: setColumnVisibility,
       emptyMessage: "No geofence found",
-      pageSizeOptions: [5, 10, 20, 30, 50, "all"], //All
+      pageSizeOptions: [5, 10, 20, 30, 50, "All"], //All
       enableSorting: true,
       showSerialNumber: true,
       enableMultiSelect: true,

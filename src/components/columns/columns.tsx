@@ -1127,7 +1127,7 @@ export const getGeofenceCoumns = (
 ): ColumnDef<Geofence>[] => [
     {
       id: "name",
-      header: "Device Name",
+      header: "Vehicle Number",
       accessorFn: (row) => row.route?.device?.name || "N/A",
       enableHiding: true,
       enableSorting: true,
