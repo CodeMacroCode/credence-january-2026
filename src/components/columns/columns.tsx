@@ -610,11 +610,6 @@ export const getDeviceColumns = (
       accessorFn: (row: Device) => row.routeObjId?.routeNumber ?? "—",
     },
     {
-      id: "driver",
-      header: "Driver",
-      accessorFn: (row: Device) => row.driverObjId?.driverName ?? "—",
-    },
-    {
       id: "expirationdate",
       header: "Subscription End",
       cell: ({ row }: any) => {
