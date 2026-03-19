@@ -22,9 +22,7 @@ export const useAddDeviceOld = () => {
   return useMutation({
     mutationFn: async (payload: DevicePayload) => {
       // Build Basic Auth header
-      const token = Buffer.from(
-        `${BASIC_AUTH_USER}:${BASIC_AUTH_PASS}`
-      ).toString("base64");
+      const token = btoa(`${BASIC_AUTH_USER}:${BASIC_AUTH_PASS}`);
 
       const { data } = await axios.post(
         `${process.env.NEXT_PUBLIC_ROCKETSALESTRACKER_URL}/devices`,

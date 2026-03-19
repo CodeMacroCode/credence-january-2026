@@ -147,8 +147,8 @@ export const useAddDeviceNew = (
     isFetching: getDevicesQuery.isFetching,
     isPlaceholderData: getDevicesQuery.isPlaceholderData,
 
-    createDevice: createDeviceMutation.mutate,
-    updateDevice: updateDeviceMutation.mutate,
+    createDevice: createDeviceMutation.mutateAsync,
+    updateDevice: updateDeviceMutation.mutateAsync,
     deleteDevice: deleteDeviceMutation.mutate,
     exportExcel: exportExcelMutation.mutate,
     exportPdf: exportPdfMutation.mutate,

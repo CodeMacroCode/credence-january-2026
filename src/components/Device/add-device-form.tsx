@@ -74,12 +74,12 @@ export function AddDeviceForm({
       category: "",
       model: "",
       driverObjIds: [],
+      routeObjId: "",
       speed: 0,
       average: 0,
       odometer: 0,
       keyFeature: false,
       expirationdate: "",
-
     },
   });
 
@@ -167,7 +167,7 @@ export function AddDeviceForm({
         routeObjId: editData.routeObjId?._id || "",
         category: editData.category || "",
         model: editData.model || "",
-        driverObjIds: editData.driverObjIds?.map((d: any) => d._id) || (editData.driverObjId ? [editData.driverObjId._id] : []) || [],
+        driverObjIds: editData.driverObjIds?.map((d: any) => d?._id).filter(Boolean) || (editData.driverObjId?._id ? [editData.driverObjId._id] : []) || [],
         speed: editData.speed || 0,
         average: editData.average || 0,
         odometer: editData.odometer || 0,
@@ -275,14 +275,15 @@ export function AddDeviceForm({
       // -------------------------------------------------------
       // 1️⃣ CHECK IF VALUES CHANGED (only in edit mode)
       // -------------------------------------------------------
+      const currentRouteId = editData?.routeObjId?._id || "";
       const routeChanged = isEditMode
-        ? data.routeObjId !== editData?.routeObjId?._id
-        : true; // Always check in create mode
+        ? data.routeObjId !== currentRouteId
+        : !!data.routeObjId;
 
       // -------------------------------------------------------
       // 2️⃣ CHECK ROUTE ASSIGNMENT (only if changed)
       // -------------------------------------------------------
-      if (routeId && routeChanged) {
+      if (routeId && routeChanged && data.routeObjId) {
         const check = await deviceApiService.checkRouteAssign(routeId);
         console.log("❌ [RouteCheck] response:", check);
 
@@ -334,7 +335,7 @@ export function AddDeviceForm({
           routeObjId: data.routeObjId || undefined,
           category: data.category,
           model: data.model,
-          driverObjIds: data.driverObjIds && data.driverObjIds.length > 0 ? data.driverObjIds : undefined,
+          driverObjIds: data.driverObjIds?.filter((id) => !!id) || undefined,
           speed: data.speed,
           average: data.average,
           odometer: data.odometer,
@@ -343,7 +344,7 @@ export function AddDeviceForm({
         };
 
         // UPDATE NEW API
-        updateDevice({ id: editData._id, payload });
+        await updateDevice({ id: editData._id, payload });
 
         // UPDATE OLD API IF deviceId EXISTS
         if (editData.deviceId) {
@@ -384,7 +385,7 @@ export function AddDeviceForm({
           category: data.category,
           model: data.model,
           deviceId: oldApiResponse.id,
-          driverObjIds: data.driverObjIds && data.driverObjIds.length > 0 ? data.driverObjIds : undefined,
+          driverObjIds: data.driverObjIds?.filter((id) => !!id) || undefined,
           speed: data.speed,
           average: data.average,
           odometer: data.odometer,
@@ -392,7 +393,7 @@ export function AddDeviceForm({
           expirationdate: data.expirationdate,
         };
 
-        createDevice(newApiPayload);
+        await createDevice(newApiPayload);
       }
 
       onOpenChange(false);
@@ -414,7 +415,16 @@ export function AddDeviceForm({
           </DialogTitle>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+        <form
+          onSubmit={handleSubmit(onSubmit, (errors) => {
+            console.log("❌ Form Validation Errors:", errors);
+            const errorMessages = Object.entries(errors)
+              .map(([field, err]) => `${field}: ${err?.message || "Invalid"}`)
+              .join(", ");
+            toast.error(`Please check the form for errors: ${errorMessages}`);
+          })}
+          className="space-y-4"
+        >
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Device Name */}
             <div className="space-y-2">
@@ -562,7 +572,7 @@ export function AddDeviceForm({
                 render={({ field }) => (
                   <Combobox
                     items={routeItems}
-                    value={field.value}
+                    value={field.value || ""}
                     onValueChange={field.onChange}
                     placeholder={
                       !selectedBranchId ? "Select user first" : "Select route"
@@ -581,6 +591,11 @@ export function AddDeviceForm({
                   />
                 )}
               />
+              {errors.routeObjId && (
+                <p className="text-sm text-red-500">
+                  {errors.routeObjId.message}
+                </p>
+              )}
             </div>
 
             {/* Driver Name */}
@@ -621,6 +636,11 @@ export function AddDeviceForm({
                   />
                 )}
               />
+              {errors.driverObjIds && (
+                <p className="text-sm text-red-500">
+                  {errors.driverObjIds.message}
+                </p>
+              )}
             </div>
 
             {/* Category */}
