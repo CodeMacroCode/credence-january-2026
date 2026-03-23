@@ -79,5 +79,10 @@ export const deviceApiService = {
     const res = await api.post(`/subscription/create-order`, payload);
     return res.data;
   },
+
+  getQRCode: async (): Promise<{ filePath: string }> => {
+    const res = await api.get("/qrcode/image");
+    return res.data;
+  },
 };
 

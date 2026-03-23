@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { LogOut, Bell, CreditCard, User, SubscriptIcon, Repeat1Icon } from "lucide-react";
+import { LogOut, Bell, CreditCard, User, SubscriptIcon, Repeat1Icon, KeyRound, QrCode, ChevronDown } from "lucide-react";
 import { LogoutButton } from "./logout-button";
 import Link from "next/link";
 import Cookies from "js-cookie";
@@ -62,10 +62,26 @@ export function ProfileDropdown() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Avatar className="cursor-pointer">
-          <AvatarImage src={`https://api.dicebear.com/9.x/initials/svg?radius=0&seed=${username}`} alt="avatar" />
-          <AvatarFallback>SC</AvatarFallback>
-        </Avatar>
+        <div className="flex items-center gap-2 cursor-pointer hover:bg-white/10 p-1.5 rounded-lg transition-all duration-200 border border-transparent hover:border-white/20">
+          <Avatar className="h-8 w-8 ring-2 ring-white/10 ring-offset-2 ring-offset-primary">
+            <AvatarImage
+              src={`https://api.dicebear.com/9.x/initials/svg?radius=50&seed=${username}`}
+              alt={username}
+            />
+            <AvatarFallback className="bg-blue-600 text-white text-xs">
+              {username.substring(0, 2).toUpperCase()}
+            </AvatarFallback>
+          </Avatar>
+          <div className="hidden md:flex flex-col items-start leading-none gap-0.5">
+            <span className="text-white font-semibold text-sm drop-shadow-sm">
+              {username}
+            </span>
+            <span className="text-blue-200 text-[10px] font-medium uppercase tracking-wider">
+              Profile
+            </span>
+          </div>
+          <ChevronDown className="h-4 w-4 text-blue-200 hidden md:block opacity-60" />
+        </div>
       </DropdownMenuTrigger>
       <DropdownMenuContent
         align="end"
@@ -137,6 +153,26 @@ export function ProfileDropdown() {
           <Repeat1Icon className="mr-2 h-4 w-4" />
           <span>Renewal</span>
         </DropdownMenuItem>
+        <DropdownMenuItem asChild>
+          <Link
+            href="/dashboard/profile/change-password"
+            className="cursor-pointer flex items-center"
+          >
+            <KeyRound className="mr-2 h-4 w-4" />
+            <span>Change Password</span>
+          </Link>
+        </DropdownMenuItem>
+        {decodedToken?.role === "superAdmin" && (
+          <DropdownMenuItem asChild>
+            <Link
+              href="/dashboard/profile/payment-qr"
+              className="cursor-pointer flex items-center"
+            >
+              <QrCode className="mr-2 h-4 w-4" />
+              <span>Change Payment QR</span>
+            </Link>
+          </DropdownMenuItem>
+        )}
         <DropdownMenuSeparator />
         <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
           <LogoutButton />
