@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { useQuery } from "@tanstack/react-query";
 import { deviceApiService } from "@/services/api/deviceApiService";
 import { CustomTableServerSidePagination } from "@/components/ui/customTable(serverSidePagination)";
@@ -49,6 +50,7 @@ export default function RenewalClient() {
     const [isQRModalOpen, setIsQRModalOpen] = useState(false);
     const [qrCodeUrl, setQrCodeUrl] = useState<string | null>(null);
     const [isFetchingQR, setIsFetchingQR] = useState(false);
+    const [activePaymentMethod, setActivePaymentMethod] = useState<"qr" | "bank">("qr");
 
     // Hooks
     const { decodedToken: user } = useAuthStore();
@@ -464,122 +466,148 @@ export default function RenewalClient() {
                         </DialogDescription>
                     </DialogHeader>
 
-                    <div className="px-6 py-4 space-y-6">
-                        {/* QR Section (Premium Container) */}
-                        <div className="relative group">
-                            {/* Outer Glow Wrapper */}
-                            <div className="absolute -inset-1.5 bg-linear-to-r from-blue-500/10 to-indigo-500/10 rounded-[28px] blur-md opacity-75 group-hover:opacity-100 transition duration-500"></div>
-                            
-                            <div className="relative flex flex-col items-center justify-center p-8 bg-white rounded-[24px] border border-slate-100 shadow-xl shadow-blue-900/5">
-                                {/* Corner Accents */}
-                                <div className="absolute top-4 left-4 w-4 h-4 border-t-2 border-l-2 border-blue-100 rounded-tl-lg"></div>
-                                <div className="absolute top-4 right-4 w-4 h-4 border-t-2 border-r-2 border-blue-100 rounded-tr-lg"></div>
-                                <div className="absolute bottom-4 left-4 w-4 h-4 border-b-2 border-l-2 border-blue-100 rounded-bl-lg"></div>
-                                <div className="absolute bottom-4 right-4 w-4 h-4 border-b-2 border-r-2 border-blue-100 rounded-br-lg"></div>
+                    <motion.div 
+                        layout 
+                        className="px-6 py-8 relative flex flex-col items-center overflow-hidden"
+                        transition={{ layout: { type: "spring", stiffness: 300, damping: 30 } }}
+                    >
+                        {/* Shuffling Payment Methods */}
+                        <div className="relative w-full">
+                            <AnimatePresence mode="popLayout">
+                                {activePaymentMethod === "qr" ? (
+                                    <motion.div
+                                        key="qr-section"
+                                        initial={{ x: 50, opacity: 0, scale: 0.9, rotate: -2 }}
+                                        animate={{ x: 0, opacity: 1, scale: 1, rotate: 0 }}
+                                        exit={{ x: -100, opacity: 0, scale: 0.8, rotate: 5 }}
+                                        transition={{ type: "spring", stiffness: 300, damping: 25 }}
+                                        className="w-full z-20"
+                                    >
+                                        <div className="relative group">
+                                            <div className="absolute -inset-1.5 bg-linear-to-r from-blue-500/10 to-indigo-500/10 rounded-[28px] blur-md opacity-75"></div>
+                                            <div className="relative flex flex-col items-center justify-center p-8 bg-white rounded-[24px] border border-slate-100 shadow-xl shadow-blue-900/5">
+                                                <div className="absolute top-4 left-4 w-4 h-4 border-t-2 border-l-2 border-blue-100 rounded-tl-lg"></div>
+                                                <div className="absolute top-4 right-4 w-4 h-4 border-t-2 border-r-2 border-blue-100 rounded-tr-lg"></div>
+                                                <div className="absolute bottom-4 left-4 w-4 h-4 border-b-2 border-l-2 border-blue-100 rounded-bl-lg"></div>
+                                                <div className="absolute bottom-4 right-4 w-4 h-4 border-b-2 border-r-2 border-blue-100 rounded-br-lg"></div>
 
-                                {qrCodeUrl ? (
-                                    <div className="relative w-56 h-56 bg-white p-3 rounded-2xl ring-1 ring-slate-100/50 shadow-inner group/qr overflow-hidden">
-                                        <div className="absolute inset-0 bg-linear-to-br from-blue-50/20 to-transparent opacity-0 group-hover/qr:opacity-100 transition-opacity"></div>
-                                        <img
-                                            src={qrCodeUrl}
-                                            alt="Payment QR Code"
-                                            className="w-full h-full object-contain relative z-10 transition-transform duration-500 group-hover/qr:scale-[1.02]"
-                                        />
-                                        
-                                        {/* Stylized QR Frame overlay */}
-                                        <div className="absolute inset-2 border border-blue-50/30 rounded-xl pointer-events-none"></div>
-                                    </div>
+                                                {qrCodeUrl ? (
+                                                    <div className="relative w-52 h-52 bg-white p-3 rounded-2xl ring-1 ring-slate-100/50 shadow-inner overflow-hidden">
+                                                        <img
+                                                            src={qrCodeUrl}
+                                                            alt="Payment QR Code"
+                                                            className="w-full h-full object-contain relative z-10"
+                                                        />
+                                                    </div>
+                                                ) : (
+                                                    <div className="flex flex-col items-center justify-center space-y-4 py-8">
+                                                        <div className="relative h-16 w-16">
+                                                            <div className="absolute inset-0 rounded-full border-4 border-slate-50"></div>
+                                                            <div className="absolute inset-0 rounded-full border-4 border-t-blue-600 animate-spin"></div>
+                                                            <QrCode className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-6 w-6 text-slate-200" />
+                                                        </div>
+                                                        <p className="text-sm font-semibold text-slate-400 animate-pulse">Initializing Gateway...</p>
+                                                    </div>
+                                                )}
+
+                                                <div className="mt-6 flex flex-col items-center gap-3">
+                                                    <div className="flex items-center gap-2 px-3 py-1 bg-green-50 rounded-full border border-green-100 shadow-sm">
+                                                        <div className="relative flex h-2 w-2">
+                                                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                                                            <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+                                                        </div>
+                                                        <p className="text-[10px] text-green-700 font-bold uppercase tracking-widest">Active QR</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </motion.div>
                                 ) : (
-                                    <div className="flex flex-col items-center justify-center space-y-4 py-8">
-                                        <div className="relative h-16 w-16">
-                                            <div className="absolute inset-0 rounded-full border-4 border-slate-50"></div>
-                                            <div className="absolute inset-0 rounded-full border-4 border-t-blue-600 animate-spin"></div>
-                                            <QrCode className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-6 w-6 text-slate-200" />
+                                    <motion.div
+                                        key="bank-section"
+                                        initial={{ x: 50, opacity: 0, scale: 0.9, rotate: 2 }}
+                                        animate={{ x: 0, opacity: 1, scale: 1, rotate: 0 }}
+                                        exit={{ x: -100, opacity: 0, scale: 0.8, rotate: -5 }}
+                                        transition={{ type: "spring", stiffness: 300, damping: 25 }}
+                                        className="w-full z-20"
+                                    >
+                                        <div className="relative group perspective-1000">
+                                            <div className="absolute -inset-0.5 bg-linear-to-r from-slate-200 to-slate-100 rounded-[24px] blur-sm opacity-50"></div>
+                                            <div className="relative w-full aspect-[1.586/1] min-h-[220px] bg-linear-to-br from-[#0a1d4d] via-[#1e3a8a] to-[#0a1d4d] rounded-[22px] p-6 shadow-2xl overflow-hidden flex flex-col justify-between text-white border border-white/10">
+                                                <div className="absolute inset-0 opacity-10 pointer-events-none bg-[radial-gradient(circle_at_50%_50%,rgba(255,255,255,0.1)_0%,transparent_100%)]"></div>
+                                                <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -mr-32 -mt-32 blur-3xl"></div>
+                                                <div className="flex justify-between items-start relative z-10">
+                                                    <div className="flex items-center gap-3">
+                                                        <div className="p-2 bg-white/10 backdrop-blur-md rounded-lg border border-white/20">
+                                                            <Landmark className="h-5 w-5 text-blue-200" />
+                                                        </div>
+                                                        <div>
+                                                            <p className="text-[9px] uppercase font-bold tracking-[0.2em] text-blue-200/60 leading-none mb-1">Bank Name</p>
+                                                            <p className="text-xs font-bold tracking-wide">Kotak Mahindra Bank</p>
+                                                        </div>
+                                                    </div>
+                                                    <div className="w-10 h-8 bg-linear-to-br from-amber-200 via-amber-400 to-amber-200 rounded-md shadow-inner flex items-center justify-center overflow-hidden">
+                                                        <Cpu className="h-5 w-5 text-amber-900/50" />
+                                                    </div>
+                                                </div>
+                                                <div className="relative z-10 my-2">
+                                                    <p className="text-[9px] uppercase font-bold tracking-[0.2em] text-blue-200/60 mb-1">Account Number</p>
+                                                    <p className="text-lg font-mono tracking-[0.15em] font-bold drop-shadow-md">8050 8275 85</p>
+                                                </div>
+                                                <div className="flex justify-between items-end relative z-10">
+                                                    <div className="space-y-1">
+                                                        <p className="text-[9px] uppercase font-bold tracking-[0.15em] text-blue-200/60 leading-none">Account Holder</p>
+                                                        <p className="text-[11px] font-semibold tracking-wide uppercase opacity-90">STEALTH TRACK SOLUTIONS PVT LTD</p>
+                                                    </div>
+                                                    <div className="text-right">
+                                                        <p className="text-[9px] uppercase font-bold tracking-[0.15em] text-blue-200/60 leading-none">IFSC Code</p>
+                                                        <p className="text-[11px] font-mono font-bold tracking-wider">KKBK0001839</p>
+                                                    </div>
+                                                </div>
+                                            </div>
                                         </div>
-                                        <p className="text-sm font-semibold text-slate-400 animate-pulse">Initializing Secure Gateway...</p>
-                                    </div>
+                                    </motion.div>
                                 )}
-
-                                <div className="mt-6 flex flex-col items-center gap-3">
-                                    <div className="flex items-center gap-2 px-3 py-1 bg-green-50 rounded-full border border-green-100 shadow-sm">
-                                        <div className="relative flex h-2 w-2">
-                                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                                            <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
-                                        </div>
-                                        <p className="text-[10px] text-green-700 font-bold uppercase tracking-widest">Active QR for Payment</p>
-                                    </div>
-                                    <p className="text-[11px] text-slate-400 font-medium italic">Scan with GPay, PhonePe, or any UPI app</p>
-                                </div>
-                            </div>
+                            </AnimatePresence>
                         </div>
 
-                        {/* Divider */}
-                        <div className="relative">
-                            <div className="absolute inset-0 flex items-center">
-                                <span className="w-full border-t border-slate-100" />
-                            </div>
-                            <div className="relative flex justify-center text-[10px] uppercase tracking-tighter">
-                                <span className="bg-white px-4 text-slate-400 font-bold">OR BANK TRANSFER</span>
-                            </div>
-                        </div>
+                        {/* Method Selector / Apple-style Liquid Glass Toggle */}
+                        <div className="mt-12 flex justify-center w-full">
+                            <div className="relative flex p-1.5 bg-slate-200/50 backdrop-blur-sm rounded-2xl border border-slate-200 shadow-inner max-w-xs w-full overflow-hidden">
+                                {/* Liquid Glass Slider */}
+                                <motion.div
+                                    layoutId="liquid-glass-indicator"
+                                    className={`absolute inset-y-1.5 rounded-xl shadow-lg ring-1 ring-white/20 z-0 ${
+                                        activePaymentMethod === "qr" 
+                                        ? "bg-white left-[6px] w-[calc(50%-6px)] shadow-blue-500/10" 
+                                        : "bg-[#0a1d4d] right-[6px] w-[calc(50%-6px)] shadow-[#0a1d4d]/20"
+                                    }`}
+                                    transition={{ type: "spring", stiffness: 400, damping: 30, bounce: 0.2 }}
+                                />
 
-                        {/* Bank Details Section (Stripe-style Credit Card) */}
-                        <div className="relative group perspective-1000">
-                            <div className="absolute -inset-0.5 bg-linear-to-r from-slate-200 to-slate-100 rounded-[24px] blur-sm opacity-50 group-hover:opacity-100 transition duration-500"></div>
-                            <div className="relative w-full aspect-[1.586/1] min-h-[220px] bg-linear-to-br from-[#0a1d4d] via-[#1e3a8a] to-[#0a1d4d] rounded-[22px] p-6 shadow-2xl overflow-hidden flex flex-col justify-between text-white border border-white/10">
-                                {/* Card Pattern/Overlay */}
-                                <div className="absolute inset-0 opacity-10 pointer-events-none bg-[radial-gradient(circle_at_50%_50%,rgba(255,255,255,0.1)_0%,transparent_100%)]"></div>
-                                <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -mr-32 -mt-32 blur-3xl"></div>
-                                
-                                {/* Header: Bank Name & Chip */}
-                                <div className="flex justify-between items-start relative z-10">
-                                    <div className="flex items-center gap-3">
-                                        <div className="p-2 bg-white/10 backdrop-blur-md rounded-lg border border-white/20">
-                                            <Landmark className="h-5 w-5 text-blue-200" />
-                                        </div>
-                                        <div>
-                                            <p className="text-[10px] uppercase font-bold tracking-[0.2em] text-blue-200/60 leading-none mb-1">Bank Name</p>
-                                            <p className="text-sm font-bold tracking-wide">Kotak Mahindra Bank</p>
-                                        </div>
-                                    </div>
-                                    <div className="relative">
-                                        <div className="w-10 h-8 bg-linear-to-br from-amber-200 via-amber-400 to-amber-200 rounded-md shadow-inner flex items-center justify-center overflow-hidden">
-                                            <div className="absolute inset-0 opacity-30 bg-[repeating-linear-gradient(0deg,transparent,transparent_2px,rgba(0,0,0,0.5)_2px,rgba(0,0,0,0.5)_4px)]"></div>
-                                            <Cpu className="h-5 w-5 text-amber-900/50 relative z-10" />
-                                        </div>
-                                    </div>
-                                </div>
-
-                                {/* Body: Account Number */}
-                                <div className="relative z-10 my-4">
-                                    <p className="text-[10px] uppercase font-bold tracking-[0.2em] text-blue-200/60 mb-2">Account Number</p>
-                                    <p className="text-xl sm:text-2xl font-mono tracking-[0.15em] font-bold drop-shadow-md">
-                                        { "8050 8275 85".split(" ").map((part, i) => (
-                                            <span key={i} className="mr-4 last:mr-0">{part}</span>
-                                        ))}
-                                    </p>
-                                </div>
-
-                                {/* Footer: Name, IFSC, Branch */}
-                                <div className="flex justify-between items-end relative z-10">
-                                    <div className="space-y-1">
-                                        <p className="text-[10px] uppercase font-bold tracking-[0.15em] text-blue-200/60 leading-none">Account Holder</p>
-                                        <p className="text-xs sm:text-sm font-semibold tracking-wide uppercase opacity-90">STEALTH TRACK SOLUTIONS PVT LTD</p>
-                                    </div>
-                                    <div className="flex gap-6 text-right">
-                                        <div className="space-y-1">
-                                            <p className="text-[10px] uppercase font-bold tracking-[0.15em] text-blue-200/60 leading-none">IFSC Code</p>
-                                            <p className="text-xs sm:text-sm font-mono font-bold tracking-wider">KKBK0001839</p>
-                                        </div>
-                                        <div className="space-y-1">
-                                            <p className="text-[10px] uppercase font-bold tracking-[0.15em] text-blue-200/60 leading-none">Branch</p>
-                                            <p className="text-[10px] sm:text-xs font-semibold opacity-90">Medical Square</p>
-                                        </div>
-                                    </div>
-                                </div>
+                                <button
+                                    onClick={() => setActivePaymentMethod("qr")}
+                                    className={`relative flex-1 flex items-center justify-center gap-2.5 py-2.5 rounded-xl text-xs font-bold transition-colors duration-500 z-10 ${
+                                        activePaymentMethod === "qr" ? "text-blue-600" : "text-slate-500 hover:text-slate-700"
+                                    }`}
+                                >
+                                    <QrCode className="h-4 w-4" />
+                                    UPI QR
+                                </button>
+                                <button
+                                    onClick={() => setActivePaymentMethod("bank")}
+                                    className={`relative flex-1 flex items-center justify-center gap-2.5 py-2.5 rounded-xl text-xs font-bold transition-colors duration-500 z-10 ${
+                                        activePaymentMethod === "bank" ? "text-white" : "text-slate-500 hover:text-slate-700"
+                                    }`}
+                                >
+                                    <Landmark className="h-4 w-4" />
+                                    Bank Info
+                                </button>
                             </div>
                         </div>
-                    </div>
+                        
+                        <p className="mt-6 text-[11px] text-slate-400 font-medium italic text-center">Click a method above to switch payment mode</p>
+                    </motion.div>
 
                     <DialogFooter className="p-6 pt-0">
                         <Button 
