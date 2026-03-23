@@ -357,7 +357,7 @@ export default function RenewalClient() {
             </div>
 
             {/* Table Section */}
-            <div className="flex-1 bg-white rounded-lg shadow-sm border border-gray-100 flex flex-col">
+            <div className="bg-white rounded-lg shadow-sm border border-gray-100 flex flex-col">
                 <div className="p-4 border-b flex items-center justify-between bg-gray-50/50">
                     <div className="flex items-center gap-2">
                         {activeTab === "expired" ? (
@@ -387,7 +387,7 @@ export default function RenewalClient() {
                     </div>
                 </div>
 
-                <div className="flex-1 min-h-0">
+                <div className="min-h-0">
                     {tableElement}
                 </div>
             </div>

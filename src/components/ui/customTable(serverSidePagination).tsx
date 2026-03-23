@@ -325,8 +325,7 @@ export function CustomTableServerSidePagination<
             ref={tableContainerRef}
             className="overflow-scroll relative"
             style={{ 
-              maxHeight: maxHeight === "none" ? "calc(100vh - 300px)" : maxHeight,
-              minHeight: "200px" 
+              maxHeight: maxHeight === "none" ? "calc(100vh - 300px)" : maxHeight
             }}
           >
             <Table>
