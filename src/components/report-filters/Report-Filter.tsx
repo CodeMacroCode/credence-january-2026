@@ -13,13 +13,13 @@ import { Combobox } from "@/components/ui/combobox";
 import {
   useSchoolDropdown,
   useBranchDropdown,
-  useDeviceDropdownWithUniqueId,
+  useDeviceDropdownWithPagination,
 } from "@/hooks/useDropdown";
 import DateRangeFilter from "../ui/DateRangeFilter";
 import { formatDateToYYYYMMDD } from "@/util/formatDate";
 import { Button } from "../ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Building2, GitBranch, Car, Calendar, Filter } from "lucide-react";
+import { Building2, GitBranch, Car, Calendar, Filter, X } from "lucide-react";
 import { ColumnVisibilitySelector } from "../column-visibility-selector";
 import {
   DropdownMenu,
@@ -416,8 +416,22 @@ export const ReportFilter: React.FC<ReportFilterProps> = ({
     role === "branchGroup"
   );
 
-  const { data: devices = [], isLoading: devicesLoading } =
-    useDeviceDropdownWithUniqueId(selectedBranch, shouldFetchDevices);
+  const {
+    data: devicePages,
+    isLoading: devicesLoading,
+    fetchNextPage: fetchNextDevices,
+    hasNextPage: hasNextDevices,
+    isFetchingNextPage: isFetchingNextDevices,
+  } = useDeviceDropdownWithPagination(
+    selectedBranch,
+    selectedSchool,
+    shouldFetchDevices
+  );
+
+  const devices = useMemo(
+    () => devicePages?.pages.flatMap((page) => page.data) || [],
+    [devicePages]
+  );
 
   // ---------------- Dropdown Items ----------------
   const schoolItems = useMemo(
@@ -442,7 +456,7 @@ export const ReportFilter: React.FC<ReportFilterProps> = ({
     () =>
       ((devices as any) || []).map((d: any) => ({
         label: d.name!,
-        value: d.uniqueId,
+        value: d._id, // Updated to use _id from the new API
       })),
     [devices]
   );
@@ -477,8 +491,9 @@ export const ReportFilter: React.FC<ReportFilterProps> = ({
         else setInternalDevice(undefined);
       }
 
-      if (value) {
+      if (value || selectedSchool) {
         setShouldFetchBranches(true);
+        setShouldFetchDevices(true);
       }
     },
     [
@@ -518,6 +533,7 @@ export const ReportFilter: React.FC<ReportFilterProps> = ({
 
       if (values.length > 0) {
         setShouldFetchBranches(true);
+        setShouldFetchDevices(true);
       }
     },
     [
@@ -646,6 +662,56 @@ export const ReportFilter: React.FC<ReportFilterProps> = ({
     [onSingleDateChange]
   );
 
+  const handleClearFilters = useCallback(() => {
+    // Reset internal single select
+    setInternalSchool(undefined);
+    setInternalBranch(undefined);
+    setInternalDevice(undefined);
+
+    // Reset internal multi select
+    setInternalSchools([]);
+    setInternalBranches([]);
+    setInternalDevices([]);
+
+    // Reset dates
+    setInternalDateRange({ from: null, to: null });
+    setInternalSingleDate(undefined);
+
+    // Notify parent if controlled
+    if (onSchoolChange) onSchoolChange(null);
+    if (onSchoolsChange) onSchoolsChange([]);
+    if (onBranchChange) onBranchChange(null);
+    if (onBranchesChange) onBranchesChange([]);
+    if (onDeviceChange) onDeviceChange(null, null);
+    if (onDevicesChange) onDevicesChange([], []);
+    if (onDateRangeChange) onDateRangeChange({ from: null, to: null });
+    if (onSingleDateChange) onSingleDateChange(undefined);
+
+    // Reset fetching states
+    setShouldFetchBranches(role === "branchGroup" || role === "school");
+    setShouldFetchDevices(role === "branch");
+
+    // Restore role-based defaults if needed
+    if (role === "school" && tokenSchoolId) {
+      setInternalSchool(tokenSchoolId);
+    }
+    if (role === "branch" && tokenBranchId) {
+      setInternalBranch(tokenBranchId);
+    }
+  }, [
+    onSchoolChange,
+    onSchoolsChange,
+    onBranchChange,
+    onBranchesChange,
+    onDeviceChange,
+    onDevicesChange,
+    onDateRangeChange,
+    onSingleDateChange,
+    role,
+    tokenSchoolId,
+    tokenBranchId,
+  ]);
+
 
   // ---------------- Helper: Format Array Values ----------------
   const formatArrayValue = useCallback(
@@ -668,6 +734,8 @@ export const ReportFilter: React.FC<ReportFilterProps> = ({
 
   // ---------------- Validation ----------------
   const isValid = useMemo(() => {
+    // School and Branch are now optional based on user request
+    /*
     if (mergedConfig.showSchool && role === "superAdmin") {
       if (mergedConfig.multiSelectSchool) {
         if (selectedSchools.length === 0) return false;
@@ -686,6 +754,7 @@ export const ReportFilter: React.FC<ReportFilterProps> = ({
         if (!selectedBranch) return false;
       }
     }
+    */
 
     if (mergedConfig.showDevice) {
       if (mergedConfig.multiSelectDevice) {
@@ -761,7 +830,8 @@ export const ReportFilter: React.FC<ReportFilterProps> = ({
       date: singleDate ? formatDateToYYYYMMDD(singleDate) : null,
     };
 
-    // Validation alerts
+  // Validation alerts - School and Branch are now optional
+    /*
     if (mergedConfig.showSchool && role === "superAdmin") {
       if (mergedConfig.multiSelectSchool) {
         if (selectedSchools.length === 0) {
@@ -789,6 +859,7 @@ export const ReportFilter: React.FC<ReportFilterProps> = ({
         }
       }
     }
+    */
 
     if (mergedConfig.showDevice) {
       if (mergedConfig.multiSelectDevice) {
@@ -861,6 +932,15 @@ export const ReportFilter: React.FC<ReportFilterProps> = ({
             </div>
           </div>
           <div className="flex items-center gap-2">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="text-muted-foreground hover:text-destructive gap-2 h-9 px-3"
+              onClick={handleClearFilters}
+            >
+              <X className="h-4 w-4" />
+              Clear Filters
+            </Button>
             {table && mergedConfig.showColumnVisibility && (
               <ColumnVisibilitySelector
                 columns={table.getAllColumns()}
@@ -1013,13 +1093,9 @@ export const ReportFilter: React.FC<ReportFilterProps> = ({
                 selectedValues={selectedDevices}
                 onSelectedValuesChange={handleDevicesChange}
                 placeholder={
-                  selectedBranch ||
-                    selectedBranches.length > 0 ||
-                    role === "branch"
-                    ? mergedConfig.multiSelectDevice
-                      ? "Select Vehicles"
-                      : "Select Vehicle"
-                    : "Select users first"
+                  mergedConfig.multiSelectDevice
+                    ? "Select Vehicles"
+                    : "Select Vehicle"
                 }
                 searchPlaceholder="Search vehicles..."
                 className="cursor-pointer w-full"
@@ -1028,19 +1104,15 @@ export const ReportFilter: React.FC<ReportFilterProps> = ({
                 emptyMessage={
                   devicesLoading ? "Loading vehicles..." : "No vehicles found"
                 }
-                disabled={
-                  role !== "branch" &&
-                  !selectedBranch &&
-                  selectedBranches.length === 0
-                }
+                disabled={false}
+                onReachEnd={() => hasNextDevices && fetchNextDevices()}
+                isLoadingMore={isFetchingNextDevices}
                 open={deviceOpen}
                 onOpenChange={(open) => {
                   setDeviceOpen(open);
                   if (
                     open &&
-                    (selectedBranch ||
-                      selectedBranches.length > 0 ||
-                      role === "branch")
+                    true
                   ) {
                     setShouldFetchDevices(true);
                   }

@@ -64,13 +64,43 @@ export const useDeviceDropdown = (
 
 export const useDeviceDropdownWithUniqueId = (
   branchId?: string,
+  schoolId?: string,
   shouldFetch: boolean = true
 ) => {
   return useQuery({
-    queryKey: ["device-dropdown-uniqueId", branchId],
-    queryFn: () => dropdownService.getDevicesWithUniqueId(branchId),
-    enabled: !!branchId,
+    queryKey: ["device-dropdown-uniqueId", branchId, schoolId],
+    queryFn: () => dropdownService.getDevicesWithUniqueId({ branchId, schoolId }),
+    enabled: shouldFetch,
     select: (res) => res.data.data,
+    refetchOnWindowFocus: false,
+    retry: false,
+  });
+};
+
+export const useDeviceDropdownWithPagination = (
+  branchId?: string,
+  schoolId?: string,
+  shouldFetch: boolean = true
+) => {
+  return useInfiniteQuery({
+    queryKey: ["device-dropdown-pagination", branchId, schoolId],
+    enabled: shouldFetch,
+    initialPageParam: 1,
+    queryFn: async ({ pageParam }) => {
+      const res = await dropdownService.getDevicesWithPagination({
+        branchId,
+        schoolId: branchId ? undefined : schoolId,
+        page: pageParam as number,
+        limit: 10,
+      });
+      return res.data;
+    },
+    getNextPageParam: (lastPage) => {
+      if (lastPage.page < lastPage.totalPages) {
+        return lastPage.page + 1;
+      }
+      return undefined;
+    },
     refetchOnWindowFocus: false,
     retry: false,
   });

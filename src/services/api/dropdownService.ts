@@ -13,9 +13,14 @@ export const dropdownService = {
       params: branchId ? { branchId } : {},
     }),
 
-    getDevicesWithUniqueId: (branchId?: string) =>
+  getDevicesWithUniqueId: (params: { branchId?: string; schoolId?: string } = {}) =>
     api.get("/device/dropdown/uniqueId", {
-      params: branchId ? { branchId } : {},
+      params,
+    }),
+
+  getDevicesWithPagination: (params: { branchId?: string; schoolId?: string; page?: number; limit?: number } = {}) =>
+    api.get("/device/dropdown-by-pagination", {
+      params,
     }),
 
   getRoutes: (branchId?: string) =>
