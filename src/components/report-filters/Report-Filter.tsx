@@ -456,7 +456,7 @@ export const ReportFilter: React.FC<ReportFilterProps> = ({
     () =>
       ((devices as any) || []).map((d: any) => ({
         label: d.name!,
-        value: d._id, // Updated to use _id from the new API
+        value: d.uniqueId,
       })),
     [devices]
   );
