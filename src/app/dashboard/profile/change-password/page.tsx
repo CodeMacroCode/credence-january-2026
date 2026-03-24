@@ -70,7 +70,7 @@ export default function ChangePasswordPage() {
 
         <Card className="border border-slate-100 shadow-[0_4px_20px_rgb(0,0,0,0.03)] rounded-2xl sm:rounded-3xl overflow-hidden bg-white">
           {/* Header Section */}
-          <div className="p-6 sm:p-8 pb-4 sm:pb-6 bg-[#fcfdfe] space-y-4">
+          <div className="px-6 sm:px-8 bg-[#fcfdfe] space-y-4">
             <div className="h-10 w-10 sm:h-12 sm:w-12 bg-[#eaeff8] rounded-xl flex items-center justify-center ring-1 ring-slate-200/50 shadow-sm">
               <KeyRound className="h-5 w-5 sm:h-6 sm:w-6 text-[#0a1d4d]" />
             </div>

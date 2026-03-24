@@ -66,7 +66,7 @@ export default function PaymentQRPage() {
     <div className="flex flex-col items-center justify-start min-h-screen p-4 sm:p-6 md:p-10 bg-[#f8faff]">
       <div className="w-full max-w-[440px] space-y-4 animate-in fade-in slide-in-from-bottom-2 duration-400">
         {/* Back Button */}
-        <button 
+        <button
           className="flex items-center text-slate-500 hover:text-slate-800 transition-colors font-medium text-sm ml-1"
           onClick={() => router.push("/dashboard")}
         >
@@ -76,7 +76,7 @@ export default function PaymentQRPage() {
 
         <Card className="border border-slate-100 shadow-[0_4px_20px_rgb(0,0,0,0.03)] rounded-2xl sm:rounded-3xl overflow-hidden bg-white">
           {/* Header Section */}
-          <div className="p-6 sm:p-8 pb-4 sm:pb-6 bg-[#fcfdfe] space-y-4">
+          <div className="px-6 sm:px-8 bg-[#fcfdfe] space-y-4">
             <div className="h-10 w-10 sm:h-12 sm:w-12 bg-[#eaeff8] rounded-xl flex items-center justify-center ring-1 ring-slate-200/50 shadow-sm">
               <QrCode className="h-5 w-5 sm:h-6 sm:w-6 text-[#0a1d4d]" />
             </div>
@@ -87,12 +87,12 @@ export default function PaymentQRPage() {
               </p>
             </div>
           </div>
-          
+
           <form onSubmit={handleSubmit}>
             <CardContent className="px-6 sm:px-8 py-6 sm:py-8 space-y-5 sm:space-y-6">
               <div className="space-y-3">
                 <Label className="text-sm font-semibold text-slate-900 ml-0.5">QR Code Image</Label>
-                <div 
+                <div
                   className={`relative group border-2 border-dashed rounded-2xl sm:rounded-3xl transition-all duration-300 flex flex-col items-center justify-center min-h-[200px] sm:min-h-[220px] gap-3 sm:gap-4 p-4 sm:p-6
                     ${previewUrl ? "border-blue-200 bg-blue-50/10" : "border-slate-200 bg-slate-50/50 hover:bg-white hover:border-blue-300 hover:shadow-md pointer-events-auto cursor-pointer"}
                   `}
@@ -100,17 +100,17 @@ export default function PaymentQRPage() {
                 >
                   {previewUrl ? (
                     <div className="relative w-full aspect-square max-w-[140px] sm:max-w-[160px] overflow-hidden rounded-xl sm:rounded-2xl shadow-lg ring-4 ring-white bg-white p-2">
-                      <Image 
-                        src={previewUrl} 
-                        alt="QR Code Preview" 
+                      <Image
+                        src={previewUrl}
+                        alt="QR Code Preview"
                         fill
                         className="object-contain p-1"
                       />
                       <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2 backdrop-blur-[1px]">
-                        <Button 
-                          type="button" 
-                          variant="destructive" 
-                          size="icon" 
+                        <Button
+                          type="button"
+                          variant="destructive"
+                          size="icon"
                           className="h-9 w-9 sm:h-10 sm:w-10 rounded-xl shadow-md cursor-pointer"
                           onClick={(e) => {
                             e.stopPropagation();
@@ -132,7 +132,7 @@ export default function PaymentQRPage() {
                       </div>
                     </>
                   )}
-                  <input 
+                  <input
                     type="file"
                     ref={fileInputRef}
                     className="hidden"
@@ -152,8 +152,8 @@ export default function PaymentQRPage() {
               </div>
 
               <div className="pt-2 flex flex-col gap-4">
-                <Button 
-                  type="submit" 
+                <Button
+                  type="submit"
                   className="w-full h-11 sm:h-12 bg-[#0a1d4d] hover:bg-[#061333] text-sm sm:text-base font-bold rounded-xl transition-all shadow-md shadow-blue-900/10 active:scale-[0.99] cursor-pointer"
                   disabled={isLoading || !selectedFile}
                 >
@@ -166,7 +166,7 @@ export default function PaymentQRPage() {
                     "Save Changes"
                   )}
                 </Button>
-                
+
                 <div className="flex items-center gap-2 text-[10px] sm:text-[11px] text-slate-400 font-medium justify-center pb-2">
                   <ShieldCheck className="h-3.5 w-3.5" />
                   Your data is encrypted and secure
