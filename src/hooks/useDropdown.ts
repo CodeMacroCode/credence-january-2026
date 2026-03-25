@@ -28,6 +28,7 @@ export const useSchoolDropdown = (shouldFetch: boolean = true) => {
     select: (res) => res.data.data,
     refetchOnWindowFocus: false,
     retry: false,
+    staleTime: 5 * 60 * 1000,
   });
 };
 
@@ -45,6 +46,7 @@ export const useBranchDropdown = (
     select: (res) => res.data.data,
     refetchOnWindowFocus: false,
     retry: false,
+    staleTime: 5 * 60 * 1000,
   });
 };
 
@@ -59,6 +61,7 @@ export const useDeviceDropdown = (
     select: (res) => res.data.data,
     refetchOnWindowFocus: false,
     retry: false,
+    staleTime: 5 * 60 * 1000,
   });
 };
 
@@ -74,16 +77,19 @@ export const useDeviceDropdownWithUniqueId = (
     select: (res) => res.data.data,
     refetchOnWindowFocus: false,
     retry: false,
+    staleTime: 5 * 60 * 1000,
   });
 };
 
 export const useDeviceDropdownWithPagination = (
   branchId?: string,
   schoolId?: string,
-  shouldFetch: boolean = true
+  search: string = "",
+  shouldFetch: boolean = true,
+  enabledPagination: boolean = true
 ) => {
   return useInfiniteQuery({
-    queryKey: ["device-dropdown-pagination", branchId, schoolId],
+    queryKey: ["device-dropdown-pagination", branchId, schoolId, search],
     enabled: shouldFetch,
     initialPageParam: 1,
     queryFn: async ({ pageParam }) => {
@@ -92,10 +98,12 @@ export const useDeviceDropdownWithPagination = (
         schoolId: branchId ? undefined : schoolId,
         page: pageParam as number,
         limit: 10,
+        search,
       });
       return res.data;
     },
     getNextPageParam: (lastPage) => {
+      if (!enabledPagination) return undefined;
       if (lastPage.page < lastPage.totalPages) {
         return lastPage.page + 1;
       }
@@ -103,6 +111,7 @@ export const useDeviceDropdownWithPagination = (
     },
     refetchOnWindowFocus: false,
     retry: false,
+    staleTime: 5 * 60 * 1000,
   });
 };
 
@@ -115,6 +124,7 @@ export const useDeviceDropdownWithUniqueIdForHistory = (
     select: (res) => res.data.data,
     refetchOnWindowFocus: false,
     retry: false,
+    staleTime: 5 * 60 * 1000,
   });
 };
 
@@ -129,6 +139,7 @@ export const useRouteDropdown = (
     select: (res) => res.data.data as DropdownItem[],
     refetchOnWindowFocus: false,
     retry: false,
+    staleTime: 5 * 60 * 1000,
   });
 };
 
@@ -159,6 +170,7 @@ export const useParentDropdown = (
     },
     refetchOnWindowFocus: false,
     retry: false,
+    staleTime: 5 * 60 * 1000,
   });
 };
 
@@ -191,6 +203,7 @@ export const useGeofenceDropdown = (
     },
     refetchOnWindowFocus: false,
     retry: false,
+    staleTime: 5 * 60 * 1000,
   });
 };
 
@@ -202,6 +215,7 @@ export const useCategoryDropdown = (shouldFetch: boolean = true) => {
     select: (res) => res.data.data,
     refetchOnWindowFocus: false,
     retry: false,
+    staleTime: 5 * 60 * 1000,
   });
 };
 
@@ -213,6 +227,7 @@ export const useModelDropdown = (shouldFetch: boolean = true) => {
     select: (res) => res.data.data,
     refetchOnWindowFocus: false,
     retry: false,
+    staleTime: 5 * 60 * 1000,
   });
 };
 
@@ -245,5 +260,6 @@ export const useDriverDropdown = (
     },
     refetchOnWindowFocus: false,
     retry: false,
+    staleTime: 5 * 60 * 1000,
   });
 };

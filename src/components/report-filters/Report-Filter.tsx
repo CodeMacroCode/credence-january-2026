@@ -15,6 +15,7 @@ import {
   useBranchDropdown,
   useDeviceDropdownWithPagination,
 } from "@/hooks/useDropdown";
+import { useDebounce } from "@/hooks/useDebounce";
 import DateRangeFilter from "../ui/DateRangeFilter";
 import { formatDateToYYYYMMDD } from "@/util/formatDate";
 import { Button } from "../ui/button";
@@ -226,6 +227,10 @@ export const ReportFilter: React.FC<ReportFilterProps> = ({
     undefined
   );
 
+  const [deviceSearch, setDeviceSearch] = useState("");
+  const debouncedSearch = useDebounce(deviceSearch, 500);
+  const [lastFetchedSearch, setLastFetchedSearch] = useState("");
+
   // ---------------- Refs to prevent infinite loops ----------------
   const prevSchoolRef = useRef<string | undefined>(undefined);
   const prevSchoolsLengthRef = useRef<number>(0);
@@ -425,13 +430,37 @@ export const ReportFilter: React.FC<ReportFilterProps> = ({
   } = useDeviceDropdownWithPagination(
     selectedBranch,
     selectedSchool,
-    shouldFetchDevices
+    lastFetchedSearch,
+    shouldFetchDevices,
+    !deviceSearch.trim() // Disable pagination when searching
   );
 
   const devices = useMemo(
     () => devicePages?.pages.flatMap((page) => page.data) || [],
     [devicePages]
   );
+
+  // Check if search term already exists in currently loaded devices
+  const isLocallyFound = useMemo(() => {
+    if (!deviceSearch.trim()) return true;
+    const searchLower = deviceSearch.toLowerCase();
+    return (devices as any[]).some(
+      (d: any) =>
+        d.name?.toLowerCase()?.includes(searchLower) ||
+        d.uniqueId?.toLowerCase()?.includes(searchLower)
+    );
+  }, [devices, deviceSearch]);
+
+  // Sync lastFetchedSearch only when not found locally
+  useEffect(() => {
+    if (!deviceSearch.trim()) {
+      setLastFetchedSearch("");
+      return;
+    }
+    if (!isLocallyFound && debouncedSearch !== lastFetchedSearch) {
+      setLastFetchedSearch(debouncedSearch);
+    }
+  }, [isLocallyFound, debouncedSearch, lastFetchedSearch, deviceSearch]);
 
   // ---------------- Dropdown Items ----------------
   const schoolItems = useMemo(
@@ -452,14 +481,22 @@ export const ReportFilter: React.FC<ReportFilterProps> = ({
     [branches]
   );
 
-  const deviceItems = useMemo(
-    () =>
-      ((devices as any) || []).map((d: any) => ({
-        label: d.name!,
-        value: d.uniqueId,
-      })),
-    [devices]
-  );
+  const deviceItems = useMemo(() => {
+    const allItems = ((devices as any) || []).map((d: any) => ({
+      label: d.name!,
+      value: d.uniqueId,
+    }));
+
+    if (deviceSearch.trim() && isLocallyFound) {
+      const searchLower = deviceSearch.toLowerCase();
+      return allItems.filter(
+        (item: { label: string; value: string }) =>
+          item.label?.toLowerCase()?.includes(searchLower) ||
+          item.value?.toLowerCase()?.includes(searchLower)
+      );
+    }
+    return allItems;
+  }, [devices, deviceSearch, isLocallyFound]);
 
   // ⭐ Update deviceItemsRef whenever deviceItems changes
   useEffect(() => {
@@ -676,6 +713,8 @@ export const ReportFilter: React.FC<ReportFilterProps> = ({
     // Reset dates
     setInternalDateRange({ from: null, to: null });
     setInternalSingleDate(undefined);
+    setDeviceSearch("");
+    setLastFetchedSearch("");
 
     // Notify parent if controlled
     if (onSchoolChange) onSchoolChange(null);
@@ -1105,11 +1144,16 @@ export const ReportFilter: React.FC<ReportFilterProps> = ({
                   devicesLoading ? "Loading vehicles..." : "No vehicles found"
                 }
                 disabled={false}
-                onReachEnd={() => hasNextDevices && fetchNextDevices()}
+                onReachEnd={!deviceSearch ? () => hasNextDevices && fetchNextDevices() : undefined}
                 isLoadingMore={isFetchingNextDevices}
+                searchValue={deviceSearch}
+                onSearchChange={setDeviceSearch}
                 open={deviceOpen}
                 onOpenChange={(open) => {
                   setDeviceOpen(open);
+                  if (open) {
+                    setDeviceSearch("");
+                  }
                   if (
                     open &&
                     true

@@ -18,7 +18,7 @@ export const dropdownService = {
       params,
     }),
 
-  getDevicesWithPagination: (params: { branchId?: string; schoolId?: string; page?: number; limit?: number } = {}) =>
+  getDevicesWithPagination: (params: { branchId?: string; schoolId?: string; page?: number; limit?: number; search?: string } = {}) =>
     api.get("/device/dropdown-by-pagination", {
       params,
     }),

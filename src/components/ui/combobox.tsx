@@ -419,8 +419,6 @@ export function Combobox({
       >
         <Command
           filter={(value, search) => {
-            if (onSearchChange) return 1;
-
             const item = items.find((item) => item.value.toLowerCase() === value.toLowerCase());
             if (!item) return 0;
 
