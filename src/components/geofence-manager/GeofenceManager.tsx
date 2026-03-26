@@ -41,7 +41,7 @@ interface GeofenceData {
   geofenceName?: string;
   name?: string;
   coordinates?: number[][];
-  radius?: number;
+  radius?: number | "";
   area?: {
     center?: number[];
     radius?: number;
@@ -94,7 +94,7 @@ const GeofenceManager: React.FC<GeofenceManagerProps> = ({
   });
   const [isLoading, setIsLoading] = useState(false);
   const [currentGeofenceName, setCurrentGeofenceName] = useState("");
-  const [currentRadius, setCurrentRadius] = useState(100);
+  const [currentRadius, setCurrentRadius] = useState<number | "">(100);
   const [tempGeofence, setTempGeofence] = useState<GeofenceData | null>(null);
 
   // Form dropdown states
@@ -610,7 +610,7 @@ const GeofenceManager: React.FC<GeofenceManagerProps> = ({
     }
   };
 
-  const updateRadius = (radius: number) => {
+  const updateRadius = (radius: number | "") => {
     setCurrentRadius(radius);
     if (tempGeofence) {
       setTempGeofence({
@@ -693,7 +693,7 @@ const GeofenceManager: React.FC<GeofenceManagerProps> = ({
         geofenceName: tempGeofence.geofenceName || tempGeofence.name || "",
         latitude: lat,
         longitude: lng,
-        radius: tempGeofence.radius || currentRadius,
+        radius: typeof tempGeofence.radius === "number" || tempGeofence.radius === "" ? tempGeofence.radius : currentRadius,
         schoolId: selectedSchool?._id || schoolId,
         branchId: selectedBranch?._id || branchId,
         routeObjId: selectedRoutes.map((r) => r._id),

@@ -32,8 +32,8 @@ interface Props {
   selectSearchResult: (result: SearchResult) => void;
   currentGeofenceName: string;
   updateGeofenceName: (value: string) => void;
-  currentRadius: number;
-  updateRadius: (value: number) => void;
+  currentRadius: number | "";
+  updateRadius: (value: number | "") => void;
   currentCoords: Coords;
   updateCoordinates: (lat: number, lng: number) => void;
   openStreetView: () => void;
@@ -358,7 +358,10 @@ const GeofenceConfigurationPanel: React.FC<Props> = ({
             type="number"
             placeholder="Enter radius in meters"
             value={currentRadius}
-            onChange={(e) => updateRadius(parseInt(e.target.value) || 100)}
+            onChange={(e) => {
+              const val = e.target.value;
+              updateRadius(val === "" ? "" : parseInt(val));
+            }}
             className="text-sm mt-1"
           />
         </div>
