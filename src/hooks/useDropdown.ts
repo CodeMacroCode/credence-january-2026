@@ -15,6 +15,7 @@ export interface DropdownItem {
 export interface DropdownResponse<T> {
   page?: number;
   limit?: number;
+  total?: number;
   totalCount?: number;
   totalPages?: number;
   data: T[];

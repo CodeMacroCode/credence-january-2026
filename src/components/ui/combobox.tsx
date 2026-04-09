@@ -56,6 +56,7 @@ interface ComboboxProps {
   // Select All option
   showSelectAll?: boolean;
   selectAllLabel?: string;
+  onSelectAll?: () => void;
 }
 
 export function Combobox({
@@ -88,6 +89,7 @@ export function Combobox({
   // Select All
   showSelectAll = true,
   selectAllLabel = "Select All",
+  onSelectAll,
 }: ComboboxProps) {
   // Internal state for uncontrolled mode
   const [internalOpen, setInternalOpen] = React.useState(false);
@@ -206,6 +208,11 @@ export function Combobox({
   const handleSelectAll = React.useCallback(() => {
     if (!multiple) return;
 
+    if (onSelectAll) {
+      onSelectAll();
+      return;
+    }
+
     const allSelected = selectedValues.length === items.length;
 
     if (allSelected) {
@@ -216,7 +223,7 @@ export function Combobox({
       const allValues = items.map((item) => item.value);
       setSelectedValues(allValues);
     }
-  }, [multiple, selectedValues.length, items, setSelectedValues]);
+  }, [multiple, selectedValues.length, items, setSelectedValues, onSelectAll]);
 
   // Check if all items are selected
   const isAllSelected =

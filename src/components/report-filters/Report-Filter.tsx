@@ -15,6 +15,7 @@ import {
   useBranchDropdown,
   useDeviceDropdownWithPagination,
 } from "@/hooks/useDropdown";
+import { dropdownService } from "@/services/api/dropdownService";
 import { useDebounce } from "@/hooks/useDebounce";
 import DateRangeFilter from "../ui/DateRangeFilter";
 import { formatDateToYYYYMMDD } from "@/util/formatDate";
@@ -675,6 +676,53 @@ export const ReportFilter: React.FC<ReportFilterProps> = ({
     [onDevicesChange] // deviceItems removed from dependencies
   );
 
+  const handleDeviceSelectAll = useCallback(async () => {
+    if (!mergedConfig.multiSelectDevice) return;
+
+    // Check if we already have data to determine total count
+    const firstPage = devicePages?.pages[0];
+    const totalCount = firstPage?.total || 0;
+
+    // If completely selected, clear it (Toggle behavior)
+    if (selectedDevices.length >= totalCount && totalCount > 0) {
+      if (onDevicesChange) onDevicesChange([], []);
+      else setInternalDevices([]);
+      return;
+    }
+
+    try {
+      // Fetch all devices from the API with limit = total
+      const res = await dropdownService.getDevicesWithPagination({
+        branchId: selectedBranch,
+        schoolId: selectedBranch ? undefined : selectedSchool,
+        limit: totalCount || 9999, // Use totalCount or a very large fallback
+        search: lastFetchedSearch,
+      });
+
+      const allFetchedDevices = res.data.data || [];
+      const allIds = allFetchedDevices.map((d: any) => d.uniqueId);
+      const allNames = allFetchedDevices
+        .map((d: any) => d.name)
+        .filter(Boolean) as string[];
+
+      if (onDevicesChange) {
+        onDevicesChange(allIds, allNames);
+      } else {
+        setInternalDevices(allIds);
+      }
+    } catch (error) {
+      console.error("Select All vehicles failed:", error);
+    }
+  }, [
+    mergedConfig.multiSelectDevice,
+    devicePages,
+    selectedDevices.length,
+    selectedBranch,
+    selectedSchool,
+    lastFetchedSearch,
+    onDevicesChange,
+  ]);
+
   const handleDateChange = useCallback(
     (start: Date | null, end: Date | null) => {
       const newDateRange = { from: start, to: end };
@@ -1148,6 +1196,7 @@ export const ReportFilter: React.FC<ReportFilterProps> = ({
                 isLoadingMore={isFetchingNextDevices}
                 searchValue={deviceSearch}
                 onSearchChange={setDeviceSearch}
+                onSelectAll={handleDeviceSelectAll}
                 open={deviceOpen}
                 onOpenChange={(open) => {
                   setDeviceOpen(open);
