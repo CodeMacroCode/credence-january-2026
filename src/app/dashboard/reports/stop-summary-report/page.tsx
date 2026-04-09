@@ -222,9 +222,9 @@ const StopSummaryReportPage: React.FC = () => {
                 haltTime: stop.haltTime,
                 latitude: stop.latitude,
                 longitude: stop.longitude,
-                coordinates: `${stop.latitude.toFixed(5)}, ${stop.longitude.toFixed(5)}`,
+                coordinates: `${(stop.latitude ?? 0).toFixed(5)}, ${(stop.longitude ?? 0).toFixed(5)}`,
                 address: address,
-                distanceFromPrev: `${stop.distanceFromPrev.toFixed(2)} KM`,
+                distanceFromPrev: `${(stop.distanceFromPrev ?? 0).toFixed(2)} KM`,
             };
         }));
         return enriched;
@@ -567,54 +567,119 @@ const StopSummaryReportPage: React.FC = () => {
     };
 
     const prepareExportData = async (data: any[]) => {
-        // Map directly to summary fields, no need for nested loops or address enrichment
-        return data.map((vehicle: any) => ({
-            "Vehicle Number": deviceMap[String(vehicle.uniqueId)] || vehicle.name || vehicle.uniqueId,
-            "Total Distance (KM)": vehicle.totalDistance?.toFixed(2) ?? "0",
-            "Total Stop Time": vehicle.totalStopTime || "0D, 0H, 0M, 0S"
-        }));
+        const totalVehicles = data.length;
+        const prepared = [];
+
+        for (let i = 0; i < totalVehicles; i++) {
+            const vehicle = data[i];
+            const vehicleName = deviceMap[String(vehicle.uniqueId)] || vehicle.name || vehicle.uniqueId;
+            
+            updateProgress(
+                40 + (i / totalVehicles) * 40, 
+                `Processing & Geocoding: ${vehicleName}...`
+            );
+
+            const allStops: any[] = [];
+            for (const day of (vehicle.dayWiseStops || [])) {
+                for (const stop of (day.stops || [])) {
+                    // Fetch address for export
+                    let address = "Address not available";
+                    if (stop.latitude && stop.longitude) {
+                        try {
+                            address = await reverseGeocodeMapTiler(stop.latitude, stop.longitude);
+                        } catch (err) {
+                            console.error("Geocoding failed for export:", err);
+                        }
+                    }
+
+                    allStops.push({
+                        date: formatDate(day.date),
+                        stopStart: formatDateTime(stop.stopStart),
+                        stopEnd: formatDateTime(stop.stopEnd),
+                        haltTime: stop.haltTime,
+                        address: address,
+                        distanceFromPrev: `${(stop.distanceFromPrev ?? 0).toFixed(2)} KM`,
+                        coordinates: `${(stop.latitude ?? 0).toFixed(5)}, ${(stop.longitude ?? 0).toFixed(5)}`
+                    });
+                }
+            }
+
+            prepared.push({
+                "SN": i + 1,
+                "Vehicle Number": vehicleName,
+                "Unique ID": vehicle.uniqueId,
+                "Total Distance (KM)": vehicle.totalDistance?.toFixed(2) ?? "0",
+                "Total Stop Time": vehicle.totalStopTime || "0D, 0H, 0M, 0S",
+                details: allStops
+            });
+        }
+        return prepared;
     };
 
     const handleExport = async (type: "pdf" | "excel") => {
-        if (!apiFilters.uniqueIds.length || !apiFilters.from || !apiFilters.to) {
+        if (!hasGenerated || !apiFilters.uniqueIds.length || !apiFilters.from || !apiFilters.to) {
             toast.error("Please generate the report first.");
             return;
         }
 
         try {
             setIsDownloading(true);
-            updateProgress(10, "Fetching all report records...");
+            updateProgress(10, "Fetching report data...");
 
             const rawData = await fetchReportForExport();
             if (!rawData || rawData.length === 0) {
-                toast.error("No data to export.");
+                toast.error("No data found for the selected range.");
                 setIsDownloading(false);
                 return;
             }
 
-            updateProgress(40, "Preparing report...");
+            updateProgress(30, "Preparing report structure...");
             const preparedData = await prepareExportData(rawData);
 
+            updateProgress(85, `Finalizing ${type.toUpperCase()} generation...`);
 
-            updateProgress(80, `Generating ${type.toUpperCase()} file...`);
-
-            const columns = [
-                { key: "Vehicle Number", header: "Vehicle Number" },
-                { key: "Total Distance (KM)", header: "Total Distance (KM)" },
-                { key: "Total Stop Time", header: "Total Stop Time" },
+            const mainColumns = [
+                { key: "SN", header: "SN", width: 10 },
+                { key: "Vehicle Number", header: "Vehicle Number", width: 25 },
+                { key: "Unique ID", header: "Unique ID", width: 20 },
+                { key: "Total Distance (KM)", header: "Total Distance (KM)", width: 20 },
+                { key: "Total Stop Time", header: "Total Stop Time", width: 20 },
             ];
 
+            const nestedColumns = [
+                { key: "date", header: "Date", width: 15 },
+                { key: "stopStart", header: "Start Time", width: 25 },
+                { key: "stopEnd", header: "End Time", width: 25 },
+                { key: "haltTime", header: "Duration", width: 15 },
+                { key: "address", header: "Address", width: 50 },
+                { key: "distanceFromPrev", header: "Dist from Prev", width: 15 },
+                { key: "coordinates", header: "Coordinates", width: 25 },
+            ];
+
+            const exportConfig = {
+                title: "Stoppage Summary Report",
+                metadata: {
+                    "From Date": formatDate(apiFilters.from!),
+                    "To Date": formatDate(apiFilters.to!),
+                },
+                nestedTable: {
+                    dataKey: "details",
+                    columns: nestedColumns,
+                    title: "Stop Details"
+                }
+            };
+
             if (type === "pdf") {
-                await exportToPDF(preparedData, columns, { title: "Stoppage Summary Report" });
+                await exportToPDF(preparedData, mainColumns, exportConfig);
             } else {
-                exportToExcel(preparedData, columns, { title: "Stoppage Summary Report" });
+                await exportToExcel(preparedData, mainColumns, exportConfig);
             }
 
-            updateProgress(100, "Download complete!");
+            updateProgress(100, "Download successful!");
 
         } catch (error) {
             console.error("Export Error:", error);
-            toast.error("Failed to export report.");
+            toast.error("An error occurred during export.");
         } finally {
             setTimeout(() => {
                 setIsDownloading(false);
