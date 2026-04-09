@@ -101,7 +101,9 @@ export const reverseGeocodeMapTiler = async (
   lat: number,
   lng: number
 ): Promise<string> => {
-  const cacheKey = `${lat},${lng}`;
+  const latStr = lat.toFixed(3);
+  const lngStr = lng.toFixed(3);
+  const cacheKey = `${latStr},${lngStr}`;
   console.log("🌍 Reverse geocode API HIT:", cacheKey);
   // 1️⃣ Return cached result if available
   if (reverseGeocodeCache.has(cacheKey)) {
