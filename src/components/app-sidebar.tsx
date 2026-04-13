@@ -43,6 +43,7 @@ import {
   XCircle,
   MessageCircle,
   Group,
+  Ticket,
 } from "lucide-react";
 import { GiGps, GiReceiveMoney } from "react-icons/gi";
 import Image from "next/image";
@@ -92,6 +93,7 @@ const iconMap: Record<string, React.ElementType> = {
   "Custom Subscription Config": GiReceiveMoney,
   Billing: LiaMoneyBillAlt,
   Driver: MdDriveEta,
+  "Ticket Types": Ticket,
 };
 
 // Access permission mapping for Master section
@@ -177,7 +179,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               {
                 title: "Billing",
                 url: "/dashboard/billing",
-              }
+              },
+              { title: "Ticket Types", url: "/dashboard/support/ticket-types" },
             ];
           } else if (role === "school" || role === "branchGroup") {
             return [

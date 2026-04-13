@@ -687,3 +687,11 @@ export interface GetExpiredDevicesResponse {
   expired: ExpiredDeviceData[];
   expiringSoon: ExpiredDeviceData[];
 }
+
+export interface TicketType {
+  _id: string;
+  name: string;
+  description: string;
+  createdAt: string;
+  updatedAt: string;
+}

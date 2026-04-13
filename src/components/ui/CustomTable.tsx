@@ -230,7 +230,7 @@ export function CustomTable<TData extends RowData>({
   const getColumnStyle = (col: unknown) => {
     const meta = col.columnDef?.meta || {};
     const baseWidth = meta.minWidth || (isMobile ? 80 : 100);
-    const maxWidth = meta.maxWidth || 300;
+    const maxWidth = meta.maxWidth || 2000;
     return {
       width: baseWidth + "px",
       minWidth: baseWidth + "px",
@@ -266,13 +266,13 @@ export function CustomTable<TData extends RowData>({
         >
           <div style={{ width: tableWidth, minWidth: totalMinWidth + "px" }}>
             {/* Header */}
-            <div className="sticky top-0 z-20 bg-muted border-b">
+            <div className="sticky top-0 z-20 bg-primary border-b">
               {table.getHeaderGroups().map((hg) => (
-                <div key={hg.id} className={shouldExpand ? "flex" : "flex"}>
+                <div key={hg.id} className="flex">
                   {hg.headers.map((header) => (
                     <div
                       key={header.id}
-                      className="flex bg-primary items-center px-2 py-2 sm:px-4 sm:py-3 text-xs sm:text-sm font-medium uppercase tracking-wider border-r last:border-r-0 text-white"
+                      className="flex items-center px-2 py-2 sm:px-4 sm:py-3 text-xs sm:text-sm font-medium uppercase tracking-wider border-r last:border-r-0 text-white"
                       style={getColumnStyle(header.column)}
                     >
                       <div
