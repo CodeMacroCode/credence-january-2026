@@ -123,7 +123,7 @@ export default function RaiseTicketMaster() {
 
   const isSuperAdmin = useMemo(() => {
     if (!userInfo?.role) return false;
-    const rawRole = userInfo.role.toLowerCase();
+    const rawRole = userInfo.role;
     return ["superAdmin"].includes(rawRole);
   }, [userInfo]);
 
