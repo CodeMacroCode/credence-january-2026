@@ -124,7 +124,7 @@ export default function RaiseTicketMaster() {
   const isSuperAdmin = useMemo(() => {
     if (!userInfo?.role) return false;
     const rawRole = userInfo.role.toLowerCase();
-    return ["superadmin", "super_admin", "admin", "root"].includes(rawRole);
+    return ["superAdmin"].includes(rawRole);
   }, [userInfo]);
 
   const { exportToPDF, exportToExcel } = useExport();
