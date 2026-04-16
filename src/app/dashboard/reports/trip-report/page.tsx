@@ -36,25 +36,6 @@ interface TripReport {
   [key: string]: unknown;
 }
 
-interface TripReport {
-  _id: string;
-  uniqueId: number | string;
-  name: string;
-  startTime: string;
-  endTime: string;
-  startAddress?: string;
-  endAddress?: string;
-  startLatitude: number | string;
-  startLongitude: number | string;
-  endLatitude: number | string;
-  endLongitude: number | string;
-  duration: string;
-  distance: string | number;
-  maxSpeed: number;
-  avgSpeed?: number;
-  [key: string]: unknown;
-}
-
 const TripReportPage: React.FC = () => {
   // Download progress state
   const [isDownloading, setIsDownloading] = useState(false);
@@ -191,6 +172,64 @@ const TripReportPage: React.FC = () => {
     );
   }
 };
+
+  // Enrich trip report for export with progress callback
+  const enrichTripReportWithAddress = async (
+    rows: TripReport[],
+    onProgress?: (index: number) => void
+  ): Promise<TripReport[]> => {
+    const CONCURRENCY_LIMIT = 5;
+    const results = [...rows];
+
+    for (let i = 0; i < results.length; i += CONCURRENCY_LIMIT) {
+      const chunk = results.slice(i, i + CONCURRENCY_LIMIT);
+      const chunkIndices = Array.from({ length: chunk.length }, (_, j) => i + j);
+
+      await Promise.all(
+        chunk.map(async (row, idx) => {
+          const actualIndex = chunkIndices[idx];
+          let startAddress = row.startAddress || "-";
+          let endAddress = row.endAddress || "-";
+
+          const needsStartAddress = isCoordinateAddress(row.startAddress);
+          if (needsStartAddress && row.startLatitude && row.startLongitude) {
+            try {
+              startAddress =
+                (await reverseGeocodeMapTiler(
+                  Number(row.startLatitude),
+                  Number(row.startLongitude)
+                )) || row.startAddress || "-";
+            } catch (err) {
+              console.error("Failed to fetch start address:", err);
+            }
+          }
+
+          const needsEndAddress = isCoordinateAddress(row.endAddress);
+          if (needsEndAddress && row.endLatitude && row.endLongitude) {
+            try {
+              endAddress =
+                (await reverseGeocodeMapTiler(
+                  Number(row.endLatitude),
+                  Number(row.endLongitude)
+                )) || row.endAddress || "-";
+            } catch (err) {
+              console.error("Failed to fetch end address:", err);
+            }
+          }
+
+          results[actualIndex] = {
+            ...row,
+            startAddress,
+            endAddress,
+          };
+
+          if (onProgress) onProgress(actualIndex);
+        })
+      );
+    }
+
+    return results;
+  };
 
   useEffect(() => {
   if (!tripReport?.length) {
