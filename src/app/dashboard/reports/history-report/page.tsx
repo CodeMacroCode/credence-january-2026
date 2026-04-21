@@ -71,9 +71,10 @@ function HistoryReportContent() {
 
   const [decodedToken, setDecodedToken] = useState<DecodedToken>({ role: "" });
   const role = decodedToken.role || "";
-
+  
   useEffect(() => {
-    const token = Cookies.get("token");
+    const token = localStorage.getItem("token");
+    console.log("TOKEN", token)
     if (token) {
       try {
         const decoded: DecodedToken = jwtDecode(token);
@@ -182,10 +183,16 @@ function HistoryReportContent() {
 
   const vehicleMetaData = useMemo(() => {
     if (!vehicleData || !Array.isArray(vehicleData)) return [];
-    return vehicleData.map((vehicle) => ({
+    let filteredData = vehicleData;
+    // Filter out expired devices for superAdmin
+    if (role === "superAdmin") {
+      filteredData = vehicleData.filter((v: any) => !v.expired);
+    }
+
+    return filteredData.map((vehicle) => ({
       value: vehicle.uniqueId,
       label: vehicle.name,
-      disabled: vehicle.expired && role !== "superAdmin",
+      disabled: vehicle.expired, // For non-superAdmins, this will be true if expired
       disabledMessage: "subscription expired pls renew it to continue using our services",
     }));
   }, [vehicleData, role]);

@@ -483,10 +483,17 @@ export const ReportFilter: React.FC<ReportFilterProps> = ({
   );
 
   const deviceItems = useMemo(() => {
-    const allItems = ((devices as any) || []).map((d: any) => ({
+    let allDevices = (devices as any) || [];
+
+    // Filter out expired devices for superAdmin
+    if (role === "superAdmin") {
+      allDevices = allDevices.filter((d: any) => !d.expired);
+    }
+
+    const allItems = allDevices.map((d: any) => ({
       label: d.name!,
       value: d.uniqueId,
-      disabled: d.expired && role !== "superAdmin",
+      disabled: d.expired, // For non-superAdmins, this will be true if expired
       disabledMessage: "subscription expired pls renew it to continue using our services",
     }));
 
