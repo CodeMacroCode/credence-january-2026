@@ -486,18 +486,20 @@ export const ReportFilter: React.FC<ReportFilterProps> = ({
     const allItems = ((devices as any) || []).map((d: any) => ({
       label: d.name!,
       value: d.uniqueId,
+      disabled: d.expired && role !== "superAdmin",
+      disabledMessage: "subscription expired pls renew it to continue using our services",
     }));
 
     if (deviceSearch.trim() && isLocallyFound) {
       const searchLower = deviceSearch.toLowerCase();
       return allItems.filter(
-        (item: { label: string; value: string }) =>
+        (item: { label: string; value: string; disabled?: boolean; disabledMessage?: string }) =>
           item.label?.toLowerCase()?.includes(searchLower) ||
           item.value?.toLowerCase()?.includes(searchLower)
       );
     }
     return allItems;
-  }, [devices, deviceSearch, isLocallyFound]);
+  }, [devices, deviceSearch, isLocallyFound, role]);
 
   // ⭐ Update deviceItemsRef whenever deviceItems changes
   useEffect(() => {

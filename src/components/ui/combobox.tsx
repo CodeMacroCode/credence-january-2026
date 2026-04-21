@@ -20,9 +20,13 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 
+import { toast } from "sonner";
+
 export interface ComboboxItem {
   value: string;
   label: string;
+  disabled?: boolean;
+  disabledMessage?: string;
 }
 
 interface ComboboxProps {
@@ -486,9 +490,27 @@ export function Combobox({
                 <CommandItem
                   key={`${item.value}-${idx}`}
                   value={item.value}
-                  onSelect={handleSelect}
-                  className="cursor-pointer"
+                  onSelect={() => {
+                    if (item.disabled) {
+                      if (item.disabledMessage) {
+                        toast.error(item.disabledMessage);
+                      }
+                      return;
+                    }
+                    handleSelect(item.value);
+                  }}
+                  className={cn(
+                    "cursor-pointer relative",
+                    item.disabled && "opacity-70 select-none"
+                  )}
                 >
+                  {item.disabled && (
+                    <div className="absolute inset-0 bg-background/40 flex items-center justify-end pr-4 pointer-events-none z-10">
+                      <span className="text-[10px] font-bold text-destructive uppercase tracking-wider bg-destructive/10 px-1.5 py-0.5 rounded border border-destructive/20 backdrop-blur-[1px]">
+                        Expired
+                      </span>
+                    </div>
+                  )}
                   {multiple && (
                     <div
                       className={cn(
