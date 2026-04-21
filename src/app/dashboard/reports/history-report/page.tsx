@@ -1,5 +1,7 @@
 "use client";
 import { useMemo, useEffect, useState, useRef, useCallback, Suspense } from "react";
+import Cookies from "js-cookie";
+import { jwtDecode } from "jwt-decode";
 import { Combobox } from "@/components/ui/combobox";
 import DateRangeFilter from "@/components/ui/DateRangeFilter";
 import { Button } from "@/components/ui/button";
@@ -39,6 +41,13 @@ ChartJS.register(
 );
 type StopAddressMap = Record<number, string>;
 
+type DecodedToken = {
+  role: string;
+  schoolId?: string;
+  id?: string;
+  branchId?: string;
+};
+
 // Dynamically import VehicleMap with SSR disabled
 const VehicleMap = dynamic(() => import("@/components/history/vehicle-map"), {
   ssr: false,
@@ -59,6 +68,21 @@ function HistoryReportContent() {
   const [showStopsOnMap, setShowStopsOnMap] = useState(false);
   const [showArrows, setShowArrows] = useState(true);
   const [activeStopId, setActiveStopId] = useState<number | null>(null);
+
+  const [decodedToken, setDecodedToken] = useState<DecodedToken>({ role: "" });
+  const role = decodedToken.role || "";
+
+  useEffect(() => {
+    const token = Cookies.get("token");
+    if (token) {
+      try {
+        const decoded: DecodedToken = jwtDecode(token);
+        setDecodedToken(decoded);
+      } catch (error) {
+        console.error("Token decode failed:", error);
+      }
+    }
+  }, []);
 
   // Trip-wise source data
   const [trips, setTrips] = useState<any[][]>([]);
@@ -161,8 +185,10 @@ function HistoryReportContent() {
     return vehicleData.map((vehicle) => ({
       value: vehicle.uniqueId,
       label: vehicle.name,
+      disabled: vehicle.expired && role !== "superAdmin",
+      disabledMessage: "subscription expired pls renew it to continue using our services",
     }));
-  }, [vehicleData]);
+  }, [vehicleData, role]);
 
   const formatDateTime = (dateString: string) => {
     if (!dateString || dateString === "---") {
