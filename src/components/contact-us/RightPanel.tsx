@@ -27,9 +27,9 @@ const RightPanel = ({
   onSelectHistory: (date: string) => void;
 }) => {
   const isBotChat = selectedContact?.id === '1' || !selectedContact;
-  const profileName = selectedContact?.name || 'ParentEye Assistant';
+  const profileName = selectedContact?.name || 'Credence Assistant';
   const profilePhone = selectedContact?.phone || 'AI-Powered Support';
-  const profileAvatarLetter = selectedContact ? profileName.charAt(0).toUpperCase() : 'P';
+  const profileAvatarLetter = selectedContact ? profileName.charAt(0).toUpperCase() : 'C';
 
   const PersonAvatar = ({ isBot = false, size = "medium" }: { isBot?: boolean; size?: "small" | "medium" | "large" }) => {
     const sizeClasses = {
