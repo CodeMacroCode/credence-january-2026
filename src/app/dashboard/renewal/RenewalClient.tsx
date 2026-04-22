@@ -11,7 +11,7 @@ import { Combobox } from "@/components/ui/combobox";
 import { useBranchDropdown, useSchoolDropdown } from "@/hooks/useDropdown";
 import { useAuthStore } from "@/store/authStore";
 import { ColumnVisibilitySelector } from "@/components/column-visibility-selector";
-import { AlertCircle, CalendarClock, RefreshCcw, Search, Loader2, CheckSquare, QrCode, Building2, Hash, CreditCard, Landmark, MapPin, Cpu } from "lucide-react";
+import { AlertCircle, CalendarClock, RefreshCcw, Search, Loader2, CheckSquare, QrCode, Building2, Hash, CreditCard, Landmark, MapPin, Cpu, FileDown, Download } from "lucide-react";
 import { PaginationState } from "@tanstack/react-table";
 import ResponseLoader from "@/components/ResponseLoader";
 import { getRenewalColumns } from "@/components/columns/columns";
@@ -19,6 +19,15 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogD
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { ExpirationDatePicker } from "@/components/ui/ExpirationDatePicker";
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import * as XLSX from "xlsx";
+import jsPDF from "jspdf";
+import "jspdf-autotable";
 
 export default function RenewalClient() {
     // State
@@ -41,6 +50,7 @@ export default function RenewalClient() {
     const [renewalDate, setRenewalDate] = useState("2026-12-31T23:59:59.000Z");
     const [renewalPassword, setRenewalPassword] = useState("");
     const [isRenewing, setIsRenewing] = useState(false);
+    const [isExporting, setIsExporting] = useState(false);
 
     // Payment State
     const [selectedPaymentDevice, setSelectedPaymentDevice] = useState<any>(null);
@@ -190,6 +200,109 @@ export default function RenewalClient() {
         }
     };
 
+    // Client-side Export Handlers
+    const fetchAllRenewalData = async () => {
+        try {
+            setIsExporting(true);
+            
+            // Use the most up-to-date filter values
+            const params = {
+                page: 1,
+                limit: totalCount > 0 ? totalCount : 5000, // Fallback to 5000 if totalCount is 0
+                search: debouncedSearch || "",
+                schoolId: filters.schoolId,
+                branchId: filters.branchId,
+            };
+
+            const response = await deviceApiService.getExpiredDevices(params);
+            
+            if (!response) {
+                console.error("No response from API during export");
+                return [];
+            }
+
+            const dataArray = activeTab === "expired" ? response.expired : response.expiringSoon;
+            return dataArray || [];
+        } catch (error) {
+            console.error("Fetch full data error:", error);
+            toast.error("Failed to fetch full data for export");
+            return [];
+        } finally {
+            setIsExporting(false);
+        }
+    };
+
+    const handleExcelExport = async () => {
+        const fullData = await fetchAllRenewalData();
+        if (!fullData || fullData.length === 0) return;
+
+        try {
+            // Prepare data for export
+            const exportData = fullData.map((device: any) => ({
+                "Vehicle Name": device.name || "N/A",
+                "IMEI / Unique ID": device.uniqueId,
+                "Admin Name": device.schoolName || "N/A",
+                "User Name": device.branchName || "N/A",
+                "Expiration Date": device.expirationdate ? new Date(device.expirationdate).toLocaleDateString("en-GB") : "N/A",
+                "Status": activeTab === "expired" ? "Expired" : "Expiring Soon"
+            }));
+
+            const worksheet = XLSX.utils.json_to_sheet(exportData);
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, "Renewal Report");
+
+            // Fixed header width
+            const wscols = [{ wch: 25 }, { wch: 25 }, { wch: 25 }, { wch: 25 }, { wch: 20 }, { wch: 15 }];
+            worksheet["!cols"] = wscols;
+
+            XLSX.writeFile(workbook, `renewal_report_${activeTab}_${new Date().toISOString().split("T")[0]}.xlsx`);
+            toast.success("Full Excel report exported successfully");
+        } catch (error) {
+            console.error("Excel Export Error:", error);
+            toast.error("Failed to export Excel report");
+        }
+    };
+
+    const handlePdfExport = async () => {
+        const fullData = await fetchAllRenewalData();
+        if (!fullData || fullData.length === 0) return;
+
+        try {
+            const doc = new jsPDF();
+            
+            // Add Title
+            doc.setFontSize(18);
+            doc.text(`Renewal Report - ${activeTab === "expired" ? "Expired" : "Expiring Soon"}`, 14, 22);
+            doc.setFontSize(11);
+            doc.setTextColor(100);
+            doc.text(`Exported on: ${new Date().toLocaleString()}`, 14, 30);
+
+            const tableColumn = ["Vehicle Name", "IMEI / Unique ID", "Admin Name", "User Name", "Expiry Date"];
+            const tableRows = fullData.map((device: any) => [
+                device.name || "N/A",
+                device.uniqueId,
+                device.schoolName || "N/A",
+                device.branchName || "N/A",
+                device.expirationdate ? new Date(device.expirationdate).toLocaleDateString("en-GB") : "N/A"
+            ]);
+
+            (doc as any).autoTable({
+                head: [tableColumn],
+                body: tableRows,
+                startY: 40,
+                theme: 'striped',
+                headStyles: { fillColor: [41, 128, 185], textColor: 255 },
+                margin: { top: 40 },
+            });
+
+            doc.save(`renewal_report_${activeTab}_${new Date().toISOString().split("T")[0]}.pdf`);
+            toast.success("Full PDF report exported successfully");
+        } catch (error) {
+            console.error("PDF Export Error:", error);
+            toast.error("Failed to export PDF report");
+        }
+    };
+
     // Columns
     const columns = useMemo(() => getRenewalColumns(activeTab, userRole, handleManualRenewal, handlePayNow), [activeTab, userRole]);
 
@@ -270,6 +383,24 @@ export default function RenewalClient() {
                     <p className="text-muted-foreground text-sm">Manage expired and upcoming vehicle renewals</p>
                 </div>
                 <div className="flex gap-2">
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <Button variant="outline" size="sm" className="gap-2 cursor-pointer" disabled={isExporting}>
+                                <Download className="h-4 w-4" />
+                                {isExporting ? "Exporting..." : "Export"}
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                            <DropdownMenuItem onClick={handleExcelExport} className="cursor-pointer gap-2">
+                                <FileDown className="h-4 w-4" />
+                                Export Excel
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={handlePdfExport} className="cursor-pointer gap-2">
+                                <FileDown className="h-4 w-4" />
+                                Export PDF
+                            </DropdownMenuItem>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
                     <Button variant="outline" size="sm" onClick={handleRefresh} className="gap-2">
                         <RefreshCcw className="h-4 w-4" />
                         Refresh

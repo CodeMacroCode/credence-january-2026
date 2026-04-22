@@ -23,11 +23,12 @@ const IdleReportPage: React.FC = () => {
   const [isDownloading, setIsDownloading] = useState(false);
   const [downloadProgress, setDownloadProgress] = useState(0);
   const [downloadLabel, setDownloadLabel] = useState("");
-  const [tableData, setTableData] = useState<IdleReport[]>([]);
+  const [tableData, setTableData] = useState<any[]>([]);
   const [hasGenerated, setHasGenerated] = useState(false);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [showTable, setShowTable] = useState(false);
   const [cashedDeviceId, setCashedDeviceId] = useState<{ uniqueId: string; name: string }[] | null>(null);
+  const [selectedDeviceName, setSelectedDeviceName] = useState<string | null>(null);
   const [pagination, setPagination] = useState({
     pageIndex: 0,
     pageSize: 20,
@@ -80,6 +81,10 @@ const IdleReportPage: React.FC = () => {
       period: "Custom",
     });
 
+    if (filters.deviceName && typeof filters.deviceName === "string") {
+      setSelectedDeviceName(filters.deviceName);
+    }
+
     setHasGenerated(true);
     setShowTable(true);
   }, []);
@@ -91,6 +96,60 @@ const IdleReportPage: React.FC = () => {
     setCashedDeviceId(cachedDevices?.data?.data ?? null);
   }, [idleReport]);
 
+  // Helper to check if an "address" is actually just coordinates (failed geocoding)
+  const isCoordinateAddress = (address: string | undefined): boolean => {
+    if (!address) return true;
+    const coordPattern = /^-?\d+\.?\d*,\s*-?\d+\.?\d*$/;
+    return coordPattern.test(address.trim());
+  };
+
+  const enrichIdleReportIncrementally = async (rows: any[]) => {
+    const CONCURRENCY_LIMIT = 3;
+
+    for (let i = 0; i < rows.length; i += CONCURRENCY_LIMIT) {
+      const chunk = rows.slice(i, i + CONCURRENCY_LIMIT);
+
+      const enrichedChunk = await Promise.all(
+        chunk.map(async (row) => {
+          let location = row.location || "-";
+
+          const needsLocation = isCoordinateAddress(row.location);
+          if (needsLocation && row.latitude && row.longitude) {
+            try {
+              location =
+                (await reverseGeocodeMapTiler(
+                  Number(row.latitude),
+                  Number(row.longitude)
+                )) ||
+                row.location ||
+                "-";
+            } catch (err) {
+              console.error("Failed to fetch location address:", err);
+            }
+          }
+
+          return {
+            _id: row._id,
+            location,
+          };
+        })
+      );
+
+      // Patch the updated rows
+      setTableData((prev) =>
+        prev.map((item) => {
+          const updated = enrichedChunk.find((x) => x._id === item._id);
+          return updated
+            ? {
+                ...item,
+                location: updated.location,
+              }
+            : item;
+        })
+      );
+    }
+  };
+
   useEffect(() => {
     if (!idleReport.length) {
       if (tableData.length !== 0) setTableData([]);
@@ -101,12 +160,67 @@ const IdleReportPage: React.FC = () => {
     if (lastProcessedRef.current === hash) return;
     lastProcessedRef.current = hash;
 
-    const enrich = async () => {
-      const enriched = await enrichIdleReportWithAddress(idleReport);
-      setTableData(enriched);
-    };
+    // Step 1: Pre-calculate names, times and add stable IDs
+    const preparedRows = idleReport.map((row, idx) => {
+      const arrival = new Date(row.idleStartTime).getTime();
+      const departure = new Date(row.idleEndTime).getTime();
+      const diffMs = Math.max(departure - arrival, 0);
 
-    enrich();
+      const hours = Math.floor(diffMs / 3600000);
+      const minutes = Math.floor((diffMs % 3600000) / 60000);
+      const seconds = Math.floor((diffMs % 60000) / 1000);
+      const haltTime = `${hours}H ${minutes}M ${seconds}S`;
+
+      const arrivalTime = new Date(row.idleStartTime).toLocaleString("en-IN", {
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
+        hour: "numeric",
+        minute: "2-digit",
+        second: "2-digit",
+        hour12: true,
+      });
+
+      const departureTime = new Date(row.idleEndTime).toLocaleString("en-IN", {
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
+        hour: "numeric",
+        minute: "2-digit",
+        second: "2-digit",
+        hour12: true,
+      });
+
+      const name =
+        selectedDeviceName ||
+        cashedDeviceId?.find(
+          (item: { uniqueId: string; name: string }) =>
+            Number(item.uniqueId) ===
+            Number(row.uniqueId || data?.data?.uniqueId || apiFilters.uniqueId)
+        )?.name ||
+        row.name ||
+        "-";
+
+      // Use raw coordinates as placeholder if no address yet
+      const placeholderLocation = `${row.latitude}, ${row.longitude}`;
+
+      return {
+        ...row,
+        _id: `${row.uniqueId}_${row.idleStartTime}_${idx}`,
+        name,
+        haltTime,
+        arrivalTime,
+        departureTime,
+        duration: haltTime,
+        location: row.location || placeholderLocation,
+      };
+    });
+
+    // Step 2: Immediately render formatted data
+    setTableData(preparedRows);
+
+    // Step 3: Background address fetch
+    enrichIdleReportIncrementally(preparedRows);
   }, [idleReport, cashedDeviceId]);
 
   const enrichIdleReportWithAddress = async (
@@ -156,9 +270,10 @@ const IdleReportPage: React.FC = () => {
         )
 
         const name =
+          selectedDeviceName ||
           cashedDeviceId?.find(
             (item: { uniqueId: string; name: string }) =>
-              Number(item.uniqueId) === Number(row.uniqueId || data?.data?.uniqueId)
+              Number(item.uniqueId) === Number(row.uniqueId || data?.data?.uniqueId || apiFilters.uniqueId)
           )?.name ||
           row.name ||
           "-";
@@ -280,9 +395,7 @@ const IdleReportPage: React.FC = () => {
     onColumnVisibilityChange: setColumnVisibility,
     emptyMessage: isFetching
       ? "Loading report data..."
-      : totalIdleReport === 0
-        ? "No data available for the selected filters"
-        : "Wait for it....🫣",
+      : "No data available for the selected filters",
     pageSizeOptions: [5, 10, 20, 50, 100, "All"],
     enableSorting: true,
     showSerialNumber: true,

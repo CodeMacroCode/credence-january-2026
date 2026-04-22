@@ -125,7 +125,7 @@ const TravelSummaryReportPage: React.FC = () => {
   >(null);
 
   // Table data with enriched addresses
-  const [tableData, setTableData] = useState<TravelSummaryReport[]>([]);
+  const [tableData, setTableData] = useState<any[]>([]);
   const lastProcessedRef = React.useRef<string>("");
 
   // Fetch report data using the hook
@@ -157,13 +157,133 @@ const TravelSummaryReportPage: React.FC = () => {
     setCashedDeviceId(cachedDevices?.data?.data);
   }, [travelSummaryReport]);
 
-  // Enrich travel summary data with addresses (including nested dayWiseTrips)
+  // Helper to check if an "address" is actually just coordinates (failed geocoding)
+  const isCoordinateAddress = (address: string | undefined): boolean => {
+    if (!address) return true;
+    const coordPattern = /^-?\d+\.?\d*,\s*-?\d+\.?\d*$/;
+    return coordPattern.test(address.trim());
+  };
+
+  const enrichTravelSummaryIncrementally = async (rows: any[]) => {
+    const CONCURRENCY_LIMIT = 3;
+
+    for (let i = 0; i < rows.length; i += CONCURRENCY_LIMIT) {
+      const chunk = rows.slice(i, i + CONCURRENCY_LIMIT);
+
+      const enrichedChunk = await Promise.all(
+        chunk.map(async (row) => {
+          let startAddress = row.startAddress || "-";
+          let endAddress = row.endAddress || "-";
+
+          const needsStart = isCoordinateAddress(row.startAddress);
+          if (needsStart && row.startLat && row.startLong) {
+            try {
+              startAddress =
+                (await reverseGeocodeMapTiler(row.startLat, row.startLong)) ||
+                "-";
+            } catch (err) {
+              console.error("Failed to resolve start address:", err);
+            }
+          }
+
+          const needsEnd = isCoordinateAddress(row.endAddress);
+          if (needsEnd && row.endLat && row.endLong) {
+            try {
+              endAddress =
+                (await reverseGeocodeMapTiler(row.endLat, row.endLong)) || "-";
+            } catch (err) {
+              console.error("Failed to resolve end address:", err);
+            }
+          }
+
+          return {
+            _id: row._id,
+            startAddress,
+            endAddress,
+          };
+        })
+      );
+
+      setTableData((prev) =>
+        prev.map((item) => {
+          const updated = enrichedChunk.find((x) => x._id === item._id);
+          return updated
+            ? {
+                ...item,
+                startAddress: updated.startAddress,
+                endAddress: updated.endAddress,
+              }
+            : item;
+        })
+      );
+    }
+  };
+
+  const enrichDayWiseTripsIncrementally = async (
+    rowId: string,
+    trips: TravelDetailTableData[]
+  ) => {
+    const CONCURRENCY_LIMIT = 3;
+
+    for (let i = 0; i < trips.length; i += CONCURRENCY_LIMIT) {
+      const chunk = trips.slice(i, i + CONCURRENCY_LIMIT);
+
+      const enrichedChunk = await Promise.all(
+        chunk.map(async (trip) => {
+          let startLocation = trip.startLocation;
+          let endLocation = trip.endLocation;
+
+          const needsStart = isCoordinateAddress(trip.startLocation);
+          if (needsStart && trip.startCoordinates && trip.startCoordinates !== "-") {
+            const [lat, lng] = trip.startCoordinates.split(",").map(Number);
+            if (!isNaN(lat) && !isNaN(lng)) {
+              try {
+                startLocation = (await reverseGeocodeMapTiler(lat, lng)) || "-";
+              } catch (err) { }
+            }
+          }
+
+          const needsEnd = isCoordinateAddress(trip.endLocation);
+          if (needsEnd && trip.endCoordinates && trip.endCoordinates !== "-") {
+            const [lat, lng] = trip.endCoordinates.split(",").map(Number);
+            if (!isNaN(lat) && !isNaN(lng)) {
+              try {
+                endLocation = (await reverseGeocodeMapTiler(lat, lng)) || "-";
+              } catch (err) { }
+            }
+          }
+
+          return {
+            id: trip.id,
+            startLocation,
+            endLocation,
+          };
+        })
+      );
+
+      setDetailedData((prev) => {
+        const currentData = prev[rowId] || [];
+        const newData = currentData.map((item) => {
+          const updated = enrichedChunk.find((x) => x.id === item.id);
+          return updated
+            ? {
+                ...item,
+                startLocation: updated.startLocation,
+                endLocation: updated.endLocation,
+              }
+            : item;
+        });
+        return { ...prev, [rowId]: newData };
+      });
+    }
+  };
+
+  // Full enrichment for exports (synchronous/blocking)
   const enrichTravelSummaryWithAddress = async (
     rows: TravelSummaryReport[]
   ): Promise<TravelSummaryReport[]> => {
     return Promise.all(
       rows.map(async (row) => {
-        // Enrich main row addresses
         let startAddress = "-";
         let endAddress = "-";
 
@@ -176,7 +296,6 @@ const TravelSummaryReportPage: React.FC = () => {
           endAddress = end || "-";
         }
 
-        // Enrich nested dayWiseTrips with addresses
         let enrichedDayWiseTrips = row.dayWiseTrips || [];
         if (row.dayWiseTrips?.length) {
           enrichedDayWiseTrips = await Promise.all(
@@ -184,20 +303,20 @@ const TravelSummaryReportPage: React.FC = () => {
               let tripStartAddress = trip.startAddress || "-";
               let tripEndAddress = trip.endAddress || "-";
 
-              // Fetch start address if coordinates exist but no address
               if (!trip.startAddress && trip.startLatitude && trip.startLongitude) {
-                tripStartAddress = await reverseGeocodeMapTiler(
-                  Number(trip.startLatitude),
-                  Number(trip.startLongitude)
-                ) || "-";
+                tripStartAddress =
+                  (await reverseGeocodeMapTiler(
+                    Number(trip.startLatitude),
+                    Number(trip.startLongitude)
+                  )) || "-";
               }
 
-              // Fetch end address if coordinates exist but no address
               if (!trip.endAddress && trip.endLatitude && trip.endLongitude) {
-                tripEndAddress = await reverseGeocodeMapTiler(
-                  Number(trip.endLatitude),
-                  Number(trip.endLongitude)
-                ) || "-";
+                tripEndAddress =
+                  (await reverseGeocodeMapTiler(
+                    Number(trip.endLatitude),
+                    Number(trip.endLongitude)
+                  )) || "-";
               }
 
               return {
@@ -229,109 +348,99 @@ const TravelSummaryReportPage: React.FC = () => {
     if (lastProcessedRef.current === currentHash) return;
     lastProcessedRef.current = currentHash;
 
-    const enrich = async () => {
-      const enriched = await enrichTravelSummaryWithAddress(travelSummaryReport);
-      setTableData(enriched);
-    };
+    const rowsWithIds = travelSummaryReport.map((row, idx) => ({
+      ...row,
+      _id: `${row._id || row.uniqueId}_${idx}`,
+    }));
 
-    enrich();
+    // Step 1: Render immediately
+    setTableData(rowsWithIds);
+
+    // Step 2: Background geocode main rows
+    enrichTravelSummaryIncrementally(rowsWithIds);
   }, [travelSummaryReport]);
 
   // Transform day-wise trips data for nested table (with address fetching)
   const transformDayWiseData = useCallback(
-    async (
+    (
       dayWiseTrips: DayWiseTrips[],
       vehicleName: string
-    ): Promise<TravelDetailTableData[]> => {
-      return Promise.all(
-        dayWiseTrips.map(async (trip, index) => {
-          // Fetch addresses for start and end coordinates
-          let startLocation = trip.startAddress || "-";
-          let endLocation = trip.endAddress || "-";
+    ): TravelDetailTableData[] => {
+      return dayWiseTrips.map((trip, index) => {
+        // Use existing address or raw coordinates as placeholder
+        let startLocation =
+          trip.startAddress ||
+          (trip.startLatitude && trip.startLongitude
+            ? `${trip.startLatitude}, ${trip.startLongitude}`
+            : "-");
+        let endLocation =
+          trip.endAddress ||
+          (trip.endLatitude && trip.endLongitude
+            ? `${trip.endLatitude}, ${trip.endLongitude}`
+            : "-");
 
-          // Fetch addresses if coordinates exist but no address
-          if (!trip.startAddress && trip.startLatitude && trip.startLongitude) {
-            startLocation = await reverseGeocodeMapTiler(
-              Number(trip.startLatitude),
-              Number(trip.startLongitude)
-            ) || "-";
-          }
-
-          if (!trip.endAddress && trip.endLatitude && trip.endLongitude) {
-            endLocation = await reverseGeocodeMapTiler(
-              Number(trip.endLatitude),
-              Number(trip.endLongitude)
-            ) || "-";
-          }
-
-          return {
-            id: `day-${trip.date}-${index}`,
-            uniqueId: trip.uniqueId,
-            vehicleName: vehicleName,
-            reportDate: new Date(trip.date).toLocaleDateString(),
-            ignitionStart: trip.startTime
-              ? new Date(trip.startTime).toLocaleString("en-GB", {
-                day: "2-digit",
-                month: "2-digit",
-                year: "numeric",
-                hour: "2-digit",
-                minute: "2-digit",
-                second: "2-digit",
-                hour12: true,
-                timeZone: "UTC",
-              })
+        return {
+          id: `day-${trip.date}-${index}`,
+          uniqueId: trip.uniqueId,
+          vehicleName: vehicleName,
+          reportDate: new Date(trip.date).toLocaleDateString(),
+          ignitionStart: trip.startTime
+            ? new Date(trip.startTime).toLocaleString("en-GB", {
+              day: "2-digit",
+              month: "2-digit",
+              year: "numeric",
+              hour: "2-digit",
+              minute: "2-digit",
+              second: "2-digit",
+              hour12: true,
+              timeZone: "UTC",
+            })
+            : "-",
+          startLocation: startLocation,
+          startCoordinates:
+            trip.startLatitude && trip.startLongitude
+              ? `${trip.startLatitude}, ${trip.startLongitude}`
               : "-",
-            startLocation: startLocation,
-            startCoordinates:
-              trip.startLatitude && trip.startLongitude
-                ? `${trip.startLatitude}, ${trip.startLongitude}`
-                : "-",
-            distance: trip.distance,
-            running: trip.runningTime,
-            idle: trip.idleTime,
-            stopped: trip.stopTime,
-            overspeed: trip.overspeedTime,
-            workingHours: trip.workingHours,
-            maxSpeed: trip.maxSpeed,
-            avgSpeed: trip.avgSpeed,
-            endLocation: endLocation,
-            endCoordinates:
-              trip.endLatitude && trip.endLongitude
-                ? `${trip.endLatitude}, ${trip.endLongitude}`
-                : "-",
-            ignitionStop: trip.endTime
-              ? new Date(trip.endTime).toLocaleString("en-GB", {
-                day: "2-digit",
-                month: "2-digit",
-                year: "numeric",
-                hour: "2-digit",
-                minute: "2-digit",
-                second: "2-digit",
-                hour12: true,
-                timeZone: "UTC",
-              })
+          distance: trip.distance,
+          running: trip.runningTime,
+          idle: trip.idleTime,
+          stopped: trip.stopTime,
+          overspeed: trip.overspeedTime,
+          workingHours: trip.workingHours,
+          maxSpeed: trip.maxSpeed,
+          avgSpeed: trip.avgSpeed,
+          endLocation: endLocation,
+          endCoordinates:
+            trip.endLatitude && trip.endLongitude
+              ? `${trip.endLatitude}, ${trip.endLongitude}`
               : "-",
-            play: "▶",
-          };
-        })
-      );
+          ignitionStop: trip.endTime
+            ? new Date(trip.endTime).toLocaleString("en-GB", {
+              day: "2-digit",
+              month: "2-digit",
+              year: "numeric",
+              hour: "2-digit",
+              minute: "2-digit",
+              second: "2-digit",
+              hour12: true,
+              timeZone: "UTC",
+            })
+            : "-",
+          play: "▶",
+        };
+      });
     },
     []
   );
 
   // Toggle row expansion
   const toggleRowExpansion = useCallback(
-    async (rowId: string, rowData: TravelSummaryReport) => {
-      // console.log("🔄 Toggling row expansion for:", rowId);
+    (rowId: string, rowData: TravelSummaryReport) => {
       const newExpandedRows = new Set(expandedRows);
 
       if (expandedRows.has(rowId)) {
-        // Collapse row
-        // console.log("➖ Collapsing row:", rowId);
         newExpandedRows.delete(rowId);
       } else {
-        // Expand row
-        // console.log("➕ Expanding row:", rowId);
         newExpandedRows.add(rowId);
 
         // Initialize detail table state if not exists
@@ -347,31 +456,21 @@ const TravelSummaryReportPage: React.FC = () => {
 
         // Load detailed data if not already loaded
         if (!detailedData[rowId] && rowData.dayWiseTrips) {
-          try {
-            // console.log("🔄 Transforming dayWiseTrips:", rowData.dayWiseTrips);
-            const transformedDetails = await transformDayWiseData(
-              rowData.dayWiseTrips,
-              rowData.name
-            );
-            // console.log("✅ Transformed details:", transformedDetails);
-            setDetailedData((prev) => ({
-              ...prev,
-              [rowId]: transformedDetails,
-            }));
-          } catch (error) {
-            // console.error("❌ Error transforming day-wise data:", error);
-            setDetailedData((prev) => ({
-              ...prev,
-              [rowId]: [],
-            }));
-          }
-        } else {
-          // console.log("ℹ️ Detail data already exists for:", rowId);
+          const transformedDetails = transformDayWiseData(
+            rowData.dayWiseTrips,
+            rowData.name
+          );
+          setDetailedData((prev) => ({
+            ...prev,
+            [rowId]: transformedDetails,
+          }));
+
+          // Background enrichment for day-wise trips
+          enrichDayWiseTripsIncrementally(rowId, transformedDetails);
         }
       }
 
       setExpandedRows(newExpandedRows);
-      // console.log("✅ Updated expandedRows:", Array.from(newExpandedRows));
     },
     [expandedRows, detailedData, transformDayWiseData, detailTableStates]
   );
@@ -1281,8 +1380,8 @@ const TravelSummaryReportPage: React.FC = () => {
     columnVisibility,
     onColumnVisibilityChange: setColumnVisibility,
     emptyMessage: isFetchingTravelSummaryReport
-      ? "Loading report data..." : totalTravelSummaryReport === 0 ? "No data available for the selected filters"
-        : "Wait for it....🫣",
+      ? "Loading report data..."
+      : "No data available for the selected filters",
     pageSizeOptions: [5, 10, 20, 30, 50, 100, "All"],
     enableSorting: false,
     showSerialNumber: false,

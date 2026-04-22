@@ -763,70 +763,72 @@ export function AddDeviceForm({
               )}
             </div>
 
-            <div className="space-y-1">
-              <label className="text-sm font-medium">
-                Subscription Expiry <span className="text-red-500">*</span>
-              </label>
+            {!isEditMode && (
+              <div className="space-y-1">
+                <label className="text-sm font-medium">
+                  Subscription Expiry <span className="text-red-500">*</span>
+                </label>
 
-              <Controller
-                name="expirationdate"
-                control={control}
-                render={({ field }) => {
-                  const selectedDate = field.value
-                    ? new Date(field.value)
-                    : undefined;
+                <Controller
+                  name="expirationdate"
+                  control={control}
+                  render={({ field }) => {
+                    const selectedDate = field.value
+                      ? new Date(field.value)
+                      : undefined;
 
-                  return (
-                    <>
-                      <Popover modal>
-                        <PopoverTrigger asChild>
-                          <Button
-                            variant="outline"
-                            className={`w-full justify-start text-left font-normal ${!field.value ? "text-muted-foreground" : ""
-                              }`}
-                            disabled={isLoading}
+                    return (
+                      <>
+                        <Popover modal>
+                          <PopoverTrigger asChild>
+                            <Button
+                              variant="outline"
+                              className={`w-full justify-start text-left font-normal ${!field.value ? "text-muted-foreground" : ""
+                                }`}
+                              disabled={isLoading}
+                            >
+                              <CalendarIcon className="mr-2 h-4 w-4" />
+                              {field.value ? (
+                                formatDateForUI(field.value)
+                              ) : (
+                                <span>Select expiry date</span>
+                              )}
+                            </Button>
+                          </PopoverTrigger>
+
+                          <PopoverContent
+                            className="w-auto p-0 z-[9999]"
+                            align="start"
                           >
-                            <CalendarIcon className="mr-2 h-4 w-4" />
-                            {field.value ? (
-                              formatDateForUI(field.value)
-                            ) : (
-                              <span>Select expiry date</span>
-                            )}
-                          </Button>
-                        </PopoverTrigger>
+                            <Calendar
+                              mode="single"
+                              selected={selectedDate}
+                              onSelect={(date) => {
+                                if (date) {
+                                  field.onChange(formatDateToZ(date));
+                                }
+                              }}
+                              // disabled={(date) =>
+                              //   date < new Date(new Date().setHours(0, 0, 0, 0))
+                              // }
+                              captionLayout="dropdown"
+                              // startMonth={new Date()}
+                              endMonth={new Date(new Date().getFullYear() + 10, 11)}
+                            />
+                          </PopoverContent>
+                        </Popover>
 
-                        <PopoverContent
-                          className="w-auto p-0 z-[9999]"
-                          align="start"
-                        >
-                          <Calendar
-                            mode="single"
-                            selected={selectedDate}
-                            onSelect={(date) => {
-                              if (date) {
-                                field.onChange(formatDateToZ(date));
-                              }
-                            }}
-                            // disabled={(date) =>
-                            //   date < new Date(new Date().setHours(0, 0, 0, 0))
-                            // }
-                            captionLayout="dropdown"
-                            // startMonth={new Date()}
-                            endMonth={new Date(new Date().getFullYear() + 10, 11)}
-                          />
-                        </PopoverContent>
-                      </Popover>
-
-                      {errors.expirationdate && (
-                        <p className="text-sm text-red-500">
-                          {errors.expirationdate.message}
-                        </p>
-                      )}
-                    </>
-                  );
-                }}
-              />
-            </div>
+                        {errors.expirationdate && (
+                          <p className="text-sm text-red-500">
+                            {errors.expirationdate.message}
+                          </p>
+                        )}
+                      </>
+                    );
+                  }}
+                />
+              </div>
+            )}
 
             <div className="flex items-center gap-2 mt-4">
               <Controller

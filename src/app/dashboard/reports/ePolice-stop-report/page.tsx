@@ -24,10 +24,11 @@ const EPoliceStopReportPage: React.FC = () => {
   const [isDownloading, setIsDownloading] = useState(false);
   const [downloadProgress, setDownloadProgress] = useState(0);
   const [downloadLabel, setDownloadLabel] = useState("");
-  const [tableData, setTableData] = useState<StopReport[]>([]);
+  const [tableData, setTableData] = useState<any[]>([]);
   const [hasGenerated, setHasGenerated] = useState(false);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [showTable, setShowTable] = useState(false);
+  const [selectedDeviceName, setSelectedDeviceName] = useState<string | null>(null);
 
   const [pagination, setPagination] = useState({
     pageIndex: 0,
@@ -90,9 +91,67 @@ const EPoliceStopReportPage: React.FC = () => {
       period: "Custom",
     });
 
+    if (filters.deviceName && typeof filters.deviceName === "string") {
+      setSelectedDeviceName(filters.deviceName || null);
+    }
+
     setHasGenerated(true);
     setShowTable(true);
   }, []);
+
+  // Helper to check if an "address" is actually just coordinates (failed geocoding)
+  const isCoordinateAddress = (address: string | undefined): boolean => {
+    if (!address) return true;
+    const coordPattern = /^-?\d+\.?\d*,\s*-?\d+\.?\d*$/;
+    return coordPattern.test(address.trim());
+  };
+
+  const enrichStopReportIncrementally = async (rows: any[]) => {
+    const CONCURRENCY_LIMIT = 3;
+
+    for (let i = 0; i < rows.length; i += CONCURRENCY_LIMIT) {
+      const chunk = rows.slice(i, i + CONCURRENCY_LIMIT);
+
+      const enrichedChunk = await Promise.all(
+        chunk.map(async (row) => {
+          let location = row.location || "-";
+
+          const needsLocation = isCoordinateAddress(row.location);
+          if (needsLocation && row.latitude && row.longitude) {
+            try {
+              location =
+                (await reverseGeocodeMapTiler(
+                  Number(row.latitude),
+                  Number(row.longitude)
+                )) ||
+                row.location ||
+                "-";
+            } catch (err) {
+              console.error("Failed to fetch location address:", err);
+            }
+          }
+
+          return {
+            _id: row._id,
+            location,
+          };
+        })
+      );
+
+      // Patch the updated rows
+      setTableData((prev) =>
+        prev.map((item) => {
+          const updated = enrichedChunk.find((x) => x._id === item._id);
+          return updated
+            ? {
+                ...item,
+                location: updated.location,
+              }
+            : item;
+        })
+      );
+    }
+  };
 
   useEffect(() => {
     if (!stopReport.length) {
@@ -104,12 +163,55 @@ const EPoliceStopReportPage: React.FC = () => {
     if (lastProcessedRef.current === hash) return;
     lastProcessedRef.current = hash;
 
-    const enrich = async () => {
-      const enriched = await enrichStopReportWithAddress(stopReport);
-      setTableData(enriched);
-    };
+    // Step 1: Pre-calculate times and add stable IDs
+    const preparedRows = stopReport.map((row, idx) => {
+      const arrival = new Date(row.arrivalTime).getTime();
+      const departure = new Date(row.departureTime).getTime();
+      const diffMs = Math.max(departure - arrival, 0);
 
-    enrich();
+      const hours = Math.floor(diffMs / 3600000);
+      const minutes = Math.floor((diffMs % 3600000) / 60000);
+      const seconds = Math.floor((diffMs % 60000) / 1000);
+      const haltTime = `${hours}H ${minutes}M ${seconds}S`;
+
+      const arrivalTime = new Date(row.arrivalTime).toLocaleString("en-IN", {
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
+        hour: "numeric",
+        minute: "2-digit",
+        second: "2-digit",
+        hour12: true,
+      });
+
+      const departureTime = new Date(row.departureTime).toLocaleString(
+        "en-IN",
+        {
+          day: "2-digit",
+          month: "short",
+          year: "numeric",
+          hour: "numeric",
+          minute: "2-digit",
+          second: "2-digit",
+          hour12: true,
+        }
+      );
+
+      return {
+        ...row,
+        _id: `${row.uniqueId}_${row.arrivalTime}_${idx}`,
+        name: selectedDeviceName || row.name || "-",
+        haltTime,
+        arrivalTime,
+        departureTime,
+      };
+    });
+
+    // Step 2: Immediately render formatted data
+    setTableData(preparedRows);
+
+    // Step 3: Background address fetch
+    enrichStopReportIncrementally(preparedRows);
   }, [stopReport]);
 
   const enrichStopReportWithAddress = async (
@@ -262,9 +364,7 @@ const EPoliceStopReportPage: React.FC = () => {
     onColumnVisibilityChange: setColumnVisibility,
     emptyMessage: isFetching
       ? "Loading report data..."
-      : totalStopReport === 0
-        ? "No data available for the selected filters"
-        : "Wait for it....🫣",
+      : "No data available for the selected filters",
     pageSizeOptions: [5, 10, 20, 50, 100, "All"],
     enableSorting: true,
     showSerialNumber: true,

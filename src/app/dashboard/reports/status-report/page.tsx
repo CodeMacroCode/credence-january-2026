@@ -25,7 +25,7 @@ const StatusReportPage: React.FC = () => {
 
   // Table state
   const queryClient = useQueryClient();
-  const [tableData, setTableData] = useState<StatusReport[]>([]);
+  const [tableData, setTableData] = useState<any[]>([]);
 
   // const [shouldFetch, setShouldFetch] = useState(false);
   const [hasGenerated, setHasGenerated] = useState(false);
@@ -95,6 +95,81 @@ const StatusReportPage: React.FC = () => {
     setShowTable(true);
   }, []);
 
+  // Helper to check if an "address" is actually just coordinates (failed geocoding)
+  const isCoordinateAddress = (address: string | undefined): boolean => {
+    if (!address) return true;
+    const coordPattern = /^-?\d+\.?\d*,\s*-?\d+\.?\d*$/;
+    return coordPattern.test(address.trim());
+  };
+
+  const enrichStatusReportIncrementally = async (rows: any[]) => {
+    const CONCURRENCY_LIMIT = 3;
+
+    for (let i = 0; i < rows.length; i += CONCURRENCY_LIMIT) {
+      const chunk = rows.slice(i, i + CONCURRENCY_LIMIT);
+
+      const enrichedChunk = await Promise.all(
+        chunk.map(async (row) => {
+          let startLocation = row.startLocation || "-";
+          let endLocation = row.endLocation || "-";
+
+          const needsStartLocation = isCoordinateAddress(row.startLocation);
+          if (
+            needsStartLocation &&
+            row.startCoordinate.latitude &&
+            row.startCoordinate.longitude
+          ) {
+            try {
+              startLocation =
+                (await reverseGeocodeMapTiler(
+                  row.startCoordinate.latitude,
+                  row.startCoordinate.longitude
+                )) || "-";
+            } catch (err) {
+              console.error("Failed to fetch start location:", err);
+            }
+          }
+
+          const needsEndLocation = isCoordinateAddress(row.endLocation);
+          if (
+            needsEndLocation &&
+            row.endCoordinate.latitude &&
+            row.endCoordinate.longitude
+          ) {
+            try {
+              endLocation =
+                (await reverseGeocodeMapTiler(
+                  row.endCoordinate.latitude,
+                  row.endCoordinate.longitude
+                )) || "-";
+            } catch (err) {
+              console.error("Failed to fetch end location:", err);
+            }
+          }
+
+          return {
+            _id: row._id,
+            startLocation,
+            endLocation,
+          };
+        })
+      );
+
+      setTableData((prev) =>
+        prev.map((item) => {
+          const updated = enrichedChunk.find((x) => x._id === item._id);
+          return updated
+            ? {
+                ...item,
+                startLocation: updated.startLocation,
+                endLocation: updated.endLocation,
+              }
+            : item;
+        })
+      );
+    }
+  };
+
   useEffect(() => {
     if (!statusReport?.length) {
       if (tableData.length !== 0) setTableData([]);
@@ -103,12 +178,17 @@ const StatusReportPage: React.FC = () => {
     const currentHash = JSON.stringify(statusReport);
     if (lastProcessedRef.current === currentHash) return;
     lastProcessedRef.current = currentHash;
-    const enrich = async () => {
-      const enriched = await enrichStatusReportWithAddress(statusReport);
-      setTableData(enriched);
-    };
 
-    enrich();
+    const rowsWithIds = statusReport.map((row, idx) => ({
+      ...row,
+      _id: `${row.uniqueId}_${row.startDateTime}_${idx}`,
+    }));
+
+    // Step 1: immediately render backend data
+    setTableData(rowsWithIds);
+
+    // Step 2: background me address fetch karo
+    enrichStatusReportIncrementally(rowsWithIds);
   }, [statusReport]);
 
   const fetchStatusReportForExport = async (): Promise<StatusReport[]> => {
@@ -282,9 +362,7 @@ const StatusReportPage: React.FC = () => {
     onColumnVisibilityChange: setColumnVisibility,
     emptyMessage: isFetchingStatusReport
       ? "Loading report data..."
-      : totalStatusReport === 0
-        ? "No data available for the selected filters"
-        : "Wait for it....🫣",
+      : "No data available for the selected filters",
     pageSizeOptions: [5, 10, 20, 30, 50, 100, 200, 500, "All"],
     enableSorting: true,
     showSerialNumber: true,
