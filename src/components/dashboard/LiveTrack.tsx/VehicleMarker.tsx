@@ -36,6 +36,7 @@ export const VehicleMarker: React.FC<VehicleMarkerProps> = React.memo(
       attributes: vehicle.attributes,
       category: vehicle.category,
       deviceCategory: vehicle.deviceCategory,
+      state: vehicle.state,
     });
 
     // Get marker icon

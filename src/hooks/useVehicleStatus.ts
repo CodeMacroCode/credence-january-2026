@@ -19,6 +19,7 @@ interface UseVehicleStatusProps {
   attributes: VehicleAttributes;
   category: string;
   deviceCategory: string;
+  state: string;
 }
 
 export type VehicleStatus =
@@ -37,36 +38,31 @@ export const useVehicleStatus = ({
   longitude,
   attributes,
   category,
+  state,
 }: UseVehicleStatusProps): VehicleStatus => {
   return useMemo(() => {
-    // Check if vehicle has no data
     if (latitude === 0 && longitude === 0) return "noData";
 
-    // Check if vehicle is inactive
     const lastUpdateTime = new Date(lastUpdate).getTime();
     const currentTime = new Date().getTime();
     const timeDifference = currentTime - lastUpdateTime;
     const thirtyFiveHoursInMs = 35 * 60 * 60 * 1000;
 
     if (category === "inactive") return "inactive";
+    if (timeDifference > thirtyFiveHoursInMs) return "inactive";
 
-    // Check for overspeeding
     const parsedSpeedLimit = parseFloat(speedLimit) || 60;
     if (speed > parsedSpeedLimit) return "overspeeding";
 
-    // Determine status based on ignition and speed
-    const { ignition } = attributes;
-
-    if (ignition === true) {
-      if (speed > 5 && speed < parsedSpeedLimit) {
+    switch (state) {
+      case "running":
         return "running";
-      } else {
+      case "idle":
         return "idle";
-      }
-    } else if (ignition === false) {
-      return "stopped";
+      case "stopped":
+        return "stopped";
+      default:
+        return "noData";
     }
-
-    return "noData";
-  }, [speed, speedLimit, lastUpdate, latitude, longitude, attributes]);
+  }, [speed, speedLimit, lastUpdate, latitude, longitude, attributes, state]);
 };
