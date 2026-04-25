@@ -434,10 +434,18 @@ function HistoryReportContent() {
 
   const handleDateFilter = useMemo(
     () => (startDate: Date | null, endDate: Date | null) => {
+      if (!startDate || !endDate) return;
       const formattedStart = formatDateToYYYYMMDD(startDate);
       const formattedEnd = formatDateToYYYYMMDD(endDate);
-      setFromDate(formattedStart + "T00:00:00.000Z");
-      setToDate(formattedEnd + "T23:59:59.000Z");
+
+      const startHours = startDate.getHours().toString().padStart(2, "0");
+      const startMinutes = startDate.getMinutes().toString().padStart(2, "0");
+
+      const endHours = endDate.getHours().toString().padStart(2, "0");
+      const endMinutes = endDate.getMinutes().toString().padStart(2, "0");
+
+      setFromDate(`${formattedStart}T${startHours}:${startMinutes}:00.000Z`);
+      setToDate(`${formattedEnd}T${endHours}:${endMinutes}:59.000Z`);
     },
     []
   );
@@ -594,17 +602,14 @@ function HistoryReportContent() {
 
         // ✅ Set default date range for DateRangeFilter
         const today = new Date();
+        const start = new Date(today);
+        start.setHours(0, 0, 0, 0);
+        const end = new Date(today);
+        // End is now (current time)
+
         setDefaultDateRange({
-          startDate: new Date(
-            today.getFullYear(),
-            today.getMonth(),
-            today.getDate()
-          ),
-          endDate: new Date(
-            today.getFullYear(),
-            today.getMonth(),
-            today.getDate()
-          ),
+          startDate: start,
+          endDate: end,
         });
 
         setHasGenerated(true);
@@ -717,6 +722,7 @@ function HistoryReportContent() {
                 maxDays={7}
                 defaultStartDate={defaultDateRange?.startDate}
                 defaultEndDate={defaultDateRange?.endDate}
+                showTime={true}
               />
               <Button className="cursor-pointer" onClick={handleShow}>
                 Show
