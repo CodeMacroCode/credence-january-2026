@@ -1010,82 +1010,91 @@ export const ReportFilter: React.FC<ReportFilterProps> = ({
 
   return (
     <Card className={`w-full shadow-sm ${className}`}>
-      <CardHeader>
-        <div className="flex justify-between">
+      <CardHeader className="pb-4">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div className="flex items-center gap-2">
             <div className="p-2 rounded-lg bg-primary/10">
               <Filter className="h-5 w-5 text-primary" />
             </div>
             <div>
-              <CardTitle className="text-xl font-semibold">
+              <CardTitle className="text-xl font-semibold leading-none">
                 {mergedConfig.cardTitle}
               </CardTitle>
+              {mergedConfig.cardDescription && (
+                <p className="text-sm text-muted-foreground mt-1">
+                  {mergedConfig.cardDescription}
+                </p>
+              )}
             </div>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
             <Button
               variant="ghost"
               size="sm"
-              className="text-muted-foreground hover:text-destructive gap-2 h-9 px-3"
+              className="text-muted-foreground hover:text-destructive gap-2 h-9 px-3 flex-1 sm:flex-none justify-center"
               onClick={handleClearFilters}
             >
               <X className="h-4 w-4" />
-              Clear Filters
+              <span className="sm:inline">Clear Filters</span>
             </Button>
             {table && mergedConfig.showColumnVisibility && (
-              <ColumnVisibilitySelector
-                columns={table.getAllColumns()}
-                buttonVariant="outline"
-                buttonSize="default"
-                className="cursor-pointer"
-              />
+              <div className="flex-1 sm:flex-none">
+                <ColumnVisibilitySelector
+                  columns={table.getAllColumns()}
+                  buttonVariant="outline"
+                  buttonSize="default"
+                  className="cursor-pointer w-full"
+                />
+              </div>
             )}
             {mergedConfig.showExport && onExportClick && (
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button
-                    variant="outline"
-                    size="lg"
-                    className=" flex items-center gap-2 cursor-pointer"
-                    disabled={!isValid}
-                  >
-                    <Download className="h-4 w-4" />
-                    Export
-                  </Button>
-                </DropdownMenuTrigger>
-
-                <DropdownMenuContent align="end">
-                  {mergedConfig.exportOptions?.includes("excel") && (
-                    <DropdownMenuItem
-                      className="cursor-pointer"
-                      onClick={() => onExportClick("excel")}
+              <div className="flex-1 sm:flex-none">
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      variant="outline"
+                      size="default"
+                      className="w-full flex items-center gap-2 cursor-pointer"
+                      disabled={!isValid}
                     >
-                      Export as Excel
-                    </DropdownMenuItem>
-                  )}
+                      <Download className="h-4 w-4" />
+                      Export
+                    </Button>
+                  </DropdownMenuTrigger>
 
-                  {mergedConfig.exportOptions?.includes("pdf") && (
-                    <DropdownMenuItem
-                      className="cursor-pointer"
-                      onClick={() => onExportClick("pdf")}
-                    >
-                      Export as PDF
-                    </DropdownMenuItem>
-                  )}
-                </DropdownMenuContent>
-              </DropdownMenu>
+                  <DropdownMenuContent align="end" className="w-48">
+                    {mergedConfig.exportOptions?.includes("excel") && (
+                      <DropdownMenuItem
+                        className="cursor-pointer"
+                        onClick={() => onExportClick("excel")}
+                      >
+                        Export as Excel
+                      </DropdownMenuItem>
+                    )}
+
+                    {mergedConfig.exportOptions?.includes("pdf") && (
+                      <DropdownMenuItem
+                        className="cursor-pointer"
+                        onClick={() => onExportClick("pdf")}
+                      >
+                        Export as PDF
+                      </DropdownMenuItem>
+                    )}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
             )}
           </div>
         </div>
       </CardHeader>
 
-      <CardContent className="space-y-4">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-3 sm:gap-4">
+      <CardContent>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4">
           {/* School Selector */}
           {mergedConfig.showSchool && role === "superAdmin" && (
             <div className="space-y-2">
-              <label className="text-sm font-medium flex items-center gap-2">
-                <Building2 className="h-4 w-4 text-muted-foreground" />
+              <label className="text-sm font-medium flex items-center gap-2 text-foreground/80">
+                <Building2 className="h-4 w-4 text-primary/70" />
                 Admin{mergedConfig.multiSelectSchool && "s"}
               </label>
               <Combobox
@@ -1124,8 +1133,8 @@ export const ReportFilter: React.FC<ReportFilterProps> = ({
               role === "school" ||
               role === "branchGroup") && (
               <div className="space-y-2">
-                <label className="text-sm font-medium flex items-center gap-2">
-                  <GitBranch className="h-4 w-4 text-muted-foreground" />
+                <label className="text-sm font-medium flex items-center gap-2 text-foreground/80">
+                  <GitBranch className="h-4 w-4 text-primary/70" />
                   User{mergedConfig.multiSelectBranch && "es"}
                 </label>
                 <Combobox
@@ -1172,8 +1181,8 @@ export const ReportFilter: React.FC<ReportFilterProps> = ({
           {/* Device Selector */}
           {mergedConfig.showDevice && (
             <div className="space-y-2">
-              <label className="text-sm font-medium flex items-center gap-2">
-                <Car className="h-4 w-4 text-muted-foreground" />
+              <label className="text-sm font-medium flex items-center gap-2 text-foreground/80">
+                <Car className="h-4 w-4 text-primary/70" />
                 Vehicle{mergedConfig.multiSelectDevice && "s"}
               </label>
               <Combobox
@@ -1221,8 +1230,8 @@ export const ReportFilter: React.FC<ReportFilterProps> = ({
           {/* Date Range Filter */}
           {mergedConfig.showDateRange && (
             <div className="space-y-2 cursor-pointer">
-              <label className="text-sm font-medium flex items-center gap-2">
-                <Calendar className="h-4 w-4 text-muted-foreground cursor-pointer" />
+              <label className="text-sm font-medium flex items-center gap-2 text-foreground/80">
+                <Calendar className="h-4 w-4 text-primary/70 cursor-pointer" />
                 {mergedConfig.dateRangeTitle || "Date Range"}
               </label>
               <DateRangeFilter
@@ -1235,8 +1244,8 @@ export const ReportFilter: React.FC<ReportFilterProps> = ({
           {/* Single Date Picker */}
           {mergedConfig.showSingleDate && (
             <div className="space-y-2 cursor-pointer">
-              <label className="text-sm font-medium flex items-center gap-2">
-                <Calendar className="h-4 w-4 text-muted-foreground cursor-pointer" />
+              <label className="text-sm font-medium flex items-center gap-2 text-foreground/80">
+                <Calendar className="h-4 w-4 text-primary/70 cursor-pointer" />
                 {mergedConfig.singleDateTitle || "Date"}
               </label>
               <DatePicker
@@ -1250,14 +1259,16 @@ export const ReportFilter: React.FC<ReportFilterProps> = ({
 
           {/* Submit Button */}
           {mergedConfig.showSubmitButton && (
-            <Button
-              onClick={handleSubmit}
-              disabled={!isValid || mergedConfig.submitButtonDisabled}
-              className="px-6 cursor-pointer mt-6 text-white"
-              size="lg"
-            >
-              {mergedConfig.submitButtonText}
-            </Button>
+            <div className="flex items-end">
+              <Button
+                onClick={handleSubmit}
+                disabled={!isValid || mergedConfig.submitButtonDisabled}
+                className="w-full text-white cursor-pointer"
+                size="lg"
+              >
+                {mergedConfig.submitButtonText}
+              </Button>
+            </div>
           )}
         </div>
       </CardContent>
