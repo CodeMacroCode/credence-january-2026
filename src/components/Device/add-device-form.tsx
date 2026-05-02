@@ -80,6 +80,7 @@ export function AddDeviceForm({
       odometer: 0,
       keyFeature: false,
       expirationdate: "",
+      password: "",
     },
   });
 
@@ -133,8 +134,10 @@ export function AddDeviceForm({
   const {
     createDevice,
     updateDevice,
+    updateExpirationDate,
     isCreateDeviceLoading,
     isUpdateDeviceLoading,
+    isUpdateExpirationLoading,
   } = useAddDeviceNew(pagination, sorting, filters);
   const { mutateAsync: createOldDevice } = useAddDeviceOld();
 
@@ -173,6 +176,7 @@ export function AddDeviceForm({
         odometer: editData.odometer || 0,
         keyFeature: editData.keyFeature ?? false,
         expirationdate: editData.expirationdate || "",
+        password: "",
       });
     } else if (open && !editData) {
       reset({
@@ -190,6 +194,7 @@ export function AddDeviceForm({
         odometer: 0,
         keyFeature: false,
         expirationdate: "",
+        password: "",
       });
     }
   }, [open, editData, reset]);
@@ -346,6 +351,17 @@ export function AddDeviceForm({
         // UPDATE NEW API
         await updateDevice({ id: editData._id, payload });
 
+        // UPDATE EXPIRATION VIA NEW SPI IF CHANGED
+        if (data.expirationdate !== editData.expirationdate) {
+          await updateExpirationDate({
+            uniqueIds: [data.uniqueId],
+            payload: {
+              expirationdate: data.expirationdate,
+              password: data.password || "123456",
+            },
+          });
+        }
+
         // UPDATE OLD API IF deviceId EXISTS
         if (editData.deviceId) {
           const { updateDeviceOld } = await import(
@@ -400,11 +416,11 @@ export function AddDeviceForm({
       reset();
     } catch (error: any) {
       console.error("❌ Form submission error:", error);
-      toast.error(error?.message || "Failed to process device request");
+      toast.error(error?.response?.data?.message || error?.message || "Failed to process device request");
     }
   };
 
-  const isLoading = isCreateDeviceLoading || isUpdateDeviceLoading;
+  const isLoading = isCreateDeviceLoading || isUpdateDeviceLoading || isUpdateExpirationLoading;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -418,10 +434,19 @@ export function AddDeviceForm({
         <form
           onSubmit={handleSubmit(onSubmit, (errors) => {
             console.log("❌ Form Validation Errors:", errors);
-            const errorMessages = Object.entries(errors)
-              .map(([field, err]) => `${field}: ${err?.message || "Invalid"}`)
-              .join(", ");
-            toast.error(`Please check the form for errors: ${errorMessages}`);
+            const errorMessages = Object.values(errors)
+              .map((err) => err?.message)
+              .filter(Boolean);
+
+            toast.error("Please check the form for errors", {
+              description: (
+                <ul className="list-disc pl-4 mt-2">
+                  {errorMessages.map((msg, index) => (
+                    <li key={index}>{msg as string}</li>
+                  ))}
+                </ul>
+              ),
+            });
           })}
           className="space-y-4"
         >
@@ -763,72 +788,92 @@ export function AddDeviceForm({
               )}
             </div>
 
-            {!isEditMode && (
-              <div className="space-y-1">
-                <label className="text-sm font-medium">
-                  Subscription Expiry <span className="text-red-500">*</span>
-                </label>
+            <div className="space-y-1">
+              <Label>
+                Subscription Expiry <span className="text-red-500">*</span>
+              </Label>
 
-                <Controller
-                  name="expirationdate"
-                  control={control}
-                  render={({ field }) => {
-                    const selectedDate = field.value
-                      ? new Date(field.value)
-                      : undefined;
+              <Controller
+                name="expirationdate"
+                control={control}
+                render={({ field }) => {
+                  const selectedDate = field.value
+                    ? new Date(field.value)
+                    : undefined;
 
-                    return (
-                      <>
-                        <Popover modal>
-                          <PopoverTrigger asChild>
-                            <Button
-                              variant="outline"
-                              className={`w-full justify-start text-left font-normal ${!field.value ? "text-muted-foreground" : ""
-                                }`}
-                              disabled={isLoading}
-                            >
-                              <CalendarIcon className="mr-2 h-4 w-4" />
-                              {field.value ? (
-                                formatDateForUI(field.value)
-                              ) : (
-                                <span>Select expiry date</span>
-                              )}
-                            </Button>
-                          </PopoverTrigger>
-
-                          <PopoverContent
-                            className="w-auto p-0 z-[9999]"
-                            align="start"
+                  return (
+                    <>
+                      <Popover modal>
+                        <PopoverTrigger asChild>
+                          <Button
+                            variant="outline"
+                            className={`w-full justify-start text-left font-normal ${!field.value ? "text-muted-foreground" : ""
+                              }`}
+                            disabled={isLoading}
                           >
-                            <Calendar
-                              mode="single"
-                              selected={selectedDate}
-                              onSelect={(date) => {
-                                if (date) {
-                                  field.onChange(formatDateToZ(date));
-                                }
-                              }}
-                              // disabled={(date) =>
-                              //   date < new Date(new Date().setHours(0, 0, 0, 0))
-                              // }
-                              captionLayout="dropdown"
-                              // startMonth={new Date()}
-                              endMonth={new Date(new Date().getFullYear() + 10, 11)}
-                            />
-                          </PopoverContent>
-                        </Popover>
+                            <CalendarIcon className="mr-2 h-4 w-4" />
+                            {field.value ? (
+                              formatDateForUI(field.value)
+                            ) : (
+                              <span>Select expiry date</span>
+                            )}
+                          </Button>
+                        </PopoverTrigger>
 
-                        {errors.expirationdate && (
-                          <p className="text-sm text-red-500">
-                            {errors.expirationdate.message}
-                          </p>
-                        )}
-                      </>
-                    );
-                  }}
-                />
-              </div>
-            )}
+                        <PopoverContent
+                          className="w-auto p-0 z-[9999]"
+                          align="start"
+                        >
+                          <Calendar
+                            mode="single"
+                            selected={selectedDate}
+                            onSelect={(date) => {
+                              if (date) {
+                                field.onChange(formatDateToZ(date));
+                              }
+                            }}
+                            // disabled={(date) =>
+                            //   date < new Date(new Date().setHours(0, 0, 0, 0))
+                            // }
+                            captionLayout="dropdown"
+                            // startMonth={new Date()}
+                            endMonth={new Date(new Date().getFullYear() + 10, 11)}
+                          />
+                        </PopoverContent>
+                      </Popover>
+
+                      {errors.expirationdate && (
+                        <p className="text-sm text-red-500">
+                          {errors.expirationdate.message}
+                        </p>
+                      )}
+                    </>
+                  );
+                }}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="password">
+                Subscription Password <span className="text-muted-foreground">(Optional)</span>
+              </Label>
+              <Controller
+                name="password"
+                control={control}
+                render={({ field }) => (
+                  <Input
+                    {...field}
+                    id="password"
+                    type="password"
+                    placeholder="Enter password for subscription update"
+                    disabled={isLoading}
+                  />
+                )}
+              />
+              {errors.password && (
+                <p className="text-sm text-red-500">{errors.password.message}</p>
+              )}
+            </div>
 
             <div className="flex items-center gap-2 mt-4">
               <Controller

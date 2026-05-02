@@ -14,7 +14,8 @@ export const deviceSchema = z.object({
   average: z.coerce.number().optional(),
   odometer: z.coerce.number().min(0, "Odometer cannot be negative").optional(),
   keyFeature: z.boolean(),
-  expirationdate: z.string().optional(),
+  expirationdate: z.string().min(1, "Subscription Expiry is required"),
+  password: z.string().optional(),
 });
 
 export type DeviceFormData = z.infer<typeof deviceSchema>;
