@@ -69,8 +69,10 @@ export const DatePicker: React.FC<DatePickerProps> = ({
             disabled={disabled}
             className={cn("w-48 justify-between font-normal", className)}
           >
-            {date ? date.toLocaleDateString("en-GB") : placeholder}
-            <ChevronDownIcon className="h-4 w-4 opacity-50" />
+            <span className="truncate">
+              {date ? date.toLocaleDateString("en-GB") : placeholder}
+            </span>
+            <ChevronDownIcon className="h-4 w-4 shrink-0 opacity-50" />
           </Button>
         </PopoverTrigger>
 

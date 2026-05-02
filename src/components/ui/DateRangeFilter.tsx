@@ -502,15 +502,17 @@ const DateRangeFilter: React.FC<DateRangeFilterProps> = ({
       <PopoverTrigger asChild>
         <Button
           variant="outline"
-          className="justify-start text-left font-normal cursor-pointer w-full cursor-pointer"
+          className="justify-start text-left font-normal cursor-pointer w-full"
         >
-          <Calendar className="mr-2 h-4 w-4" />
-          {selectedStartDate && selectedEndDate
-            ? `${formatDate(selectedStartDate, startTime)} - ${formatDate(
-              selectedEndDate,
-              endTime
-            )}`
-            : title}
+          <Calendar className="mr-2 h-4 w-4 shrink-0" />
+          <span className="truncate">
+            {selectedStartDate && selectedEndDate
+              ? `${formatDate(selectedStartDate, startTime)} - ${formatDate(
+                selectedEndDate,
+                endTime
+              )}`
+              : title}
+          </span>
         </Button>
       </PopoverTrigger>
 
