@@ -20,6 +20,7 @@ import { useExport } from "@/hooks/useExport";
 import api from "@/lib/axios";
 import { parseUniqueIds } from "@/util/parseUniqueIds";
 import { useDistanceReport } from "@/hooks/reports/useDistanceReport";
+import { useDeviceDropdownWithUniqueId } from "@/hooks/useDropdown";
 import { toast } from "sonner";
 
 const DistanceReportPage: React.FC = () => {
@@ -27,7 +28,7 @@ const DistanceReportPage: React.FC = () => {
   const queryClient = useQueryClient();
   const [shouldFetch, setShouldFetch] = useState(false);
   const [hasGenerated, setHasGenerated] = useState(false);
-  const [cashedDeviceId, setCashedDeviceId] = useState<string | null>(null);
+  // Removed cashedDeviceId state in favor of direct hook usage
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [showTable, setShowTable] = useState(false);
   const [pagination, setPagination] = useState({ pageIndex: 0, pageSize: 10 });
@@ -62,6 +63,13 @@ const DistanceReportPage: React.FC = () => {
   const distanceReport = data?.data;
   const totalDistanceReport = data?.total;
 
+  // Explicitly fetch the mapping data to ensure we always have vehicle names
+  const { data: deviceMapping } = useDeviceDropdownWithUniqueId(
+    apiFilters.branchId,
+    apiFilters.schoolId,
+    hasGenerated
+  );
+
   const { exportToPDF, exportToExcel } = useExport();
 
   // Handle filter submission
@@ -93,13 +101,6 @@ const DistanceReportPage: React.FC = () => {
     // Show table
     setShowTable(true);
   }, []);
-
-  useEffect(() => {
-    const cachedDevices = queryClient.getQueryData<
-      { _id: string; name: string; uniqueId: string }[]
-    >(["device-dropdown-uniqueId", apiFilters.branchId]);
-    setCashedDeviceId(cachedDevices?.data?.data);
-  }, [distanceReport]);
 
   useEffect(() => {
     if (!isFetchingDistanceReport && shouldFetch) {
@@ -153,23 +154,41 @@ const DistanceReportPage: React.FC = () => {
   };
 
 
+  // Helper to map vehicle names from cache
+  const mapVehicleNames = useCallback((rows: any[], cachedDevices: any[]) => {
+    if (!rows.length || !cachedDevices?.length) return rows;
+
+    const deviceMap = new Map<string, string>();
+    cachedDevices.forEach((device) => {
+      if (device.uniqueId && device.name) {
+        deviceMap.set(String(device.uniqueId), device.name.trim());
+      }
+    });
+
+    return rows.map((row) => {
+      const rowUniqueId = String(row.uniqueId || "");
+      const dropdownName = deviceMap.get(rowUniqueId);
+      
+      // Use dropdown name if row.name is missing, null, "null", or just the uniqueId
+      const useFallback = !row.name || 
+                          row.name === "null" || 
+                          row.name === rowUniqueId || 
+                          String(row.name).trim() === "";
+      
+      return {
+        ...row,
+        name: useFallback && dropdownName ? dropdownName : (row.name && row.name !== "null" ? row.name : (dropdownName || rowUniqueId)),
+      };
+    });
+  }, []);
+
   const handleExportPDF = async () => {
     try {
       setIsDownloading(true);
       updateProgress(5, "Fetching distance data");
 
       let rawData = await fetchDistanceReportForExport();
-
-      if (rawData?.length && cashedDeviceId?.length) {
-        const deviceMap = new Map<string, string>();
-        (cashedDeviceId as any).forEach((device: any) => {
-          deviceMap.set(String(device.uniqueId), device.name.trim());
-        });
-        rawData = rawData.map((row: any) => ({
-          ...row,
-          name: deviceMap.get(String(row.uniqueId)) ?? row.name,
-        }));
-      }
+      rawData = mapVehicleNames(rawData, deviceMapping || []);
 
       updateProgress(40, "Preparing report");
       const { data, columns } = prepareDistanceExport(rawData);
@@ -197,17 +216,7 @@ const DistanceReportPage: React.FC = () => {
       setIsDownloading(true);
       updateProgress(5, "Fetching report data");
       let exportData = await fetchDistanceReportForExport();
-
-      if (exportData?.length && cashedDeviceId?.length) {
-        const deviceMap = new Map<string, string>();
-        (cashedDeviceId as any).forEach((device: any) => {
-          deviceMap.set(String(device.uniqueId), device.name.trim());
-        });
-        exportData = exportData.map((row: any) => ({
-          ...row,
-          name: deviceMap.get(String(row.uniqueId)) ?? row.name,
-        }));
-      }
+      exportData = mapVehicleNames(exportData, deviceMapping || []);
 
       updateProgress(60, "Resolving locations");
       const { data, columns } = prepareDistanceExport(exportData);
@@ -290,20 +299,8 @@ const DistanceReportPage: React.FC = () => {
   }, [distanceReport, isFetchingDistanceReport]);
 
   const finalDistanceReport = useMemo(() => {
-    if (!distanceReport?.length || !cashedDeviceId?.length) {
-      return distanceReport ?? [];
-    }
-    // build lookup map: uniqueId -> name
-    const deviceMap = new Map<string, string>();
-    cashedDeviceId.forEach((device) => {
-      deviceMap.set(String(device.uniqueId), device.name.trim());
-    });
-    // return NEW array (no mutation)
-    return distanceReport.map((row) => ({
-      ...row,
-      name: deviceMap.get(String(row.uniqueId)) ?? row.name,
-    }));
-  }, [distanceReport, cashedDeviceId]);
+    return mapVehicleNames(distanceReport ?? [], deviceMapping || []);
+  }, [distanceReport, deviceMapping, mapVehicleNames]);
 
   // Table configuration
   const { table, tableElement } = CustomTableServerSidePagination({
