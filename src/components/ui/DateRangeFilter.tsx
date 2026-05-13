@@ -518,7 +518,7 @@ const DateRangeFilter: React.FC<DateRangeFilterProps> = ({
 
       <PopoverContent className="w-auto p-0 z-[9999]" align="start">
         <div className="flex">
-          <div className="border-r p-4 w-48">
+          <div className="border-r p-3 w-36">
             <div className="space-y-1">
               {presets.map((preset) => (
                 <Button
@@ -526,7 +526,7 @@ const DateRangeFilter: React.FC<DateRangeFilterProps> = ({
                   variant="ghost"
                   disabled={preset.disabled}
                   className={cn(
-                    "w-full justify-start h-8 px-2 font-normal cursor-pointer",
+                    "w-full justify-start h-7 px-2 text-xs font-normal cursor-pointer",
                     isPresetActive(preset.label) &&
                     "bg-accent text-accent-foreground",
                     preset.disabled && "opacity-50 cursor-not-allowed"
@@ -549,8 +549,8 @@ const DateRangeFilter: React.FC<DateRangeFilterProps> = ({
             )}
           </div>
 
-          <div className="p-4">
-            <div className="flex items-center justify-between mb-4">
+          <div className="p-3">
+            <div className="flex items-center justify-between mb-2">
               <Button
                 variant="ghost"
                 size="sm"
@@ -572,7 +572,7 @@ const DateRangeFilter: React.FC<DateRangeFilterProps> = ({
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="font-semibold px-2 h-auto cursor-pointer"
+                    className="font-semibold px-1 h-7 text-xs cursor-pointer"
                     onClick={() => setShowMonthSelector(!showMonthSelector)}
                   >
                     {months[currentMonth.getMonth()]}{" "}
@@ -590,7 +590,7 @@ const DateRangeFilter: React.FC<DateRangeFilterProps> = ({
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="font-semibold px-2 h-auto cursor-pointer"
+                    className="font-semibold px-1 h-7 text-xs cursor-pointer"
                     onClick={() => setShowYearSelector(!showYearSelector)}
                   >
                     {currentMonth.getFullYear()}{" "}
@@ -626,7 +626,7 @@ const DateRangeFilter: React.FC<DateRangeFilterProps> = ({
               {["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"].map((day) => (
                 <div
                   key={day}
-                  className="text-center text-sm font-medium text-muted-foreground py-2"
+                  className="text-center text-[10px] font-medium text-muted-foreground py-1"
                 >
                   {day}
                 </div>
@@ -649,7 +649,7 @@ const DateRangeFilter: React.FC<DateRangeFilterProps> = ({
                     disabled={disabled}
                     onClick={() => handleDateClick(date)}
                     className={cn(
-                      "h-8 w-8 p-0 font-normal cursor-pointer",
+                      "h-7 w-7 p-0 text-xs font-normal cursor-pointer",
                       !isCurrentMonth && "text-muted-foreground opacity-50",
                       isSelected &&
                       "bg-primary hover:bg-primary hover:text-white text-white hover:scale-105",
@@ -685,9 +685,9 @@ const DateRangeFilter: React.FC<DateRangeFilterProps> = ({
                 onClick={(e) => {
                   try {
                     e.currentTarget.showPicker();
-                  } catch (err) {}
+                  } catch (err) { }
                 }}
-                className="h-8 cursor-pointer"
+                className="h-7 text-xs cursor-pointer"
               />
             </div>
             <div className="flex flex-col gap-1.5 flex-1">
@@ -705,9 +705,9 @@ const DateRangeFilter: React.FC<DateRangeFilterProps> = ({
                 onClick={(e) => {
                   try {
                     e.currentTarget.showPicker();
-                  } catch (err) {}
+                  } catch (err) { }
                 }}
-                className="h-8 cursor-pointer"
+                className="h-7 text-xs cursor-pointer"
               />
             </div>
           </div>
@@ -719,9 +719,10 @@ const DateRangeFilter: React.FC<DateRangeFilterProps> = ({
           </div>
         )}
 
-        <div className="flex justify-end gap-2 p-4 border-t">
+        <div className="flex justify-end gap-2 p-3 border-t">
           <Button
             variant="outline"
+            size="sm"
             className="cursor-pointer"
             onClick={() => setIsOpen(false)}
           >
@@ -729,12 +730,13 @@ const DateRangeFilter: React.FC<DateRangeFilterProps> = ({
           </Button>
           <Button
             variant="destructive"
+            size="sm"
             className="cursor-pointer"
             onClick={handleClear}
           >
             Clear
           </Button>
-          <Button className="cursor-pointer text-white" onClick={handleApply}>
+          <Button size="sm" className="cursor-pointer text-white" onClick={handleApply}>
             Apply
           </Button>
         </div>
