@@ -25,6 +25,7 @@ import {
   GeofenceEventFlat,
 } from "@/interface/modal";
 import { TravelTable } from "@/components/travel-summary/TravelTable";
+import { useDeviceDropdownWithUniqueId } from "@/hooks/useDropdown";
 
 const GeofenceAlertsReportPage: React.FC = () => {
   const queryClient = useQueryClient();
@@ -52,9 +53,11 @@ const GeofenceAlertsReportPage: React.FC = () => {
   });
 
   // Device mapping state
-  const [cashedDeviceId, setCashedDeviceId] = useState<
-    { _id: string; name: string; uniqueId: string }[] | null
-  >(null);
+  const { data: devices } = useDeviceDropdownWithUniqueId(
+    apiFilters.branchId,
+    apiFilters.schoolId,
+    hasGenerated
+  );
 
   // Fetch report data using the hook
   const {
@@ -62,16 +65,6 @@ const GeofenceAlertsReportPage: React.FC = () => {
     totalGeofenceAlertsReport,
     isFetchingGeofenceAlertsReport,
   } = useReport(pagination, apiFilters, sorting, "geofence-alerts", hasGenerated);
-
-  // Populate device mapping from cache
-  useEffect(() => {
-    if (hasGenerated) {
-      const cachedDevices = queryClient.getQueryData<any>(
-        ["device-dropdown-uniqueId", apiFilters.branchId]
-      );
-      setCashedDeviceId(cachedDevices?.data?.data || cachedDevices || null);
-    }
-  }, [geofenceAlertsReport, hasGenerated, queryClient, apiFilters.branchId]);
 
   // Group events by uniqueId and map vehicle names
   const groupedGeofenceReport = useMemo((): GeofenceGroup[] => {
@@ -81,8 +74,8 @@ const GeofenceAlertsReportPage: React.FC = () => {
 
     geofenceAlertsReport.forEach((item: GeofenceEventFlat) => {
       if (!groups[item.uniqueId]) {
-        const matchedDevice = cashedDeviceId?.find(
-          (device) => String(device.uniqueId) === String(item.uniqueId)
+        const matchedDevice = devices?.find(
+          (device: any) => String(device.uniqueId) === String(item.uniqueId)
         );
 
         groups[item.uniqueId] = {
@@ -101,7 +94,7 @@ const GeofenceAlertsReportPage: React.FC = () => {
       ...group,
       sn: pagination.pageIndex * pagination.pageSize + index + 1,
     }));
-  }, [geofenceAlertsReport, cashedDeviceId, pagination.pageIndex, pagination.pageSize]);
+  }, [geofenceAlertsReport, devices, pagination.pageIndex, pagination.pageSize]);
 
   // Toggle row expansion
   const toggleRowExpansion = useCallback((rowId: string) => {
