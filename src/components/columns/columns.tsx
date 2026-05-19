@@ -735,6 +735,32 @@ export const getLiveVehicleColumns = (userRole?: string): ColumnDef<LiveTrack>[]
     enableSorting: true,
   },
   {
+    id: "uniqueId",
+    header: "Unique ID",
+    accessorFn: (row: any) => row.uniqueId ?? "N/A",
+    meta: {
+      wrapConfig: {
+        wrap: "break-word",
+        maxWidth: "200px",
+      },
+    },
+    enableHiding: true,
+    enableSorting: true,
+  },
+  {
+    id: "sim",
+    header: "Sim",
+    accessorFn: (row: any) => row.sim ?? "N/A",
+    meta: {
+      wrapConfig: {
+        wrap: "break-word",
+        maxWidth: "200px",
+      },
+    },
+    enableHiding: true,
+    enableSorting: true,
+  },
+  {
     id: "lastUpdate",
     header: "Last Update",
     accessorFn: (row: any) => row.lastUpdate ?? "N/A",
